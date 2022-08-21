@@ -22,6 +22,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserService {
@@ -91,6 +92,10 @@ public class UserService {
     public UserDetailsDTO addNewUser(ManageUserDTO newUser, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) throw new ArgumentNotValidException(bindingResult);
         newUser.setName(newUser.getName().trim());
+        newUser.setEmail(newUser.getEmail().trim());
+        if(newUser.getRole() == null || Objects.equals(newUser.getRole(), "")){
+            newUser.setRole(String.valueOf(Role.student));
+        }
         User user = modelMapper.map(newUser,User.class);
         if (newUser.getName() != null && userRepository.existsByName(newUser.getName())
         ) {
@@ -123,7 +128,7 @@ public class UserService {
             existingUser.setEmail(updateUser.getEmail().trim());
         }
         if (updateUser.getRole() != null) {
-            existingUser.setRole(updateUser.getRole());
+            existingUser.setRole(Role.valueOf(updateUser.getRole()));
         }
         return existingUser;
 

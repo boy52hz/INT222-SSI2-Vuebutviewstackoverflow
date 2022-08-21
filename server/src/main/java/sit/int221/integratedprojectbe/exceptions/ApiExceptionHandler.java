@@ -43,6 +43,8 @@ public class ApiExceptionHandler {
         );
     }
 
+
+
     @ExceptionHandler({ResponseStatusException.class})
     protected  ResponseEntity<Object> handleResponseStatus(ResponseStatusException ex, HttpServletRequest request) {
         return getErrorResponseBody(ex.getStatus(), request, ex.getReason());
