@@ -38,12 +38,12 @@ const toggleDropdown = () => {
 }
 
 .dropdown-toggle {
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .dropdown-toggle:hover {
   cursor: pointer;
-  color: #006494;
+  transform: scale(1.1);
 }
 
 .dropdown:focus {
