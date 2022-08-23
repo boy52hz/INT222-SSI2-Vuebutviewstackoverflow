@@ -7,24 +7,6 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema oasip
 -- -----------------------------------------------------
-CREATE USER 'ssi2dev'@'%' IDENTIFIED BY 'ssi2@22@54@109';
-GRANT SELECT,UPDATE,INSERT,DELETE ON oasip.* TO 'ssi2dev'@'%';
-
-CREATE USER 'ssi2dbadmin'@'%' IDENTIFIED BY 'ssi2@054';
-GRANT ALL PRIVILEGES ON oasip.* TO 'ssi2dbadmin'@'%';
-
-FLUSH PRIVILEGES;
--- -----------------------------------------------------
--- Schema oasip
--- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `oasip` DEFAULT CHARACTER SET utf8 ;
--- -----------------------------------------------------
--- Schema oasip
--- -----------------------------------------------------
-
--- -----------------------------------------------------
--- Schema oasip
--- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `oasip` DEFAULT CHARACTER SET utf8 ;
 USE `oasip` ;
 
@@ -42,8 +24,6 @@ CREATE TABLE IF NOT EXISTS `oasip`.`user` (
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB;
-
-USE `oasip` ;
 
 -- -----------------------------------------------------
 -- Table `oasip`.`event_category`
@@ -80,9 +60,16 @@ ENGINE = InnoDB
 AUTO_INCREMENT = 13
 DEFAULT CHARACTER SET = utf8mb3;
 
+CREATE USER 'ssi2dev'@'%' IDENTIFIED BY 'ssi2@22@54@109';
+GRANT SELECT,UPDATE,INSERT,DELETE ON oasip.* TO 'ssi2dev'@'%';
+
+CREATE USER 'ssi2dbadmin'@'%' IDENTIFIED BY 'ssi2@054';
+GRANT ALL PRIVILEGES ON oasip.* TO 'ssi2dbadmin'@'%';
+
+FLUSH PRIVILEGES;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
 
