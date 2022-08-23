@@ -10,6 +10,9 @@ const userStore = useUsers()
 const confirmDeleteModal = ref(false)
 const setConfirmDeleteModal = (state) => (confirmDeleteModal.value = state)
 
+const viewDetailModal = ref(false)
+const setViewDetailModal = (state) => (viewDetailModal.value = state)
+
 const selectedUser = ref({})
 
 const deleteUser = (user) => {
@@ -30,6 +33,11 @@ const confirmDeleteUser = async () => {
   }
 }
 
+const viewUserDetail = (user) => {
+  selectedUser.value = user
+  setViewDetailModal(true)
+}
+
 onBeforeMount(async () => {
   await userStore.fetchUsers()
   isLoading.value = false
@@ -37,6 +45,18 @@ onBeforeMount(async () => {
 </script>
 
 <template>
+  <app-modal
+    :show="viewDetailModal"
+    modal-type="info"
+    @ok="setViewDetailModal(false)"
+  >
+    <h1>User Detail</h1>
+    <h3>Name : </h3> {{ selectedUser.name }}
+    <h3>Email : </h3> {{ selectedUser.email }}
+    <h3>Role : </h3> {{ selectedUser.role }}
+    <h3>Created On : </h3> {{ selectedUser.createdOn }}
+    <h3>Updated On : </h3> {{ selectedUser.updatedOn }}
+  </app-modal>
   <app-modal
     :show="confirmDeleteModal"
     modal-type="confirm"
@@ -55,14 +75,14 @@ onBeforeMount(async () => {
       </h4>
     </div>
     <div class="user-list">
-      <div class="user-card" v-for="user in userStore.users" :key="user.userId">
-        <div class="user-card-content">
+      <div class="user-card" v-for="user in userStore.users" :key="user.userId" >
+        <div class="user-card-content" >
           <div>
-            <div class="user-card-detail">
+            <div class="user-card-detail" @click="viewUserDetail(user)">
               <div class="role-badge">{{ user.role.toUpperCase() }}</div>
               <b>{{ user.name }}</b>
             </div>
-            <div class="user-card-detail" style="margin-top: 12px">
+            <div class="user-card-detail" style="margin-top: 12px" @click="viewUserDetail(user)">
               <font-awesome-icon icon="envelope" />
               {{ user.email }}
             </div>
@@ -130,6 +150,10 @@ onBeforeMount(async () => {
   gap: 8px;
 }
 
+.user-card-detail:hover {
+  color: #26e200;
+  cursor: pointer;
+}
 .delete-modal-title {
   font-weight: 400;
   opacity: 0.5;

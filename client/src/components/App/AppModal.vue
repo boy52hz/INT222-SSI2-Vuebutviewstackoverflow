@@ -1,5 +1,5 @@
 <script setup>
-defineEmits(['confirm', 'cancel'])
+defineEmits(['confirm', 'cancel','ok'])
 defineProps({
   show: { type: Boolean, default: false },
   modalType: {
@@ -16,7 +16,7 @@ defineProps({
         <div v-if="show" class="modal-box">
           <slot></slot>
           <div class="modal-input-group" v-if="modalType === 'info'">
-            <app-button button-type="primary">Ok</app-button>
+            <app-button button-type="primary" @click="$emit('ok')">Ok</app-button>
           </div>
           <div class="modal-input-group" v-if="modalType === 'confirm'">
             <app-button button-type="success" @click="$emit('confirm')">Yes</app-button>
