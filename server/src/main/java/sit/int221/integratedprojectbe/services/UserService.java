@@ -90,9 +90,9 @@ public class UserService {
     }
 
     public UserDetailsDTO addNewUser(ManageUserDTO newUser, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) throw new ArgumentNotValidException(bindingResult);
         newUser.setName(newUser.getName().trim());
         newUser.setEmail(newUser.getEmail().trim());
+
         if(newUser.getRole() == null || Objects.equals(newUser.getRole(), "")){
             newUser.setRole(String.valueOf(Role.student));
         }
@@ -116,7 +116,6 @@ public class UserService {
         if (bindingResult.hasErrors()) {
             throw new ArgumentNotValidException(bindingResult);
         }
-
         return modelMapper.map(userRepository.saveAndFlush(user), UserDetailsDTO.class);
     }
 

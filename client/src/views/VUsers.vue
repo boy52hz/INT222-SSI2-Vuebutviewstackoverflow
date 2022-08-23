@@ -68,7 +68,7 @@ onBeforeMount(async () => {
             </div>
           </div>
           <AppDropdown>
-            <AppDropdownItem>
+            <AppDropdownItem style="color: darkorange">
               <font-awesome-icon icon="pen" />
               <span>Edit</span>
             </AppDropdownItem>
@@ -114,6 +114,13 @@ onBeforeMount(async () => {
   padding: 30px 38px;
   border-radius: 10px;
   box-shadow: 0px 0px 8px -5px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.user-card:hover {
+  cursor: pointer;
+  background-color: #006494;
+  color: white;
 }
 
 .user-card-content {
@@ -137,7 +144,7 @@ onBeforeMount(async () => {
 }
 
 .role-badge {
-  background-color: #006494;
+  background-color: black;
   border-radius: 20px;
   padding: 2px 10px;
   height: fit-content;
