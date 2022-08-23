@@ -19,6 +19,11 @@ const routes = [
     component: () => import('../views/VEditCategory.vue'),
   },
   {
+    path: '/users',
+    name: 'Users',
+    component: () => import('../views/VUsers.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     alias: '/not-found',

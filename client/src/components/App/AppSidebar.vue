@@ -11,12 +11,15 @@
         </router-link>
       </li>
       <li>
-        <router-link
-          :to="{ path: '/categories' }"
-          :class="$route.path.includes('/categories') && 'router-link-active'"
-        >
+        <router-link :to="{ path: '/categories' }" :class="$route.path.includes('/categories') && 'router-link-active'">
           <font-awesome-icon icon="list" />
           <span>Categories</span>
+        </router-link>
+      </li>
+      <li>
+        <router-link :to="{ path: '/users' }" :class="$route.path.includes('/users') && 'router-link-active'">
+          <font-awesome-icon icon="users" />
+          <span>Users</span>
         </router-link>
       </li>
     </ul>

@@ -162,18 +162,11 @@ const filteredEvents = computed(() => {
 
   if (dateFilter.value !== '') {
     filtered = filtered.filter((el) => {
-      return (
-        moment(el.eventStartTime).format('YYYY-MM-DD') ==
-        moment(dateFilter.value).format('YYYY-MM-DD')
-      )
+      return moment(el.eventStartTime).format('YYYY-MM-DD') == moment(dateFilter.value).format('YYYY-MM-DD')
     })
   }
 
-  return (
-    filtered.filter((el) =>
-      el.bookingName.toLowerCase().includes(searchEvent.value.toLowerCase())
-    ) || []
-  )
+  return filtered.filter((el) => el.bookingName.toLowerCase().includes(searchEvent.value.toLowerCase())) || []
 })
 
 const confirmDeleteModal = ref({
@@ -207,11 +200,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <DeleteSchedule
-    :modal-state="confirmDeleteModal"
-    :event-detail="eventDetail"
-    :event-store="eventStore"
-  />
+  <DeleteSchedule :modal-state="confirmDeleteModal" :event-detail="eventDetail" :event-store="eventStore" />
   <ScheduleFormInput
     :event-model="eventModel"
     :event-model-error="eventModelError"
@@ -225,32 +214,16 @@ onBeforeMount(async () => {
   <div id="schedules">
     <div class="schedules-list-container">
       <div class="schedules-list-header">
-        <h4 id="schedules-total">
-          {{ (!isLoading && filteredEvents.length) || 0 }} event(s).
-        </h4>
+        <h4 id="schedules-total">{{ (!isLoading && filteredEvents.length) || 0 }} event(s).</h4>
         <div>
-          <input
-            v-model.trim="searchEvent"
-            class="event-search-bar"
-            type="text"
-            placeholder="Search"
-          />
-          <font-awesome-icon
-            id="schedules-filter"
-            icon="filter"
-            @click="filterDropdown = !filterDropdown"
-          />
+          <input v-model.trim="searchEvent" class="event-search-bar" type="text" placeholder="Search" />
+          <font-awesome-icon id="schedules-filter" icon="filter" @click="filterDropdown = !filterDropdown" />
         </div>
       </div>
 
       <div
         v-if="filterDropdown"
-        style="
-          background-color: rgba(245, 245, 245, 0.9);
-          padding: 10px 15px;
-          display: flex;
-          gap: 22px;
-        "
+        style="background-color: rgba(245, 245, 245, 0.9); padding: 10px 15px; display: flex; gap: 22px"
       >
         <div>
           <label>By Date times : </label>
@@ -281,9 +254,7 @@ onBeforeMount(async () => {
 
       <div class="schedules-list" v-if="!isLoading && filteredEvents.length > 0">
         <div
-          :class="`schedule-card ${
-            eventDetail && eventDetail.bookingId === event.bookingId && 'card-active'
-          }`"
+          :class="`schedule-card ${eventDetail && eventDetail.bookingId === event.bookingId && 'card-active'}`"
           v-for="event in filteredEvents"
           :key="event.bookingId"
           @click="viewDetail(event.bookingId)"
@@ -310,16 +281,10 @@ onBeforeMount(async () => {
         </div>
       </div>
 
-      <font-awesome-icon
-        id="schedules-add"
-        icon="add"
-        @click="scheduleFormInputModal.show"
-      />
+      <font-awesome-icon id="schedules-add" icon="add" @click="scheduleFormInputModal.show" />
     </div>
     <div
-      :class="`schedule-detail-container ${
-        Object.keys(eventDetail).length > 0 && 'slide-in'
-      }`"
+      :class="`schedule-detail-container ${Object.keys(eventDetail).length > 0 && 'slide-in'}`"
       v-if="Object.keys(eventDetail).length > 0"
     >
       <div class="schedule-detail">
@@ -331,19 +296,12 @@ onBeforeMount(async () => {
         <p class="detail-datetime">
           <font-awesome-icon icon="calendar-days" />
           {{ moment(eventDetail.eventStartTime).format('LL') }} •
-          {{
-            $getFormattedEventPeriod(
-              eventDetail.eventStartTime,
-              eventDetail.eventDuration
-            )
-          }}
+          {{ $getFormattedEventPeriod(eventDetail.eventStartTime, eventDetail.eventDuration) }}
         </p>
         <cite v-show="eventDetail.eventNotes">‟ {{ eventDetail.eventNotes }} ”</cite>
         <div class="app-input-group">
           <app-button button-type="warning" @click="editDetail">Edit Details</app-button>
-          <app-button button-type="outline-danger" @click="confirmDeleteModal.show"
-            >Cancel Event</app-button
-          >
+          <app-button button-type="outline-danger" @click="confirmDeleteModal.show">Cancel Event</app-button>
         </div>
       </div>
       <font-awesome-icon id="schedule-detail-exit" icon="xmark" @click="resetDetail" />
@@ -491,8 +449,6 @@ onBeforeMount(async () => {
   border-radius: 5px;
   border: 1px solid rgba(0, 100, 148, 0.2);
   box-shadow: 0px 0px 8px -5px rgba(0, 0, 0, 0.5);
-  -webkit-box-shadow: 0px 0px 8px -5px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px 0px 8px -5px rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease-out;
 }
 

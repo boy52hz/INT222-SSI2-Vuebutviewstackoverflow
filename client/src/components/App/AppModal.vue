@@ -2,7 +2,6 @@
 defineEmits(['confirm', 'cancel'])
 defineProps({
   show: { type: Boolean, default: false },
-  useTransition: { type: Boolean, default: true },
   modalType: {
     type: String,
     default: 'blank',
@@ -48,12 +47,11 @@ defineProps({
   padding: 20px 32px;
   border-radius: 10px;
   box-shadow: 0px 0px 8px -5px rgba(0, 0, 0, 0.5);
-  -webkit-box-shadow: 0px 0px 8px -5px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px 0px 8px -5px rgba(0, 0, 0, 0.5);
 }
 .modal-input-group {
   display: flex;
   justify-content: space-between;
+  margin-top: 8px;
 }
 .modal-input-group > button {
   width: 60px;

@@ -16,7 +16,7 @@ defineProps({
 <style scoped>
 .btn {
   outline: none;
-  border: 1px solid rgba(0, 0, 0, 0.5);
+  border: none;
   border-radius: 5px;
   padding: 10px;
   margin: 5px 8px;
