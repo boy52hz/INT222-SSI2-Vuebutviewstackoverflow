@@ -1,5 +1,6 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue'
+import moment from 'moment'
 import { useUsers } from '../stores/users.js'
 import AppDropdown from '../components/App/Dropdown/AppDropdown.vue'
 import AppDropdownItem from '../components/App/Dropdown/AppDropdownItem.vue'
@@ -45,17 +46,20 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <app-modal
-    :show="viewDetailModal"
-    modal-type="info"
-    @ok="setViewDetailModal(false)"
-  >
+  <app-modal :show="viewDetailModal" modal-type="info" @ok="setViewDetailModal(false)">
     <h1>User Detail</h1>
-    <h3>Name : </h3> {{ selectedUser.name }}
-    <h3>Email : </h3> {{ selectedUser.email }}
-    <h3>Role : </h3> {{ selectedUser.role }}
-    <h3>Created On : </h3> {{ selectedUser.createdOn }}
-    <h3>Updated On : </h3> {{ selectedUser.updatedOn }}
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr)">
+      <h3>Name :</h3>
+      <p>{{ selectedUser.name }}</p>
+      <h3>Email :</h3>
+      <p>{{ selectedUser.email }}</p>
+      <h3>Role :</h3>
+      <p>{{ selectedUser.role.toUpperCase() }}</p>
+      <h3>Created On :</h3>
+      <p>{{ moment(selectedUser.createdOn).format('lll') }}</p>
+      <h3>Updated On :</h3>
+      <p>{{ moment(selectedUser.updatedOn).format('lll') }}</p>
+    </div>
   </app-modal>
   <app-modal
     :show="confirmDeleteModal"
@@ -75,14 +79,14 @@ onBeforeMount(async () => {
       </h4>
     </div>
     <div class="user-list">
-      <div class="user-card" v-for="user in userStore.users" :key="user.userId" >
-        <div class="user-card-content" >
+      <div class="user-card" v-for="user in userStore.users" :key="user.userId">
+        <div class="user-card-content">
           <div>
-            <div class="user-card-detail" @click="viewUserDetail(user)">
+            <div class="user-card-detail">
               <div class="role-badge">{{ user.role.toUpperCase() }}</div>
-              <b>{{ user.name }}</b>
+              <b class="card-title" @click="viewUserDetail(user)">{{ user.name }}</b>
             </div>
-            <div class="user-card-detail" style="margin-top: 12px" @click="viewUserDetail(user)">
+            <div class="user-card-detail" style="margin-top: 12px">
               <font-awesome-icon icon="envelope" />
               {{ user.email }}
             </div>
@@ -137,12 +141,6 @@ onBeforeMount(async () => {
   transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-.user-card:hover {
-  cursor: pointer;
-  background-color: #006494;
-  color: white;
-}
-
 .user-card-content {
   display: flex;
   justify-content: space-between;
@@ -157,10 +155,6 @@ onBeforeMount(async () => {
   gap: 8px;
 }
 
-.user-card-detail:hover {
-  color: #26e200;
-  cursor: pointer;
-}
 .delete-modal-title {
   font-weight: 400;
   opacity: 0.5;
@@ -174,6 +168,14 @@ onBeforeMount(async () => {
   height: fit-content;
   font-size: 0.8em;
   color: white;
+}
+.card-title {
+  text-decoration: underline;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.card-title:hover {
+  color: #42a6df;
+  cursor: pointer;
 }
 
 @media screen and (max-width: 1097px) {
