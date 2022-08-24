@@ -78,7 +78,7 @@ onBeforeMount(async () => {
         User(s).
       </h4>
     </div>
-    <div class="user-list">
+    <div class="user-list" v-if="userStore.users.length > 0">
       <div class="user-card" v-for="user in userStore.users" :key="user.userId">
         <div class="user-card-content">
           <div>
@@ -103,6 +103,9 @@ onBeforeMount(async () => {
           </AppDropdown>
         </div>
       </div>
+    </div>
+    <div style="position: relative; width: 100%; height: 100%" v-else>
+      <div class="no-user">No user(s).</div>
     </div>
   </div>
 </template>
@@ -176,6 +179,14 @@ onBeforeMount(async () => {
 .card-title:hover {
   color: #42a6df;
   cursor: pointer;
+}
+
+.no-user {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.5;
 }
 
 @media screen and (max-width: 1097px) {
