@@ -1,5 +1,7 @@
 package sit.int221.integratedprojectbe.services;
 
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,11 @@ public class UserService {
     private ModelMapper modelMapper;
     @Autowired
     private ListMapper listMapper;
+
+    Argon2 argon2 = Argon2Factory.create(
+            Argon2Factory.Argon2Types.ARGON2id,
+            10,
+            10);
 
 
     public List<UserDetailsDTO> getUsers() {
@@ -90,9 +97,10 @@ public class UserService {
     }
 
     public UserDetailsDTO addNewUser(ManageUserDTO newUser, BindingResult bindingResult) {
-        newUser.setName(newUser.getName().trim());
-        newUser.setEmail(newUser.getEmail().trim());
-
+        String  argon2Password = argon2.hash(22, 65536, 1, newUser.getPassword());
+        newUser.setName(newUser.getName().strip());
+        newUser.setEmail(newUser.getEmail().strip());
+        newUser.setPassword(argon2Password);
         if(newUser.getRole() == null || Objects.equals(newUser.getRole(), "")){
             newUser.setRole(String.valueOf(Role.student));
         }
@@ -118,6 +126,28 @@ public class UserService {
         }
         return modelMapper.map(userRepository.saveAndFlush(user), UserDetailsDTO.class);
     }
+
+    public UserDetailsDTO passwordCheck(LoginDTO login , BindingResult bindingResult){
+        User user = new User() ;
+        if (bindingResult.hasErrors()) {
+            throw new ArgumentNotValidException(bindingResult);
+        }
+      if(login.getEmail() != null && userRepository.existsByEmail(login.getEmail())){
+          user = userRepository.findByEmail(login.getEmail().strip());
+      }else  {
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Email Not Found !!");
+      }
+      if(!argon2.verify(user.getPassword(), login.getPassword()) )
+          throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Password mismatch");
+
+
+      return modelMapper.map(user,UserDetailsDTO.class);
+
+    }
+
+
+
+
 
     private User mapUser(User existingUser, ManageUserDTO updateUser) {
         if (updateUser.getName() != null) {

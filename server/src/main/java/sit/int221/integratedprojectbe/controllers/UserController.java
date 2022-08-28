@@ -6,10 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import sit.int221.integratedprojectbe.dtos.CreateEventDTO;
-import sit.int221.integratedprojectbe.dtos.EventDetailsDTO;
-import sit.int221.integratedprojectbe.dtos.ManageUserDTO;
-import sit.int221.integratedprojectbe.dtos.UserDetailsDTO;
+import sit.int221.integratedprojectbe.dtos.*;
 import sit.int221.integratedprojectbe.entities.User;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
@@ -54,5 +51,12 @@ public class UserController {
         return userService.addNewUser(newUser, bindingResult);
 
     }
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public UserDetailsDTO login(@Valid @RequestBody LoginDTO newUser , BindingResult bindingResult) {
+        return userService.passwordCheck(newUser,bindingResult);
+
+    }
+
 
 }

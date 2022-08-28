@@ -10,4 +10,5 @@ public class IntegratedProjectBeApplication {
         SpringApplication.run(IntegratedProjectBeApplication.class, args);
     }
 
+
 }

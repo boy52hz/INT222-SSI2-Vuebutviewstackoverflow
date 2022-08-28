@@ -31,12 +31,15 @@ public class User {
     private Role role;
 
 
-    @Column(name = "createdOn", nullable = false,insertable = false)
+    @Column(name = "createdOn", nullable = false,insertable = false,updatable = false)
     private Date createdOn;
 
 
-    @Column(name = "updatedOn", nullable = false,insertable = false)
+    @Column(name = "updatedOn", nullable = false,insertable = false,updatable = false)
     private Date updatedOn;
+
+    @Column(name = "password", nullable = false)
+    private String password;
 
 
 
