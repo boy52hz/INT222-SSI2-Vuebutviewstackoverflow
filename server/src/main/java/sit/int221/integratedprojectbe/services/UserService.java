@@ -50,7 +50,7 @@ public class UserService {
         return modelMapper.map(user, UserDetailsDTO.class);
     }
 
-    public User editUser(Integer userId, ManageUserDTO updateUser, BindingResult bindingResult) {
+    public User editUser(Integer userId, EditUserDTO updateUser, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new ArgumentNotValidException(bindingResult);
         }
@@ -92,11 +92,14 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
-    public UserDetailsDTO addNewUser(ManageUserDTO newUser, BindingResult bindingResult) {
+    public UserDetailsDTO addNewUser(CreateUserDTO newUser, BindingResult bindingResult) {
         String  argon2Password = argon2.hash(22, 65536, 1, newUser.getPassword());
         newUser.setName(newUser.getName().strip());
         newUser.setEmail(newUser.getEmail().strip());
         newUser.setPassword(argon2Password);
+        if(newUser.getRole() == null || Objects.equals(newUser.getRole(), "")){
+            newUser.setRole("student");
+        }
         User user = modelMapper.map(newUser, User.class);
         UserRole userRole = userRoleService.getRoleByRoleName(newUser.getRole());
         user.setRole(userRole);
@@ -144,7 +147,7 @@ public class UserService {
 
 
 
-    private User mapUser(User existingUser, ManageUserDTO updateUser) {
+    private User mapUser(User existingUser, EditUserDTO updateUser) {
         if (updateUser.getName() != null) {
             existingUser.setName(updateUser.getName().trim());
         }

@@ -4,12 +4,9 @@ package sit.int221.integratedprojectbe.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import sit.int221.integratedprojectbe.dtos.*;
 import sit.int221.integratedprojectbe.entities.User;
-import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
-import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
 import sit.int221.integratedprojectbe.services.UserService;
 
 import javax.validation.Valid;
@@ -40,14 +37,14 @@ public class UserController {
     public void delete(@PathVariable Integer userId) {
         userService.removeUser(userId);
     }
-    @PutMapping("/{userId}")
-    public User update(@Valid @RequestBody ManageUserDTO editUser,
+    @PatchMapping("/{userId}")
+    public User update(@Valid @RequestBody EditUserDTO editUser,
                        BindingResult bindingResult, @PathVariable Integer userId) {
         return userService.editUser(userId, editUser, bindingResult);
     }
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDetailsDTO create(@Valid @RequestBody ManageUserDTO newUser, BindingResult bindingResult) {
+    public UserDetailsDTO create(@Valid @RequestBody CreateUserDTO newUser, BindingResult bindingResult) {
         return userService.addNewUser(newUser, bindingResult);
 
     }
