@@ -1,13 +1,29 @@
+import { cat } from 'fontawesome'
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import { ref } from 'vue'
+import router from '../router'
 
 export const useUsers = defineStore('users', () => {
   const users = ref([])
 
   // logiData => email (trimed), password(trimed)
   const loginUser = async (loginData) => {
-    console.log(loginData)
-  }
+      const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users/match`, {
+        method:'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body:JSON.stringify(loginData),
+      })
+      const data = await res.json()
+      if (res.status === 200) {
+        router.push(`${import.meta.env.VITE_BASE_PATH}/users/`)
+        await fetchUsers()
+        return data
+      } else if (res.status === 400) {
+        throw data
+      }
+  } 
 
   const registerUser = async (registerData) => {
     const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users`, {
@@ -19,6 +35,7 @@ export const useUsers = defineStore('users', () => {
     })
     const data = await res.json()
     if (res.status === 201) {
+      router.push(`${import.meta.env.VITE_BASE_PATH}/match/`)
       await fetchUsers()
       return data
     } else if (res.status === 400) {

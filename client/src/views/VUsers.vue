@@ -56,7 +56,7 @@ onBeforeMount(async () => {
         <h3>Email :</h3>
         <p>{{ selectedUser.email }}</p>
         <h3>Role :</h3>
-        <p>{{ selectedUser.role.toUpperCase() }}</p>
+        <p>{{ selectedUser.role.name.toUpperCase() }}</p>
         <h3>Created On :</h3>
         <p>{{ moment(selectedUser.createdOn).format('lll') }}</p>
         <h3>Updated On :</h3>
@@ -85,7 +85,7 @@ onBeforeMount(async () => {
           <div class="user-card-content">
             <div>
               <div class="user-card-detail">
-                <div class="role-badge">{{ user.role.toUpperCase() }}</div>
+                <div class="role-badge">{{ user.role.name.toUpperCase() }}</div>
                 <b class="card-title" @click="viewUserDetail(user)">{{ user.name }}</b>
               </div>
               <div class="user-card-detail" style="margin-top: 12px">
