@@ -93,7 +93,7 @@ public class UserService {
     }
 
     public UserDetailsDTO addNewUser(CreateUserDTO newUser, BindingResult bindingResult) {
-        String  argon2Password = argon2.hash(22, 65536, 1, newUser.getPassword());
+        String  argon2Password = argon2.hash(3, 16, 1, newUser.getPassword());
         newUser.setName(newUser.getName().strip());
         newUser.setEmail(newUser.getEmail().strip());
         newUser.setPassword(argon2Password);
