@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sit.int221.integratedprojectbe.entities.Role;
 import sit.int221.integratedprojectbe.exceptions.Enummismatch;
 
 import javax.validation.constraints.Email;
@@ -26,12 +25,10 @@ public class ManageUserDTO {
             message = "Email must be well formed")
     @Size(min = 1, max =50 , message = "size must be between 1 and 50")
     private String email;
-    @Enummismatch(enumClass = Role.class)
     @NotNull(message = "must not be null")
     private String role;
 
     @Size(min = 8, max =14, message = "size must be between 8 and 14")
     @NotBlank(message = "must be not blank")
     private String password;
-
 }

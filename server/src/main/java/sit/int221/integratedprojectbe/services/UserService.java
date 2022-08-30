@@ -11,18 +11,12 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.server.ResponseStatusException;
 import sit.int221.integratedprojectbe.dtos.*;
 import sit.int221.integratedprojectbe.dtos.UserDetailsDTO;
-import sit.int221.integratedprojectbe.entities.Event;
-import sit.int221.integratedprojectbe.entities.EventCategory;
-import sit.int221.integratedprojectbe.entities.Role;
 import sit.int221.integratedprojectbe.entities.User;
+import sit.int221.integratedprojectbe.entities.UserRole;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
-import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
 import sit.int221.integratedprojectbe.repositories.UserRepository;
 import sit.int221.integratedprojectbe.utils.ListMapper;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,6 +24,8 @@ import java.util.Objects;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserRoleService userRoleService;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -49,7 +45,7 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        String.format("Booking ID %s is doesn't exist.", userId)
+                        String.format("User ID %s is doesn't exist.", userId)
                 ));
         return modelMapper.map(user, UserDetailsDTO.class);
     }
@@ -62,7 +58,7 @@ public class UserService {
                 .map(existingCategory -> mapUser(existingCategory, updateUser))
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        String.format("Category ID %d doesn't exist.", userId)
+                        String.format("User ID %d doesn't exist.", userId)
                 ));
         if (updateUser.getName() != null && userRepository.existsByNameAndUserIdNot(updateUser.getName(), userId)
         ) {
@@ -91,7 +87,7 @@ public class UserService {
         userRepository.findById(userId).orElseThrow(() ->
                 new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        String.format("Booking ID %s is doesn't exist", userId)
+                        String.format("User ID %s is doesn't exist", userId)
                 ));
         userRepository.deleteById(userId);
     }
@@ -101,16 +97,15 @@ public class UserService {
         newUser.setName(newUser.getName().strip());
         newUser.setEmail(newUser.getEmail().strip());
         newUser.setPassword(argon2Password);
-        if(newUser.getRole() == null || Objects.equals(newUser.getRole(), "")){
-            newUser.setRole(String.valueOf(Role.student));
-        }
-        User user = modelMapper.map(newUser,User.class);
+        User user = modelMapper.map(newUser, User.class);
+        UserRole userRole = userRoleService.getRoleByRoleName(newUser.getRole());
+        user.setRole(userRole);
         if (newUser.getName() != null && userRepository.existsByName(newUser.getName())
         ) {
             FieldError error = new FieldError(
                     "editUserDTO",
                     "Name",
-                    "User name is already exist.");
+                    "Username is already used.");
             bindingResult.addError(error);
         }
         if (newUser.getEmail() != null && userRepository.existsByEmail(newUser.getEmail())
@@ -118,7 +113,7 @@ public class UserService {
             FieldError error = new FieldError(
                     "editUserDTO",
                     "Email",
-                    "Email is already exist.");
+                    "Email is already used.");
             bindingResult.addError(error);
         }
         if (bindingResult.hasErrors()) {
@@ -135,10 +130,10 @@ public class UserService {
       if(login.getEmail() != null && userRepository.existsByEmail(login.getEmail())){
           user = userRepository.findByEmail(login.getEmail().strip());
       }else  {
-          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Email Not Found !!");
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Email not found.");
       }
       if(!argon2.verify(user.getPassword(), login.getPassword()) )
-          throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Password mismatch");
+          throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Password mismatch.");
 
 
       return modelMapper.map(user,UserDetailsDTO.class);
@@ -157,7 +152,8 @@ public class UserService {
             existingUser.setEmail(updateUser.getEmail().trim());
         }
         if (updateUser.getRole() != null) {
-            existingUser.setRole(Role.valueOf(updateUser.getRole()));
+            UserRole userRole = userRoleService.getRoleByRoleName(updateUser.getRole());
+            existingUser.setRole(userRole);
         }
         return existingUser;
 

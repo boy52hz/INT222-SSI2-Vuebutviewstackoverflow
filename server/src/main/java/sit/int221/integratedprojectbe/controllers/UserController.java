@@ -32,7 +32,7 @@ public class UserController {
 
 
     @GetMapping("/{userId}")
-    public UserDetailsDTO getEventsByBookingId(@PathVariable Integer userId){
+    public UserDetailsDTO getUserByUserId(@PathVariable Integer userId){
         return userService.getUserById(userId);
     }
 

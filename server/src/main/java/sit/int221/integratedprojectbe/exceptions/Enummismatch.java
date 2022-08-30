@@ -1,8 +1,5 @@
 package sit.int221.integratedprojectbe.exceptions;
 
-import org.springframework.validation.BindingResult;
-import sit.int221.integratedprojectbe.entities.Role;
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Documented;
@@ -11,7 +8,6 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static sit.int221.integratedprojectbe.exceptions.StringEnumerationValidator.getNamesSet;
 
 @Documented
 @Constraint(validatedBy = StringEnumerationValidator.class)

@@ -25,11 +25,12 @@ public class User {
     @Column(name = "email", nullable = false, length = 50)
     private String email;
 
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "role", nullable = false , insertable = false, updatable = false)
+    private UserRole role;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private Role role;
-
+    @Column(name = "password", nullable = false)
+    private String password;
 
     @Column(name = "createdOn", nullable = false,insertable = false,updatable = false)
     private Date createdOn;
@@ -37,12 +38,4 @@ public class User {
 
     @Column(name = "updatedOn", nullable = false,insertable = false,updatable = false)
     private Date updatedOn;
-
-    @Column(name = "password", nullable = false)
-    private String password;
-
-
-
-
-
 }

@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sit.int221.integratedprojectbe.entities.Role;
+import sit.int221.integratedprojectbe.entities.UserRole;
 
 
 import java.util.Date;
@@ -18,7 +18,7 @@ public class UserDetailsDTO {
     private Integer id;
     private String name;
     private String email;
-    private Role role;
+    private UserRole role;
     private Date createdOn;
     private Date updatedOn;
 
