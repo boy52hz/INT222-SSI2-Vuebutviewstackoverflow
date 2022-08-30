@@ -48,7 +48,7 @@ public class UserController {
         return userService.addNewUser(newUser, bindingResult);
 
     }
-    @PostMapping("/login")
+    @PostMapping("/match")
     @ResponseStatus(HttpStatus.OK)
     public UserDetailsDTO login(@Valid @RequestBody LoginDTO newUser , BindingResult bindingResult) {
         return userService.passwordCheck(newUser,bindingResult);
