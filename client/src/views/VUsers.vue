@@ -94,7 +94,7 @@ onBeforeMount(async () => {
               </div>
             </div>
             <AppDropdown>
-              <AppDropdownItem style="color: darkorange">
+              <AppDropdownItem style="color: darkorange" @click.prevent="$router.push(`/users/${user.id}/edit`)">
                 <font-awesome-icon icon="pen" />
                 <span>Edit</span>
               </AppDropdownItem>

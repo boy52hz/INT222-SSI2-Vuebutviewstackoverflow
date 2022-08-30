@@ -34,6 +34,11 @@ const routes = [
     component: () => import('../views/VUsers.vue'),
   },
   {
+    path: '/users/:userId/edit',
+    name: 'EditUser',
+    component: () => import('../views/VEditUser.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     alias: '/not-found',

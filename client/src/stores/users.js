@@ -23,6 +23,16 @@ export const useUsers = defineStore('users', () => {
     }
   }
 
+  const fetchUserByUserId = async (userId) => {
+    const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`)
+    const data = await res.json()
+    if (res.status === 200) {
+      return data
+    } else {
+      throw data
+    }
+  }
+
   const deleteUserById = async (userId) => {
     const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`, {
       method: 'DELETE',
@@ -38,6 +48,7 @@ export const useUsers = defineStore('users', () => {
   return {
     users,
     fetchUsers,
+    fetchUserByUserId,
     deleteUserById,
     loginUser,
     registerUser,
