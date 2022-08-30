@@ -7,6 +7,8 @@ const userStore = useUsers()
 
 const roles = reactive(['student', 'lecturer', 'admin'])
 
+const message = ref('')
+
 const formRegister = ref({
   email: '',
   password: '',
@@ -24,6 +26,30 @@ const errorMessage = ref({
   lastName: '',
   role: '',
 })
+
+const regisUser = async () => {
+  try {
+    const data = await userStore.registerUser({
+      email:formRegister.value.email,
+      name:formRegister.value.firstName+" "+formRegister.value.lastName,
+      role:formRegister.value.role,
+      password:formRegister.value.password
+    })
+  } catch (err) {
+    alert(err.message)
+  }
+}
+
+const passConfirm = () => {
+  if ( formRegister.value.password === formRegister.value.confirmPassword && formRegister.value.password.length >= 8 && formRegister.value.confirmPassword.length >= 8){
+    message.value = "match"
+  } 
+  else if (formRegister.value.password != formRegister.value.confirmPassword && formRegister.value.password.length >= 8 && formRegister.value.confirmPassword.length >= 8){
+    message.value = "dmatch"
+  }else {
+    message.value = null
+  }
+}
 </script>
 
 <template>
@@ -31,7 +57,7 @@ const errorMessage = ref({
     <div class="wrapper">
       <div class="title">Welcome to OASIP-SSI2</div>
       <div class="desc">Please, fill form to create account.</div>
-      <form @submit.prevent="userStore.registerUser">
+      <form @submit.prevent="regisUser">
         <AppInput
           type="text"
           v-model="formRegister.firstName"
@@ -60,6 +86,8 @@ const errorMessage = ref({
           label-text="Password"
           :error-message="errorMessage.password"
           :required="true"
+          :onkeyup="passConfirm"
+          :minlength="8"
         />
         <AppInput
           type="password"
@@ -67,7 +95,11 @@ const errorMessage = ref({
           label-text="Confirm Password"
           :error-message="errorMessage.confirmPassword"
           :required="true"
+          :onkeyup="passConfirm"
+          :minlength="8"
         />
+        <span class="message" v-if="message=='match'">Passwords Match!</span>
+        <span class="dmessage" v-if="message=='dmatch'">Passwords Doesn't Match!</span>
         <div class="input-group">
           <label class="required">Role</label>
           <select v-model="formRegister.role" style="width: 100%">
@@ -82,6 +114,15 @@ const errorMessage = ref({
 </template>
 
 <style scoped>
+.message {
+  color: green;
+  font-size: 0.8em;
+}
+
+.dmessage {
+  color: red;
+  font-size: 0.8em;
+}
 .container {
   max-width: 735px;
   width: 100%;

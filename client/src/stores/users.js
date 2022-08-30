@@ -9,7 +9,22 @@ export const useUsers = defineStore('users', () => {
     console.log(loginData)
   }
 
-  const registerUser = async (registerData) => {}
+  const registerUser = async (registerData) => {
+    const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(registerData),
+    })
+    const data = await res.json()
+    if (res.status === 201) {
+      await fetchUsers()
+      return data
+    } else if (res.status === 400) {
+      throw data
+    }
+  }
 
   const fetchUsers = async () => {
     try {
