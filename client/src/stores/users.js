@@ -4,6 +4,13 @@ import { ref } from 'vue'
 export const useUsers = defineStore('users', () => {
   const users = ref([])
 
+  // logiData => email (trimed), password(trimed)
+  const loginUser = async (loginData) => {
+    console.log(loginData)
+  }
+
+  const registerUser = async (registerData) => {}
+
   const fetchUsers = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users`)
@@ -32,6 +39,8 @@ export const useUsers = defineStore('users', () => {
     users,
     fetchUsers,
     deleteUserById,
+    loginUser,
+    registerUser,
   }
 })
 

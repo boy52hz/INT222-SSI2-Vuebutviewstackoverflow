@@ -3,6 +3,7 @@ import { onMounted, ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import router from '../router'
 import { useEventCategories } from '../stores/eventCategories'
+import PageWrapper from '../components/PageWrapper.vue'
 
 const categoryStore = useEventCategories()
 const route = useRoute()
@@ -61,85 +62,81 @@ onMounted(async () => {
 </script>
 
 <template>
-  <app-loading-screen v-if="isLoading" />
-  <div v-else id="edit-category">
-    <div class="edit-category-box">
-      <h2>Edit category</h2>
-      <form @submit="editCategory">
-        <div style="display: flex; gap: 12px">
-          <div class="app-input-group" style="flex: 5">
-            <label class="required">Category name</label>
-            <input
-              v-model.trim="category.categoryName"
-              type="text"
-              required
-              :class="eventModelError.categoryName && 'invalid'"
-              :maxlength="formConfig.maxLength.categoryName"
-            />
-            <div class="input-validation-box">
-              <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
-                {{ eventModelError.categoryName }}
+  <PageWrapper>
+    <app-loading-screen v-if="isLoading" />
+    <div v-else id="edit-category">
+      <div class="edit-category-box">
+        <h2>Edit category</h2>
+        <form @submit="editCategory">
+          <div style="display: flex; gap: 12px">
+            <div class="app-input-group" style="flex: 5">
+              <label class="required">Category name</label>
+              <input
+                v-model.trim="category.categoryName"
+                type="text"
+                required
+                :class="eventModelError.categoryName && 'invalid'"
+                :maxlength="formConfig.maxLength.categoryName"
+              />
+              <div class="input-validation-box">
+                <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
+                  {{ eventModelError.categoryName }}
+                </div>
+                <div class="input-counter">
+                  {{ (category.categoryName && category.categoryName.length) || 0 }}/{{
+                    formConfig.maxLength.categoryName
+                  }}
+                </div>
+              </div>
+            </div>
+            <div class="app-input-group" style="flex: 2">
+              <label class="required">Duration</label>
+              <input
+                style="text-align: center"
+                v-model.number="category.eventDuration"
+                type="number"
+                :class="eventModelError.eventDuration && 'invalid'"
+                :min="formConfig.min.eventDuration"
+                :max="formConfig.maxLength.eventDuration"
+                required
+              />
+              <div class="input-validation-box">
+                <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
+                  {{ eventModelError.eventDuration }}
+                </div>
               </div>
               <div class="input-counter">
-                {{ (category.categoryName && category.categoryName.length) || 0 }}/{{
-                  formConfig.maxLength.categoryName
+                ( {{ formConfig.min.eventDuration }} - {{ formConfig.maxLength.eventDuration }} Minutes )
+              </div>
+            </div>
+          </div>
+          <div class="app-input-group">
+            <label>Description</label>
+            <textarea
+              style="width: 100%; height: 100px"
+              v-model.trim="category.eventCategoryDesc"
+              :class="eventModelError.eventCategoryDesc && 'invalid'"
+              :maxlength="formConfig.maxLength.eventCategoryDesc"
+            ></textarea>
+            <div class="input-validation-box">
+              <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
+                {{ eventModelError.eventCategoryDesc }}
+              </div>
+              <div class="input-counter">
+                {{ (category.eventCategoryDesc && category.eventCategoryDesc.length) || 0 }}/{{
+                  formConfig.maxLength.eventCategoryDesc
                 }}
               </div>
             </div>
           </div>
-          <div class="app-input-group" style="flex: 2">
-            <label class="required">Duration</label>
-            <input
-              style="text-align: center"
-              v-model.number="category.eventDuration"
-              type="number"
-              :class="eventModelError.eventDuration && 'invalid'"
-              :min="formConfig.min.eventDuration"
-              :max="formConfig.maxLength.eventDuration"
-              required
-            />
-            <div class="input-validation-box">
-              <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
-                {{ eventModelError.eventDuration }}
-              </div>
-            </div>
-            <div class="input-counter">
-              ( {{ formConfig.min.eventDuration }} -
-              {{ formConfig.maxLength.eventDuration }} Minutes )
-            </div>
+          <div class="app-button-group">
+            <app-button button-type="warning" type="submit">Save</app-button>
+            <app-button button-type="danger" type="reset" @click="router.replace('/categories')">Cancel</app-button>
           </div>
-        </div>
-        <div class="app-input-group">
-          <label>Description</label>
-          <textarea
-            style="width: 100%; height: 100px"
-            v-model.trim="category.eventCategoryDesc"
-            :class="eventModelError.eventCategoryDesc && 'invalid'"
-            :maxlength="formConfig.maxLength.eventCategoryDesc"
-          ></textarea>
-          <div class="input-validation-box">
-            <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
-              {{ eventModelError.eventCategoryDesc }}
-            </div>
-            <div class="input-counter">
-              {{
-                (category.eventCategoryDesc && category.eventCategoryDesc.length) || 0
-              }}/{{ formConfig.maxLength.eventCategoryDesc }}
-            </div>
-          </div>
-        </div>
-        <div class="app-button-group">
-          <app-button button-type="warning" type="submit">Save</app-button>
-          <app-button
-            button-type="danger"
-            type="reset"
-            @click="router.replace('/categories')"
-            >Cancel</app-button
-          >
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
+  </PageWrapper>
 </template>
 
 <style scoped>

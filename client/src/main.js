@@ -40,4 +40,8 @@ app.config.globalProperties.$getFormattedEventPeriod = (time, duration) => {
 app.config.globalProperties.$truncate = (str, maxLength) => {
   return str.length > maxLength ? `${str.substr(0, maxLength - 1)}\u2026` : str
 }
+
+app.config.globalProperties.$capitalize = (str) => {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+}
 app.mount('#app')

@@ -1,6 +1,7 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue'
 import { useEventCategories } from '../stores/eventCategories'
+import PageWrapper from '../components/PageWrapper.vue'
 
 const categoryStore = useEventCategories()
 const isLoading = ref(false)
@@ -15,42 +16,40 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <app-loading-screen v-if="isLoading" />
-  <div v-else id="categories">
-    <div class="category-list-header">
-      <h4>
-        {{ categoryStore.eventCategories.length || 0 }}
-        Record(s).
-      </h4>
-    </div>
-    <div class="category-list">
-      <div
-        class="category-card"
-        v-for="category in categoryStore.eventCategories"
-        :key="category.categoryId"
-      >
-        <div class="category-card-content">
-          <h2>{{ category.categoryName }}</h2>
-          <div class="duration">
-            <font-awesome-icon icon="clock" />
-            {{ category.eventDuration }}
-            minute(s)
+  <PageWrapper>
+    <app-loading-screen v-if="isLoading" />
+    <div v-else id="categories">
+      <div class="category-list-header">
+        <h4>
+          {{ categoryStore.eventCategories.length || 0 }}
+          Record(s).
+        </h4>
+      </div>
+      <div class="category-list">
+        <div class="category-card" v-for="category in categoryStore.eventCategories" :key="category.categoryId">
+          <div class="category-card-content">
+            <h2>{{ category.categoryName }}</h2>
+            <div class="duration">
+              <font-awesome-icon icon="clock" />
+              {{ category.eventDuration }}
+              minute(s)
+            </div>
+            <p class="description" v-if="category.eventCategoryDesc">
+              {{ category.eventCategoryDesc }}
+            </p>
+            <p v-else class="description empty">No description</p>
           </div>
-          <p class="description" v-if="category.eventCategoryDesc">
-            {{ category.eventCategoryDesc }}
-          </p>
-          <p v-else class="description empty">No description</p>
-        </div>
-        <div class="button-group">
-          <router-link :to="`/categories/${category.categoryId}`">
-            <app-button button-type="warning">
-              <font-awesome-icon icon="pen-to-square" />
-            </app-button>
-          </router-link>
+          <div class="button-group">
+            <router-link :to="`/categories/${category.categoryId}`">
+              <app-button button-type="warning">
+                <font-awesome-icon icon="pen-to-square" />
+              </app-button>
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </PageWrapper>
 </template>
 
 <style scoped>

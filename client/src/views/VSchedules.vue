@@ -7,6 +7,7 @@ import { useEventCategories } from '../stores/eventCategories.js'
 import ScheduleFormInput from '../components/VSchedules/ScheduleFormInput.vue'
 import DeleteSchedule from '../components/VSchedules/DeleteSchedule.vue'
 import EventCategory from '../components/VSchedules/EventCategory.vue'
+import PageWrapper from '../components/PageWrapper.vue'
 
 const eventStore = useEvents()
 const categoryStore = useEventCategories()
@@ -200,113 +201,115 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <DeleteSchedule :modal-state="confirmDeleteModal" :event-detail="eventDetail" :event-store="eventStore" />
-  <ScheduleFormInput
-    :event-model="eventModel"
-    :event-model-error="eventModelError"
-    :is-edit-mode="editMode"
-    :modal-state="scheduleFormInputModal"
-    @add-event="addEvent"
-    @edit-event="editEvent"
-    @reset-form="resetEventForm"
-  />
-  <app-loading-screen v-if="isLoading" />
-  <div id="schedules">
-    <div class="schedules-list-container">
-      <div class="schedules-list-header">
-        <h4 id="schedules-total">{{ (!isLoading && filteredEvents.length) || 0 }} event(s).</h4>
-        <div>
-          <input v-model.trim="searchEvent" class="event-search-bar" type="text" placeholder="Search" />
-          <font-awesome-icon id="schedules-filter" icon="filter" @click="filterDropdown = !filterDropdown" />
+  <PageWrapper>
+    <DeleteSchedule :modal-state="confirmDeleteModal" :event-detail="eventDetail" :event-store="eventStore" />
+    <ScheduleFormInput
+      :event-model="eventModel"
+      :event-model-error="eventModelError"
+      :is-edit-mode="editMode"
+      :modal-state="scheduleFormInputModal"
+      @add-event="addEvent"
+      @edit-event="editEvent"
+      @reset-form="resetEventForm"
+    />
+    <app-loading-screen v-if="isLoading" />
+    <div id="schedules">
+      <div class="schedules-list-container">
+        <div class="schedules-list-header">
+          <h4 id="schedules-total">{{ (!isLoading && filteredEvents.length) || 0 }} event(s).</h4>
+          <div>
+            <input v-model.trim="searchEvent" class="event-search-bar" type="text" placeholder="Search" />
+            <font-awesome-icon id="schedules-filter" icon="filter" @click="filterDropdown = !filterDropdown" />
+          </div>
         </div>
-      </div>
 
-      <div
-        v-if="filterDropdown"
-        style="background-color: rgba(245, 245, 245, 0.9); padding: 10px 15px; display: flex; gap: 22px"
-      >
-        <div>
-          <label>By Date times : </label>
-          <input v-model="dateFilter" type="date" @change="dateFilterChange" />
-        </div>
-        <div>
-          <label>By Category : </label>
-          <select @change="categoryFilterChange" v-model="categoryFilter">
-            <option value="All">All</option>
-            <option
-              v-for="(categories, index) in categoryStore.eventCategories"
-              :key="categories.categoryId"
-              :value="categories.categoryId"
-            >
-              {{ categories.categoryName }}
-            </option>
-          </select>
-        </div>
-        <div>
-          <label>By Event Status : </label>
-          <select @change="upcomingPastFilterChange" v-model="upcomingPastFilter">
-            <option value="All">All</option>
-            <option value="upcoming">Upcoming</option>
-            <option value="past">Past</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="schedules-list" v-if="!isLoading && filteredEvents.length > 0">
         <div
-          :class="`schedule-card ${eventDetail && eventDetail.bookingId === event.bookingId && 'card-active'}`"
-          v-for="event in filteredEvents"
-          :key="event.bookingId"
-          @click="viewDetail(event.bookingId)"
+          v-if="filterDropdown"
+          style="background-color: rgba(245, 245, 245, 0.9); padding: 10px 15px; display: flex; gap: 22px"
         >
-          <h3 class="title">{{ $truncate(event.bookingName, 50) }}</h3>
-          <div class="date">
-            <font-awesome-icon icon="calendar-days" />
-            {{ moment(event.eventStartTime).format('LL') }} •
-            {{ $getFormattedEventPeriod(event.eventStartTime, event.eventDuration) }}
+          <div>
+            <label>By Date times : </label>
+            <input v-model="dateFilter" type="date" @change="dateFilterChange" />
           </div>
-          <div class="duration">
-            <font-awesome-icon icon="clock" />
-            {{ event.eventDuration }} Minute(s)
+          <div>
+            <label>By Category : </label>
+            <select @change="categoryFilterChange" v-model="categoryFilter">
+              <option value="All">All</option>
+              <option
+                v-for="(categories, index) in categoryStore.eventCategories"
+                :key="categories.categoryId"
+                :value="categories.categoryId"
+              >
+                {{ categories.categoryName }}
+              </option>
+            </select>
           </div>
-          <div style="display: flex; gap: 8px">
-            <EventCategory :category="event.category" />
+          <div>
+            <label>By Event Status : </label>
+            <select @change="upcomingPastFilterChange" v-model="upcomingPastFilter">
+              <option value="All">All</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="past">Past</option>
+            </select>
           </div>
         </div>
-      </div>
-      <div class="schedules-list" v-else>
-        <div class="no-schedules">
-          <font-awesome-icon icon="note-sticky" />
-          <h3>No scheduled events.</h3>
-        </div>
-      </div>
 
-      <font-awesome-icon id="schedules-add" icon="add" @click="scheduleFormInputModal.show" />
-    </div>
-    <div
-      :class="`schedule-detail-container ${Object.keys(eventDetail).length > 0 && 'slide-in'}`"
-      v-if="Object.keys(eventDetail).length > 0"
-    >
-      <div class="schedule-detail">
-        <h1 style="font-size: 18pt">
-          {{ eventDetail.bookingName }}
-        </h1>
-        <cite>({{ eventDetail.bookingEmail }})</cite>
-        <EventCategory :category="eventDetail.category" />
-        <p class="detail-datetime">
-          <font-awesome-icon icon="calendar-days" />
-          {{ moment(eventDetail.eventStartTime).format('LL') }} •
-          {{ $getFormattedEventPeriod(eventDetail.eventStartTime, eventDetail.eventDuration) }}
-        </p>
-        <cite v-show="eventDetail.eventNotes">‟ {{ eventDetail.eventNotes }} ”</cite>
-        <div class="app-input-group">
-          <app-button button-type="warning" @click="editDetail">Edit Details</app-button>
-          <app-button button-type="outline-danger" @click="confirmDeleteModal.show">Cancel Event</app-button>
+        <div class="schedules-list" v-if="!isLoading && filteredEvents.length > 0">
+          <div
+            :class="`schedule-card ${eventDetail && eventDetail.bookingId === event.bookingId && 'card-active'}`"
+            v-for="event in filteredEvents"
+            :key="event.bookingId"
+            @click="viewDetail(event.bookingId)"
+          >
+            <h3 class="title">{{ $truncate(event.bookingName, 50) }}</h3>
+            <div class="date">
+              <font-awesome-icon icon="calendar-days" />
+              {{ moment(event.eventStartTime).format('LL') }} •
+              {{ $getFormattedEventPeriod(event.eventStartTime, event.eventDuration) }}
+            </div>
+            <div class="duration">
+              <font-awesome-icon icon="clock" />
+              {{ event.eventDuration }} Minute(s)
+            </div>
+            <div style="display: flex; gap: 8px">
+              <EventCategory :category="event.category" />
+            </div>
+          </div>
         </div>
+        <div class="schedules-list" v-else>
+          <div class="no-schedules">
+            <font-awesome-icon icon="note-sticky" />
+            <h3>No scheduled events.</h3>
+          </div>
+        </div>
+
+        <font-awesome-icon id="schedules-add" icon="add" @click="scheduleFormInputModal.show" />
       </div>
-      <font-awesome-icon id="schedule-detail-exit" icon="xmark" @click="resetDetail" />
+      <div
+        :class="`schedule-detail-container ${Object.keys(eventDetail).length > 0 && 'slide-in'}`"
+        v-if="Object.keys(eventDetail).length > 0"
+      >
+        <div class="schedule-detail">
+          <h1 style="font-size: 18pt">
+            {{ eventDetail.bookingName }}
+          </h1>
+          <cite>({{ eventDetail.bookingEmail }})</cite>
+          <EventCategory :category="eventDetail.category" />
+          <p class="detail-datetime">
+            <font-awesome-icon icon="calendar-days" />
+            {{ moment(eventDetail.eventStartTime).format('LL') }} •
+            {{ $getFormattedEventPeriod(eventDetail.eventStartTime, eventDetail.eventDuration) }}
+          </p>
+          <cite v-show="eventDetail.eventNotes">‟ {{ eventDetail.eventNotes }} ”</cite>
+          <div class="app-input-group">
+            <app-button button-type="warning" @click="editDetail">Edit Details</app-button>
+            <app-button button-type="outline-danger" @click="confirmDeleteModal.show">Cancel Event</app-button>
+          </div>
+        </div>
+        <font-awesome-icon id="schedule-detail-exit" icon="xmark" @click="resetDetail" />
+      </div>
     </div>
-  </div>
+  </PageWrapper>
 </template>
 
 <style scoped>

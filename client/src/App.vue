@@ -1,16 +1,7 @@
-<script setup>
-import AppSidebar from './components/App/AppSidebar.vue'
-</script>
+<script setup></script>
 
 <template>
-  <div class="app-wrapper">
-    <AppSidebar style="flex: 1" />
-    <div style="flex: 6" class="app-container">
-      <div class="app-content">
-        <router-view></router-view>
-      </div>
-    </div>
-  </div>
+  <router-view />
 </template>
 
 <style>
@@ -60,6 +51,8 @@ label.required:after {
 #app {
   position: relative;
   height: 100vh;
+  background: rgb(213, 213, 213);
+  background: linear-gradient(90deg, rgba(213, 213, 213, 1) 0%, rgba(231, 231, 231, 1) 100%);
 }
 
 .app-wrapper {
@@ -75,12 +68,6 @@ label.required:after {
 .app-content {
   height: 100%;
   padding: 24px;
-  background: rgb(213, 213, 213);
-  background: linear-gradient(
-    90deg,
-    rgba(213, 213, 213, 1) 0%,
-    rgba(231, 231, 231, 1) 100%
-  );
 }
 
 .app-input-group {
