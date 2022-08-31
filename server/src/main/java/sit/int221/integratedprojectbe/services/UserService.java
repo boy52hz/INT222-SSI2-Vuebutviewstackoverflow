@@ -97,7 +97,7 @@ public class UserService {
         newUser.setName(newUser.getName().strip());
         newUser.setEmail(newUser.getEmail().strip());
         newUser.setPassword(argon2Password);
-        if(newUser.getRole() == null){
+        if(newUser.getRole() == null || Objects.equals(newUser.getRole(), "")){
             newUser.setRole("student");
         }
         User user = modelMapper.map(newUser, User.class);
