@@ -31,4 +31,8 @@ public class CreateUserDTO {
     @Size(min = 8, max =14, message = "Password size must be between 8 and 14")
     @NotBlank(message = "must be not blank")
     private String password;
+
+    public void setEmail(String email) {
+        this.email = email.trim();
+    }
 }

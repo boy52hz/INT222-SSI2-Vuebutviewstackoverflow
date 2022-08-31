@@ -97,12 +97,23 @@ public class UserService {
         newUser.setName(newUser.getName().strip());
         newUser.setEmail(newUser.getEmail().strip());
         newUser.setPassword(argon2Password);
-        if(newUser.getRole() == null){
+
+        if(newUser.getRole() == null || newUser.getRole().trim() == ""){
             newUser.setRole("student");
         }
+
         User user = modelMapper.map(newUser, User.class);
-        UserRole userRole = userRoleService.getRoleByRoleName(newUser.getRole());
-        user.setRole(userRole);
+        try {
+            UserRole userRole = userRoleService.getRoleByRoleName(newUser.getRole());
+            user.setRole(userRole);
+        } catch (ResponseStatusException ex) {
+            FieldError error = new FieldError(
+                    "addUserDTO",
+                    "role",
+                    ex.getReason());
+            bindingResult.addError(error);
+        }
+
         if (newUser.getName() != null && userRepository.existsByName(newUser.getName())
         ) {
             FieldError error = new FieldError(
