@@ -26,7 +26,7 @@ public class User {
     private String email;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "role", nullable = false , insertable = false, updatable = false)
+    @JoinColumn(name = "role", nullable = false)
     private UserRole role;
 
     @Column(name = "password", nullable = false)

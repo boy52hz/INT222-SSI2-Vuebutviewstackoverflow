@@ -1,8 +1,7 @@
 <script setup>
-import { ref } from 'vue'
-
-const inputValue = ref('')
-defineProps({
+const props = defineProps({
+  modelValue: {},
+  modelModifiers: { default: () => ({}) },
   required: {
     type: Boolean,
     default: false,
@@ -10,26 +9,41 @@ defineProps({
   labelText: {
     type: String,
   },
+  options: {
+    type: Array,
+  },
   errorMessage: {
     type: String,
   },
 })
+const emit = defineEmits(['update:modelValue'])
+
+const emitValue = (evt) => {
+  let value = evt.target.value
+  if (props.modelModifiers.trim) {
+    value = value.trim()
+    console.log(value)
+  }
+  emit('update:modelValue', value)
+}
 </script>
 
 <template>
   <div class="input-group">
     <label v-show="labelText" :for="$attrs.id" :class="required && 'required'">{{ labelText }}</label>
-    <input
-      v-bind="$attrs"
-      :class="errorMessage && 'error'"
-      @input="(evt) => $emit('update:modelValue', evt.target.value)"
-    />
+    <select v-if="options" v-bind="$attrs" :class="errorMessage && 'error'" :value="modelValue" @input="emitValue">
+      <option v-for="(option, index) in options" :key="index" :value="option.value">
+        {{ option.label }}
+      </option>
+    </select>
+    <input v-else v-bind="$attrs" :class="errorMessage && 'error'" :value="modelValue" @input="emitValue" />
     <div v-show="errorMessage" class="error-message">{{ errorMessage }}</div>
   </div>
 </template>
 
 <style scoped>
-.input-group input {
+.input-group input,
+.input-group select {
   width: 100%;
 }
 .input-group input.error {

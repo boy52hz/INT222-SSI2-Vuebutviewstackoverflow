@@ -2,6 +2,9 @@
 import { ref } from 'vue'
 import { useUsers } from '../stores/users'
 import AppInput from '../components/App/AppInput.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const userStore = useUsers()
 
@@ -10,9 +13,25 @@ const formLogin = ref({
   password: '',
 })
 
-const errorMessage = {
+const errorMessage = ref({
   email: '',
   password: '',
+})
+
+const loginUser = async () => {
+  try {
+    const success = await userStore.loginUser(formLogin.value)
+    if (success) {
+      router.push('/')
+    }
+  } catch (err) {
+    errorMessage.value = {}
+    if (err.status === 404) {
+      errorMessage.value.email = err.message
+    } else if (err.status === 401) {
+      errorMessage.value.password = err.message
+    }
+  }
 }
 </script>
 
@@ -21,19 +40,22 @@ const errorMessage = {
     <div class="wrapper">
       <div class="welcome-title">Welcome to OASIP-SSI2</div>
       <div class="welcome-desc">Please, fill form to login.</div>
-      <form @submit.prevent="userStore.loginUser(formLogin)">
+      <form @submit.prevent="loginUser">
         <AppInput
           type="email"
           pattern="^[^(\.)][a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}"
-          v-model="formLogin.email"
+          v-model.trim="formLogin.email"
           label-text="Email"
+          :max-length="50"
           :error-message="errorMessage.email"
           :required="true"
         />
         <AppInput
           type="password"
-          v-model="formLogin.password"
+          v-model.trim="formLogin.password"
           label-text="Password"
+          :minlength="8"
+          :maxlength="14"
           :error-message="errorMessage.password"
           :required="true"
         />

@@ -64,7 +64,7 @@ public class UserService {
         ) {
             FieldError error = new FieldError(
                     "editUserDTO",
-                    "Name",
+                    "name",
                     "User name is already exist.");
             bindingResult.addError(error);
         }
@@ -72,7 +72,7 @@ public class UserService {
         ) {
             FieldError error = new FieldError(
                     "editUserDTO",
-                    "Email",
+                    "email",
                     "Email is already exist.");
             bindingResult.addError(error);
         }
@@ -97,7 +97,7 @@ public class UserService {
         newUser.setName(newUser.getName().strip());
         newUser.setEmail(newUser.getEmail().strip());
         newUser.setPassword(argon2Password);
-        if(newUser.getRole() == null || Objects.equals(newUser.getRole(), "")){
+        if(newUser.getRole() == null){
             newUser.setRole("student");
         }
         User user = modelMapper.map(newUser, User.class);
@@ -107,15 +107,15 @@ public class UserService {
         ) {
             FieldError error = new FieldError(
                     "editUserDTO",
-                    "Name",
-                    "Username is already used.");
+                    "name",
+                    "Name is already used.");
             bindingResult.addError(error);
         }
         if (newUser.getEmail() != null && userRepository.existsByEmail(newUser.getEmail())
         ) {
             FieldError error = new FieldError(
                     "editUserDTO",
-                    "Email",
+                    "email",
                     "Email is already used.");
             bindingResult.addError(error);
         }

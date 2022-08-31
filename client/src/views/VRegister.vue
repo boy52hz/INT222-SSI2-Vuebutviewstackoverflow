@@ -1,111 +1,131 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { ref, onBeforeMount, reactive } from 'vue'
 import { useUsers } from '../stores/users'
 import AppInput from '../components/App/AppInput.vue'
+import { useUserRoles } from '../stores/userRoles'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const userStore = useUsers()
+const roleStore = useUserRoles()
 
-const roles = reactive(['student', 'lecturer', 'admin'])
-
-const message = ref('')
-
+const roleOptions = ref([])
+const isLoading = ref(false)
 const formRegister = ref({
   email: '',
   password: '',
   confirmPassword: '',
-  firstName: '',
-  lastName: '',
-  role: roles[0],
+  name: '',
+  role: '',
 })
 
 const errorMessage = ref({
   email: '',
   password: '',
   confirmPassword: '',
-  firstName: '',
-  lastName: '',
+  name: '',
   role: '',
 })
 
-const regisUser = async () => {
+const registerUser = async () => {
+  const passwordMatched = validatePasswordMatch()
+
+  if (!passwordMatched) return
+  isLoading.value = true
   try {
-    const data = await userStore.registerUser({
-      email:formRegister.value.email,
-      name:formRegister.value.firstName+" "+formRegister.value.lastName,
-      role:formRegister.value.role,
-      password:formRegister.value.password
+    const success = await userStore.registerUser({
+      email: formRegister.value.email,
+      name: formRegister.value.name,
+      role: formRegister.value.role,
+      password: formRegister.value.password,
     })
+    if (success) {
+      alert('Your account has been created!')
+      router.push('/login')
+    }
   } catch (err) {
-    alert(err.message)
+    const fieldErrors = err.fieldErrors
+    for (let key in fieldErrors) {
+      errorMessage.value[key] = fieldErrors[key].join(', ')
+    }
+  } finally {
+    isLoading.value = false
   }
 }
 
-const passConfirm = () => {
-  if ( formRegister.value.password === formRegister.value.confirmPassword && formRegister.value.password.length >= 8 && formRegister.value.confirmPassword.length >= 8){
-    message.value = "match"
-  } 
-  else if (formRegister.value.password != formRegister.value.confirmPassword && formRegister.value.password.length >= 8 && formRegister.value.confirmPassword.length >= 8){
-    message.value = "dmatch"
-  }else {
-    message.value = null
+const validatePasswordMatch = () => {
+  if (!formRegister.value.password || !formRegister.value.confirmPassword) {
+    return false
+  }
+
+  if (formRegister.value.password !== formRegister.value.confirmPassword) {
+    errorMessage.value.confirmPassword = 'Password Mismatch'
+    return false
+  } else {
+    errorMessage.value.confirmPassword = ''
+    return true
   }
 }
+
+onBeforeMount(async () => {
+  await roleStore.fetchUserRoles()
+  roleOptions.value = roleStore.toOptions()
+  formRegister.value.role = roleOptions.value[0].value
+})
 </script>
 
 <template>
+  <app-loading-screen v-show="isLoading" />
   <div class="container">
     <div class="wrapper">
       <div class="title">Welcome to OASIP-SSI2</div>
       <div class="desc">Please, fill form to create account.</div>
-      <form @submit.prevent="regisUser">
+      <form @submit.prevent="registerUser">
         <AppInput
           type="text"
-          v-model="formRegister.firstName"
-          label-text="First Name"
-          :error-message="errorMessage.firstName"
-          :required="true"
-        />
-        <AppInput
-          type="text"
-          v-model="formRegister.lastName"
-          label-text="Last Name"
-          :error-message="errorMessage.lastName"
+          v-model.trim="formRegister.name"
+          label-text="Name"
+          :maxlength="100"
+          :error-message="errorMessage.name"
           :required="true"
         />
         <AppInput
           type="email"
           pattern="^[^(\.)][a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}"
-          v-model="formRegister.email"
+          v-model.trim="formRegister.email"
           label-text="Email"
+          :maxlength="50"
           :error-message="errorMessage.email"
           :required="true"
         />
         <AppInput
           type="password"
-          v-model="formRegister.password"
+          v-model.trim="formRegister.password"
           label-text="Password"
+          @focusout="validatePasswordMatch"
+          :minlength="8"
+          :maxlength="14"
           :error-message="errorMessage.password"
           :required="true"
-          :onkeyup="passConfirm"
-          :minlength="8"
         />
         <AppInput
           type="password"
-          v-model="formRegister.confirmPassword"
+          v-model.trim="formRegister.confirmPassword"
           label-text="Confirm Password"
+          @focusout="validatePasswordMatch"
+          :minlength="8"
+          :maxlength="14"
           :error-message="errorMessage.confirmPassword"
           :required="true"
-          :onkeyup="passConfirm"
-          :minlength="8"
         />
-        <span class="message" v-if="message=='match'">Passwords Match!</span>
-        <span class="dmessage" v-if="message=='dmatch'">Passwords Doesn't Match!</span>
-        <div class="input-group">
-          <label class="required">Role</label>
-          <select v-model="formRegister.role" style="width: 100%">
-            <option v-for="(role, index) in roles" :key="index" :value="role">{{ $capitalize(role) }}</option>
-          </select>
-        </div>
+        <AppInput
+          v-model.trim="formRegister.role"
+          label-text="Role"
+          :options="roleOptions"
+          :error-message="errorMessage.role"
+          :required="true"
+        />
         <app-button class="btn-submit" type="submit">Create New Account</app-button>
       </form>
       <router-link class="register-href" to="/login">I already have an account</router-link>
@@ -114,15 +134,6 @@ const passConfirm = () => {
 </template>
 
 <style scoped>
-.message {
-  color: green;
-  font-size: 0.8em;
-}
-
-.dmessage {
-  color: red;
-  font-size: 0.8em;
-}
 .container {
   max-width: 735px;
   width: 100%;

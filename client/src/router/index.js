@@ -3,8 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 const history = createWebHistory(import.meta.env.VITE_BASE_PATH)
 const routes = [
   {
-    path: '/match',
-    name: 'Match',
+    path: '/login',
+    name: 'Login',
     component: () => import('../views/VLogin.vue'),
   },
   {

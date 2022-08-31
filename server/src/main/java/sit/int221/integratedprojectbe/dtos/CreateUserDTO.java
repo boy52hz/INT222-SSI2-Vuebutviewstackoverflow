@@ -26,7 +26,6 @@ public class CreateUserDTO {
     @Size(min = 1, max =50 , message = "Email size must be between 1 and 50")
     private String email;
 
-    @NotNull(message = "must not be null")
     private String role;
 
     @Size(min = 8, max =14, message = "Password size must be between 8 and 14")

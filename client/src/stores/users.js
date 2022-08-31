@@ -8,22 +8,20 @@ export const useUsers = defineStore('users', () => {
 
   // logiData => email (trimed), password(trimed)
   const loginUser = async (loginData) => {
-      const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users/match`, {
-        method:'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body:JSON.stringify(loginData),
-      })
+    const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users/match`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(loginData),
+    })
+    if (res.status === 200) {
+      return true
+    } else {
       const data = await res.json()
-      if (res.status === 200) {
-        router.push(`${import.meta.env.VITE_BASE_PATH}/users/`)
-        await fetchUsers()
-        return data
-      } else if (res.status === 400) {
-        throw data
-      }
-  } 
+      throw data
+    }
+  }
 
   const registerUser = async (registerData) => {
     const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users`, {
@@ -33,12 +31,26 @@ export const useUsers = defineStore('users', () => {
       },
       body: JSON.stringify(registerData),
     })
-    const data = await res.json()
     if (res.status === 201) {
-      router.push(`${import.meta.env.VITE_BASE_PATH}/match/`)
-      await fetchUsers()
-      return data
+      return true
     } else if (res.status === 400) {
+      const data = await res.json()
+      throw data
+    }
+  }
+
+  const editUser = async (userId, editedData) => {
+    const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(editedData),
+    })
+    if (res.status === 200) {
+      return true
+    } else if (res.status === 400) {
+      const data = await res.json()
       throw data
     }
   }
@@ -82,6 +94,7 @@ export const useUsers = defineStore('users', () => {
     fetchUsers,
     fetchUserByUserId,
     deleteUserById,
+    editUser,
     loginUser,
     registerUser,
   }
