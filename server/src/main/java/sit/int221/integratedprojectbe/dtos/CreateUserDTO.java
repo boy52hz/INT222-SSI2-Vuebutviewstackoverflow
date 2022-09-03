@@ -32,5 +32,9 @@ public class CreateUserDTO {
     @NotBlank(message = "must be not blank")
     private String password;
 
-    public void setEmail(String email) {this.email = email.trim();}
+
+    public void setEmail(String email) {
+        this.email = email.trim();
+    }
+
 }
