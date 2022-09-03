@@ -29,4 +29,7 @@ public class EditUserDTO {
 
     private String role;
 
+
+    public void setEmail(String email) {this.email = email.trim();}
+
 }
