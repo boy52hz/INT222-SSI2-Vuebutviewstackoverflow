@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import sit.int221.integratedprojectbe.filters.JwtRequestFilter;
 import sit.int221.integratedprojectbe.services.imp.UserDetailsServiceImp;
+import sit.int221.integratedprojectbe.utils.RestAuthenticationEntryPoint;
 
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -24,9 +25,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtRequestFilter jwtFilter;
 
+    @Autowired
+    private RestAuthenticationEntryPoint unauthorizedHandler;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.csrf().disable().exceptionHandling().authenticationEntryPoint(this.unauthorizedHandler).and()
                 .authorizeRequests().antMatchers("/api/users/match").permitAll()
                 .mvcMatchers(HttpMethod.POST, "/api/users").permitAll().
                         anyRequest().authenticated().and().sessionManagement()
