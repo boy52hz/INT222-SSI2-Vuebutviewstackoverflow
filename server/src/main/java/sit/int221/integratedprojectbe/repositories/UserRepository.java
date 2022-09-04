@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-    List<User> findAllByOrderByNameAsc();
+    List<User> findAllByOrderByUserIdDesc();
 
     public boolean existsByNameAndUserIdNot(String Name, Integer userId);
 

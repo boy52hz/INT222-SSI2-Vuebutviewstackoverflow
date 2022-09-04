@@ -50,10 +50,7 @@ public class UserController {
     }
     @PostMapping("/match")
     @ResponseStatus(HttpStatus.OK)
-    public UserDetailsDTO matchUser(@Valid @RequestBody LoginDTO newUser , BindingResult bindingResult) {
-        return userService.passwordCheck(newUser,bindingResult);
-
+    public JwtTokenDTO matchUser(@Valid @RequestBody LoginDTO newUser , BindingResult bindingResult) {
+        return userService.passwordCheck(newUser, bindingResult);
     }
-
-
 }
