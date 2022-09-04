@@ -5,6 +5,13 @@ import de.mkammerer.argon2.Argon2Factory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -15,13 +22,18 @@ import sit.int221.integratedprojectbe.entities.User;
 import sit.int221.integratedprojectbe.entities.UserRole;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.repositories.UserRepository;
+import sit.int221.integratedprojectbe.services.imp.UserDetailsServiceImp;
+import sit.int221.integratedprojectbe.utils.JwtUtils;
 import sit.int221.integratedprojectbe.utils.ListMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 public class UserService {
+    @Autowired
+    private UserDetailsServiceImp userDetailsServiceImp;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -30,6 +42,9 @@ public class UserService {
     private ModelMapper modelMapper;
     @Autowired
     private ListMapper listMapper;
+    @Autowired
+    private JwtUtils jwtUtils;
+    private AuthenticationManager authenticationManager;
 
     Argon2 argon2 = Argon2Factory.create(
             Argon2Factory.Argon2Types.ARGON2id,
@@ -38,7 +53,7 @@ public class UserService {
 
 
     public List<UserDetailsDTO> getUsers() {
-        return listMapper.mapList(userRepository.findAllByOrderByNameAsc(), UserDetailsDTO.class, modelMapper);
+        return listMapper.mapList(userRepository.findAllByOrderByUserIdDesc(), UserDetailsDTO.class, modelMapper);
     }
 
     public UserDetailsDTO getUserById(Integer userId) {
@@ -136,8 +151,8 @@ public class UserService {
         return modelMapper.map(userRepository.saveAndFlush(user), UserDetailsDTO.class);
     }
 
-    public UserDetailsDTO passwordCheck(LoginDTO login , BindingResult bindingResult){
-        User user = new User() ;
+    public JwtTokenDTO passwordCheck(LoginDTO login , BindingResult bindingResult) {
+        User user;
         if (bindingResult.hasErrors()) {
             throw new ArgumentNotValidException(bindingResult);
         }
@@ -149,14 +164,26 @@ public class UserService {
       if(!argon2.verify(user.getPassword(), login.getPassword()) )
           throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Password mismatch.");
 
-
-      return modelMapper.map(user,UserDetailsDTO.class);
-
+      try {
+          authenticate(user.getEmail(), user.getPassword());
+      } catch (Exception ex) {
+          System.out.println(ex);
+      }
+      UserDetails userDetails = userDetailsServiceImp.loadUserByUsername(user.getEmail());
+      String jwtToken = jwtUtils.generateToken(userDetails);
+      JwtTokenDTO jwtTokenDTO = new JwtTokenDTO("You are now logged in", jwtToken);
+      return jwtTokenDTO;
     }
 
-
-
-
+    private void authenticate(String username, String password) throws Exception {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        } catch (DisabledException e) {
+            throw new Exception("USER_DISABLED", e);
+        } catch (BadCredentialsException e) {
+            throw new Exception("INVALID_CREDENTIALS", e);
+        }
+    }
 
     private User mapUser(User existingUser, EditUserDTO updateUser) {
         if (updateUser.getName() != null) {
@@ -170,16 +197,8 @@ public class UserService {
             existingUser.setRole(userRole);
         }
         return existingUser;
-
     }
-
-
-
-
-
-
-
-    }
+}
 
 
 
