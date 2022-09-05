@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
     @Autowired
     private UserService userService;
 
@@ -24,9 +23,6 @@ public class UserController {
         return userService.getUsers();
 
     }
-
-
-
 
     @GetMapping("/{userId}")
     public UserDetailsDTO getUserByUserId(@PathVariable Integer userId){
@@ -48,5 +44,4 @@ public class UserController {
         return userService.addNewUser(newUser, bindingResult);
 
     }
-
 }
