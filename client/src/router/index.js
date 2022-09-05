@@ -73,14 +73,19 @@ const routes = [
 ]
 
 const router = createRouter({ history, routes })
-router.beforeEach((to, from, next) => {
-  const user = useUser()
-  if (to.meta.requireAuth && !user.getToken) {
+router.beforeEach(async (to, from, next) => {
+  const userStore = useUser()
+  if (to.meta.requireAuth && !userStore.getToken()) {
+    userStore.logout()
     return next('/login')
   }
 
-  if (['Login', 'Register'].includes(to.name) && user.getToken) {
+  if (['Login', 'Register'].includes(to.name) && userStore.getToken()) {
     return next('/')
+  }
+
+  if (to.meta.requireAuth && !userStore.isAuthenticated) {
+    await userStore.loadUser()
   }
 
   next()

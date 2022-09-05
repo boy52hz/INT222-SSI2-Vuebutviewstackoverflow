@@ -5,6 +5,7 @@ import { useUser } from '../../stores/user'
 
 const router = useRouter()
 const userStore = useUser()
+const user = ref(userStore.user)
 const navsRef = ref()
 
 const toggleMenu = (evt) => {
@@ -34,6 +35,9 @@ const logout = () => {
         <div></div>
         <div></div>
       </button>
+    </div>
+    <div style="text-align: center; color: whitesmoke; font-size: 0.8em; margin: 10px">
+      Welcome, {{ $truncate(user.name) }}
     </div>
     <ul ref="navsRef" id="navs">
       <li>

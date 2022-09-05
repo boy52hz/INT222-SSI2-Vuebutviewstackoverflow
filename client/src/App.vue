@@ -1,9 +1,4 @@
-<script setup>
-import { useUser } from './stores/user'
-
-const userStore = useUser()
-userStore.loadUser()
-</script>
+<script setup></script>
 
 <template>
   <router-view />
