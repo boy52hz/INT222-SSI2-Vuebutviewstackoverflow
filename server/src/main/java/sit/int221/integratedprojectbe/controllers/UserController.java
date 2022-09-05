@@ -48,9 +48,5 @@ public class UserController {
         return userService.addNewUser(newUser, bindingResult);
 
     }
-    @PostMapping("/match")
-    @ResponseStatus(HttpStatus.OK)
-    public JwtTokenDTO matchUser(@Valid @RequestBody LoginDTO newUser , BindingResult bindingResult) {
-        return userService.passwordCheck(newUser, bindingResult);
-    }
+
 }
