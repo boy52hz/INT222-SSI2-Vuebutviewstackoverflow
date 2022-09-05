@@ -13,13 +13,9 @@ import java.io.IOException;
 
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestAuthenticationEntryPoint.class);
-
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
-
 }

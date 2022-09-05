@@ -9,6 +9,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @ControllerAdvice
@@ -42,8 +43,6 @@ public class ApiExceptionHandler {
                         ex.getParameter().getParameterType().getSimpleName())
         );
     }
-
-
 
     @ExceptionHandler({ResponseStatusException.class})
     protected  ResponseEntity<Object> handleResponseStatus(ResponseStatusException ex, HttpServletRequest request) {

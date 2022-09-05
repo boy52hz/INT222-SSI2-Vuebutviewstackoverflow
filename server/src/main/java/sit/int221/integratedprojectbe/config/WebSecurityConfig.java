@@ -21,20 +21,22 @@ import sit.int221.integratedprojectbe.utils.RestAuthenticationEntryPoint;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserDetailsServiceImp userDetailsServiceImp;
-
     @Autowired
     private JwtRequestFilter jwtFilter;
-
     @Autowired
     private RestAuthenticationEntryPoint unauthorizedHandler;
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().exceptionHandling().authenticationEntryPoint(this.unauthorizedHandler).and()
+        http.csrf().disable()
                 .authorizeRequests().antMatchers("/api/users/match").permitAll()
-                .mvcMatchers(HttpMethod.POST, "/api/users").permitAll().
-                        anyRequest().authenticated().and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .mvcMatchers(HttpMethod.POST, "/api/users").permitAll()
+                .mvcMatchers(HttpMethod.GET, "/api/roles").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
