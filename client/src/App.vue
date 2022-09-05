@@ -1,4 +1,9 @@
-<script setup></script>
+<script setup>
+import { useUser } from './stores/user'
+
+const userStore = useUser()
+userStore.loadUser()
+</script>
 
 <template>
   <router-view />
@@ -58,6 +63,12 @@ label.required:after {
 .app-wrapper {
   display: flex;
   height: 100%;
+}
+
+@media screen and (max-width: 788px) {
+  .app-wrapper {
+    flex-direction: column;
+  }
 }
 
 .app-container {

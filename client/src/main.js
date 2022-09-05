@@ -17,6 +17,7 @@ import { far } from '@fortawesome/free-regular-svg-icons'
 
 /* import font awesome icon component */
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import axios from 'axios'
 
 library.add(fas, far)
 
@@ -44,4 +45,5 @@ app.config.globalProperties.$truncate = (str, maxLength) => {
 app.config.globalProperties.$capitalize = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 }
+
 app.mount('#app')

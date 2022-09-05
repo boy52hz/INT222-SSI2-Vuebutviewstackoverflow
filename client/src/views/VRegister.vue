@@ -1,13 +1,13 @@
 <script setup>
-import { ref, onBeforeMount, reactive } from 'vue'
-import { useUsers } from '../stores/users'
+import { ref, onBeforeMount } from 'vue'
+import { useUser } from '../stores/user'
 import AppInput from '../components/App/AppInput.vue'
 import { useUserRoles } from '../stores/userRoles'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const userStore = useUsers()
+const userStore = useUser()
 const roleStore = useUserRoles()
 
 const roleOptions = ref([])
@@ -34,17 +34,16 @@ const registerUser = async () => {
   if (!passwordMatched) return
   isLoading.value = true
   try {
-    const success = await userStore.registerUser({
+    await userStore.registerUser({
       email: formRegister.value.email,
       name: formRegister.value.name,
       role: formRegister.value.role,
       password: formRegister.value.password,
     })
-    if (success) {
-      alert('Your account has been created!')
-      router.push('/login')
-    }
+    alert('Your account has been created!')
+    router.push('/login')
   } catch (err) {
+    errorMessage.value = {}
     const fieldErrors = err.fieldErrors
     for (let key in fieldErrors) {
       errorMessage.value[key] = fieldErrors[key].join(', ')
@@ -55,12 +54,20 @@ const registerUser = async () => {
 }
 
 const validatePasswordMatch = () => {
+  errorMessage.value.password = ''
+  errorMessage.value.confirmPassword = ''
+
   if (!formRegister.value.password || !formRegister.value.confirmPassword) {
     return false
   }
 
+  if (formRegister.value.password.length < 8 || formRegister.value.password.length > 14) {
+    errorMessage.value.password = 'Password size must be between 8 and 14.'
+    return false
+  }
+
   if (formRegister.value.password !== formRegister.value.confirmPassword) {
-    errorMessage.value.confirmPassword = 'Password Mismatch'
+    errorMessage.value.confirmPassword = 'Password mismatch.'
     return false
   } else {
     errorMessage.value.confirmPassword = ''
@@ -101,21 +108,19 @@ onBeforeMount(async () => {
         />
         <AppInput
           type="password"
-          v-model.trim="formRegister.password"
+          v-model="formRegister.password"
           label-text="Password"
           @focusout="validatePasswordMatch"
           :minlength="8"
-          :maxlength="14"
           :error-message="errorMessage.password"
           :required="true"
         />
         <AppInput
           type="password"
-          v-model.trim="formRegister.confirmPassword"
+          v-model="formRegister.confirmPassword"
           label-text="Confirm Password"
           @focusout="validatePasswordMatch"
           :minlength="8"
-          :maxlength="14"
           :error-message="errorMessage.confirmPassword"
           :required="true"
         />

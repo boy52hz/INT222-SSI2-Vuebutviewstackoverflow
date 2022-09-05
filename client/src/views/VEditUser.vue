@@ -3,21 +3,19 @@ import PageWrapper from '../components/PageWrapper.vue'
 import AppInput from '../components/App/AppInput.vue'
 import { useUsers } from '../stores/users'
 import { computed, onBeforeMount, ref } from 'vue'
-import { useRoute } from 'vue-router'
 import { useUserRoles } from '../stores/userRoles'
 import router from '../router'
 
-const route = useRoute()
+const props = defineProps(['userId', 'user'])
+
 const userStore = useUsers()
 const roleStore = useUserRoles()
-
-const userData = ref({})
 const roleOptions = ref([])
-const isLoading = ref(false)
 
 const formEdit = ref({
-  name: '',
-  email: '',
+  name: props.user.name,
+  email: props.user.email,
+  role: props.user.role.name,
 })
 
 const errorMessage = ref({
@@ -27,20 +25,21 @@ const errorMessage = ref({
 
 const isEdited = computed(() => {
   return (
-    formEdit.value.email !== userData.value.email ||
-    formEdit.value.name !== userData.value.name ||
-    formEdit.value.role !== userData.value.role.name
+    formEdit.value.email !== props.user.email ||
+    formEdit.value.name !== props.user.name ||
+    formEdit.value.role !== props.user.role.name
   )
 })
 
 const editUser = async () => {
   try {
-    const success = await userStore.editUser(userData.value.id, formEdit.value)
+    const success = await userStore.editUser(props.user.id, formEdit.value)
     if (success) {
       alert('Your data has been edited!')
       router.push('/users')
     }
   } catch (err) {
+    errorMessage.value = {}
     const fieldErrors = err.fieldErrors
     for (let key in fieldErrors) {
       errorMessage.value[key] = fieldErrors[key].join(', ')
@@ -49,32 +48,16 @@ const editUser = async () => {
 }
 
 onBeforeMount(async () => {
-  const { userId } = route.params
-
-  isLoading.value = true
-  try {
-    const user = await userStore.fetchUserByUserId(userId)
-    userData.value = user
-    formEdit.value = {
-      name: user.name,
-      email: user.email,
-      role: user.role.name,
-    }
-    await roleStore.fetchUserRoles()
-    roleOptions.value = roleStore.toOptions()
-    isLoading.value = false
-  } catch (err) {
-    console.log(err)
-  }
+  await roleStore.fetchUserRoles()
+  roleOptions.value = roleStore.toOptions()
 })
 </script>
 
 <template>
   <PageWrapper>
-    <app-loading-screen v-show="isLoading" />
     <div id="edit-user">
       <div class="container">
-        <h2>Edit user - {{ userData.name }}</h2>
+        <h2>Edit user - {{ user.name }}</h2>
         <form @submit.prevent="editUser">
           <div class="inline-input-group">
             <AppInput

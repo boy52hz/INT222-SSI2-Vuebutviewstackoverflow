@@ -22,7 +22,6 @@ const emitValue = (evt) => {
   let value = evt.target.value
   if (props.modelModifiers.trim) {
     value = value.trim()
-    console.log(value)
   }
   emit('update:modelValue', value)
 }

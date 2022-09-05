@@ -1,12 +1,12 @@
 <script setup>
 import { ref } from 'vue'
-import { useUsers } from '../stores/users'
+import { useUser } from '../stores/user'
 import AppInput from '../components/App/AppInput.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const userStore = useUsers()
+const userStore = useUser()
 
 const formLogin = ref({
   email: '',
@@ -19,11 +19,13 @@ const errorMessage = ref({
 })
 
 const loginUser = async () => {
+  const passwordValid = validatePassword()
+
+  if (!passwordValid) return
+
   try {
-    const success = await userStore.loginUser(formLogin.value)
-    if (success) {
-      router.push('/')
-    }
+    await userStore.loginUser(formLogin.value)
+    router.push('/')
   } catch (err) {
     errorMessage.value = {}
     if (err.status === 404) {
@@ -32,6 +34,17 @@ const loginUser = async () => {
       errorMessage.value.password = err.message
     }
   }
+}
+
+const validatePassword = () => {
+  errorMessage.value.password = ''
+
+  if (formLogin.value.password.length < 8 || formLogin.value.password.length > 14) {
+    errorMessage.value.password = 'Password size must be between 8 and 14.'
+    return false
+  }
+
+  return true
 }
 </script>
 
@@ -52,10 +65,9 @@ const loginUser = async () => {
         />
         <AppInput
           type="password"
-          v-model.trim="formLogin.password"
+          v-model="formLogin.password"
           label-text="Password"
           :minlength="8"
-          :maxlength="14"
           :error-message="errorMessage.password"
           :required="true"
         />

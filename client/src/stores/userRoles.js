@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import { ref } from 'vue'
 
@@ -5,9 +6,11 @@ export const useUserRoles = defineStore('userRoles', () => {
   const userRoles = ref([])
 
   const fetchUserRoles = async () => {
-    const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/roles`)
-    if (res.status === 200) {
-      userRoles.value = await res.json()
+    try {
+      const res = await axios(`${import.meta.env.VITE_BASE_PATH}/api/roles`)
+      userRoles.value = res.data
+    } catch (err) {
+      throw err.response.data
     }
   }
 

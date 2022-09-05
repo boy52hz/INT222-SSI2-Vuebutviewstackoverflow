@@ -1,91 +1,42 @@
-import { cat } from 'fontawesome'
+import axios from 'axios'
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import { ref } from 'vue'
-import router from '../router'
 
 export const useUsers = defineStore('users', () => {
   const users = ref([])
 
-  // logiData => email (trimed), password(trimed)
-  const loginUser = async (loginData) => {
-    const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users/match`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(loginData),
-    })
-    if (res.status === 200) {
-      return true
-    } else {
-      const data = await res.json()
-      throw data
-    }
-  }
-
-  const registerUser = async (registerData) => {
-    const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(registerData),
-    })
-    if (res.status === 201) {
-      return true
-    } else if (res.status === 400) {
-      const data = await res.json()
-      throw data
-    }
-  }
-
   const editUser = async (userId, editedData) => {
-    const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(editedData),
-    })
-    if (res.status === 200) {
-      return true
-    } else if (res.status === 400) {
-      const data = await res.json()
-      throw data
+    try {
+      await axios.patch(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`, editedData)
+    } catch (err) {
+      throw err.response.data
     }
   }
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users`)
-      if (res.status === 200) {
-        const data = await res.json()
-        users.value = data
-      }
+      const res = await axios(`${import.meta.env.VITE_BASE_PATH}/api/users`)
+      users.value = res.data
     } catch (err) {
-      console.log(err)
+      throw err.response.data
     }
   }
 
   const fetchUserByUserId = async (userId) => {
-    const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`)
-    const data = await res.json()
-    if (res.status === 200) {
-      return data
-    } else {
-      throw data
+    try {
+      const res = await axios(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`)
+      return res.data
+    } catch (err) {
+      throw err.response.data
     }
   }
 
   const deleteUserById = async (userId) => {
-    const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`, {
-      method: 'DELETE',
-    })
-    if (res.status === 200) {
+    try {
+      await axios.delete(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`)
       await fetchUsers()
-    } else {
-      const data = await res.json()
-      throw data
+    } catch (err) {
+      throw err.response.data
     }
   }
 
@@ -95,8 +46,6 @@ export const useUsers = defineStore('users', () => {
     fetchUserByUserId,
     deleteUserById,
     editUser,
-    loginUser,
-    registerUser,
   }
 })
 

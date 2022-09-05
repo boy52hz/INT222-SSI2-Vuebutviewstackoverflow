@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import { ref } from 'vue'
 
@@ -6,43 +7,29 @@ export const useEventCategories = defineStore('eventCategories', () => {
 
   const fetchEventCategories = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_BASE_PATH}/api/categories`)
-      if (res.status === 200) {
-        const data = await res.json()
-        eventCategories.value = data
-      }
+      const res = await axios(`${import.meta.env.VITE_BASE_PATH}/api/categories`)
+      eventCategories.value = res.data
     } catch (err) {
-      console.log(err)
+      throw err.response.data
     }
   }
 
   const fetchEventCategoryById = async (categoryId) => {
-    const res = await fetch(
-      `${import.meta.env.VITE_BASE_PATH}/api/categories/${categoryId}`
-    )
-    const data = await res.json()
-    if (res.status === 200) {
-      return data
+    try {
+      const res = await axios(`${import.meta.env.VITE_BASE_PATH}/api/categories/${categoryId}`)
+      return res.data
+    } catch (err) {
+      throw err.response.data
     }
-    throw data
   }
 
   const updateEventCategory = async (category) => {
-    const res = await fetch(
-      `${import.meta.env.VITE_BASE_PATH}/api/categories/${category.categoryId}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(category),
-      }
-    )
-    const data = await res.json()
-    if (res.status === 200) {
-      return data
+    try {
+      const res = await axios.put(`${import.meta.env.VITE_BASE_PATH}/api/categories/${category.categoryId}`, category)
+      return res.data
+    } catch (err) {
+      throw err.response.data
     }
-    throw data
   }
 
   const getCategoryByCategoryId = (categoryId) => {
