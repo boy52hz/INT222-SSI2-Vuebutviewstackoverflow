@@ -85,7 +85,14 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (to.meta.requireAuth && !userStore.isAuthenticated) {
-    await userStore.loadUser()
+    try {
+      await userStore.loadUser()
+    } catch (err) {
+      if (err.response.status === 401) {
+        userStore.logout()
+        return next('/login')
+      }
+    }
   }
 
   next()
