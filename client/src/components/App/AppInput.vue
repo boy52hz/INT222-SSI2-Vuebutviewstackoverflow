@@ -30,12 +30,26 @@ const emitValue = (evt) => {
 <template>
   <div class="input-group">
     <label v-show="labelText" :for="$attrs.id" :class="required && 'required'">{{ labelText }}</label>
-    <select v-if="options" v-bind="$attrs" :class="errorMessage && 'error'" :value="modelValue" @input="emitValue">
+    <select
+      v-if="options"
+      v-bind="$attrs"
+      :class="errorMessage && 'error'"
+      :value="modelValue"
+      @input="emitValue"
+      :required="required"
+    >
       <option v-for="(option, index) in options" :key="index" :value="option.value">
         {{ option.label }}
       </option>
     </select>
-    <input v-else v-bind="$attrs" :class="errorMessage && 'error'" :value="modelValue" @input="emitValue" />
+    <input
+      v-else
+      v-bind="$attrs"
+      :class="errorMessage && 'error'"
+      :value="modelValue"
+      @input="emitValue"
+      :required="required"
+    />
     <div v-show="errorMessage" class="error-message">{{ errorMessage }}</div>
   </div>
 </template>
