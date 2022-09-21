@@ -56,8 +56,9 @@ public class AuthenticationService {
             System.out.println(ex);
         }
         UserDetails userDetails = userDetailsServiceImp.loadUserByUsername(user.getEmail());
-        String jwtToken = jwtUtils.generateToken(userDetails);
-        JwtTokenDTO jwtTokenDTO = new JwtTokenDTO("Login successful", jwtToken);
+        String accessToken = jwtUtils.generateToken(userDetails);
+        String refreshToken = jwtUtils.refreshToken(accessToken);
+        JwtTokenDTO jwtTokenDTO = new JwtTokenDTO("Login successful", accessToken,refreshToken);
         return jwtTokenDTO;
     }
 

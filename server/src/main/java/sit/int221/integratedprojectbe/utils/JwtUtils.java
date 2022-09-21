@@ -19,6 +19,9 @@ public class JwtUtils {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
+    @Value("${jwt.token.expiration.in.seconds}")
+    private Long expiration;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -47,7 +50,7 @@ public class JwtUtils {
 
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 10)))
+                .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 30 )))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
@@ -55,4 +58,31 @@ public class JwtUtils {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
+
+    private Claims getAllClaimsFromToken(String token) {
+        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+    }
+    private Date calculateExpirationDate(Date createdDate) {
+        return new Date(createdDate.getTime() + expiration * 1000 );
+    }
+    public String refreshToken(String token) {
+        final Date createdDate = new Date();
+        final Date expirationDate = calculateExpirationDate(createdDate);
+
+        final Claims claims = getAllClaimsFromToken(token);
+        claims.setIssuedAt(createdDate);
+        claims.setExpiration(expirationDate);
+
+        return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, SECRET_KEY).compact();
+    }
+
+
+    private Boolean ignoreTokenExpiration(String token) {
+        // here you specify tokens, for that the expiration is ignored
+        return false;
+    }
+    public Boolean canTokenBeRefreshed(String token) {
+        return (!isTokenExpired(token) || ignoreTokenExpiration(token));
+    }
+
 }
