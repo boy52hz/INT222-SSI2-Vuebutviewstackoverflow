@@ -54,13 +54,16 @@ public class AuthenticationController {
         String authToken = request.getHeader("Authorization");
         final String token = authToken.substring(7);
         String username =jwtUtils.extractUsername(token);
-        userDetailsServiceImp.loadUserByUsername(username);
+        UserDetails userDetails = userDetailsServiceImp.loadUserByUsername(username);
 
         if (jwtUtils.canTokenBeRefreshed(token)) {
-            String refreshedToken = jwtUtils.refreshToken(token);
-            return ResponseEntity.ok(new AccessTokenDTO("refreshed",refreshedToken));
+            String accessToken = jwtUtils.generateToken(userDetails);
+            return ResponseEntity.ok(new AccessTokenDTO("refreshed",accessToken));
         }
+        else {
             return ResponseEntity.status(401).build();
+        }
+
     }
 
 }
