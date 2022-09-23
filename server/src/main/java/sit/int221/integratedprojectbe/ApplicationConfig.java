@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import sit.int221.integratedprojectbe.utils.ListMapper;
 
+
 @Configuration
 public class ApplicationConfig {
     @Bean
@@ -26,4 +27,5 @@ public class ApplicationConfig {
                 10,
                 10);
     }
+
 }

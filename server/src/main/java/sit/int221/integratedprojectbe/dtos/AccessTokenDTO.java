@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class JwtTokenDTO {
+public class AccessTokenDTO {
     private String message;
     private String accessToken;
-    private String refreshToken;
+
 }
