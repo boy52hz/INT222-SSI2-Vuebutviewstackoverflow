@@ -1,7 +1,6 @@
 import { useUsers } from '../stores/users'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUser } from '../stores/user'
-import { deleteToken } from '../utils/token'
 
 const history = createWebHistory(import.meta.env.VITE_BASE_PATH)
 const routes = [

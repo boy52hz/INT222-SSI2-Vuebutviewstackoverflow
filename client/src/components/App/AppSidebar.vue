@@ -1,22 +1,20 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUser } from '../../stores/user'
 
 const router = useRouter()
 const userStore = useUser()
 const user = ref(userStore.user)
+const navOpened = ref(false)
 const navsRef = ref()
 
+const isMobile = computed(() => {
+  return window.matchMedia('(max-width: 788px)')
+})
+
 const toggleMenu = (evt) => {
-  if (evt.target.classList.contains('toggled')) {
-    evt.target.classList.remove('toggled')
-  }
-  const currentDisplay = navsRef.value.style.display
-  navsRef.value.style.display = currentDisplay === 'block' ? 'none' : 'block'
-  if (navsRef.value.style.display === 'block') {
-    evt.target.classList.add('toggled')
-  }
+  navOpened.value = !navOpened.value
 }
 
 const logout = () => {
@@ -30,16 +28,14 @@ const logout = () => {
     <img id="app-sidebar-logo" src="../../assets/logo.png" alt="Nav Logo" />
     <div id="app-nav">
       <div>OASIP - SSI2</div>
-      <button id="btn-menu" @click="toggleMenu">
+      <button id="btn-menu" :class="{ toggled: navOpened }" @click="toggleMenu">
         <div></div>
         <div></div>
         <div></div>
       </button>
     </div>
-    <div style="text-align: center; color: whitesmoke; font-size: 0.8em; margin: 10px">
-      Welcome, {{ $truncate(user.name) }}
-    </div>
-    <ul ref="navsRef" id="navs">
+    <!-- <div style="text-align: center; color: white; font-size: 0.8em">Welcome, {{ user.name }}</div> -->
+    <ul ref="navsRef" id="navs" :class="isMobile && { opened: navOpened }">
       <li>
         <router-link :to="{ path: '/' }">
           <font-awesome-icon icon="calendar-days" />
@@ -102,7 +98,23 @@ const logout = () => {
   }
 
   #navs {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: inherit;
+    width: 40%;
+    height: 100%;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: all 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+
+  #navs.opened {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -159,6 +171,8 @@ const logout = () => {
   height: 3px;
   background-color: white;
   transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  pointer-events: none;
+  user-select: none;
 }
 
 #btn-menu.toggled div:nth-child(1) {
