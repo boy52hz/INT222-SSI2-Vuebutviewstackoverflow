@@ -19,8 +19,11 @@ public class JwtUtils {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
-    @Value("${jwt.token.expiration.in.seconds}")
-    private Long expiration;
+    @Value("${jwt.accessToken.expiration.in.seconds}")
+    private Long accessTokenExpiration;
+
+    @Value("${jwt.refreshToken.expiration.in.seconds}")
+    private Long refreshTokenExpiration;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -50,7 +53,7 @@ public class JwtUtils {
 
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 30 )))
+                .setExpiration(new Date(System.currentTimeMillis() + (accessTokenExpiration * 1000)))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
@@ -63,7 +66,7 @@ public class JwtUtils {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
     private Date calculateExpirationDate(Date createdDate) {
-        return new Date(createdDate.getTime() + expiration * 1000 );
+        return new Date(createdDate.getTime() + refreshTokenExpiration * 1000 );
     }
     public String refreshToken(String token) {
         final Date createdDate = new Date();

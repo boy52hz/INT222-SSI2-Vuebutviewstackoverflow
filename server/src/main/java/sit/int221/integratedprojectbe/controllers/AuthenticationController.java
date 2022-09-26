@@ -23,7 +23,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/login")
+@RequestMapping("/api/auth")
 public class AuthenticationController {
     private String token;
     @Autowired
@@ -49,7 +49,7 @@ public class AuthenticationController {
         return authenticationService.login(newUser, bindingResult);
     }
 
-    @GetMapping("/refresh")
+    @GetMapping("/refreshToken")
     public ResponseEntity<AccessTokenDTO>refreshAndGetAuthenticationToken(HttpServletRequest request) {
         String authToken = request.getHeader("Authorization");
         final String token = authToken.substring(7);
@@ -58,7 +58,7 @@ public class AuthenticationController {
 
         if (jwtUtils.canTokenBeRefreshed(token)) {
             String accessToken = jwtUtils.generateToken(userDetails);
-            return ResponseEntity.ok(new AccessTokenDTO("refreshed",accessToken));
+            return ResponseEntity.ok(new AccessTokenDTO("refreshed", accessToken));
         }
         else {
             return ResponseEntity.status(401).build();

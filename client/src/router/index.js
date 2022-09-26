@@ -88,8 +88,16 @@ router.beforeEach(async (to, from, next) => {
       await userStore.loadUser()
     } catch (err) {
       if (err.response.status === 401) {
-        userStore.logout()
-        return next('/login')
+        if (!userStore.getRefreshToken()) {
+          return next('/login')
+        }
+
+        const res = await userStore.refreshToken()
+        if (res.status !== 200) {
+          userStore.logout()
+          return next('/login')
+        }
+        await userStore.loadUser()
       }
     }
   }

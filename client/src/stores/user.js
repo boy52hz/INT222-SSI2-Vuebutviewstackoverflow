@@ -15,7 +15,7 @@ export const useUser = defineStore('user', () => {
     }
 
     try {
-      const res = await axios(`${import.meta.env.VITE_BASE_PATH}/api/login`)
+      const res = await axios(`${import.meta.env.VITE_BASE_PATH}/api/auth`)
       user.value = res.data
       isAuthenticated.value = true
     } catch (err) {
@@ -23,14 +23,28 @@ export const useUser = defineStore('user', () => {
     }
   }
 
+  const refreshToken = async () => {
+    const refreshToken = getRefreshToken()
+    try {
+      const res = await axios(`${import.meta.env.VITE_BASE_PATH}/api/auth/refreshToken`, {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      })
+      setToken(res.data.accessToken)
+      return res
+    } catch (err) {
+      return err.response
+    }
+  }
+
   const loginUser = async (loginData) => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_BASE_PATH}/api/login`, loginData)
+      const res = await axios.post(`${import.meta.env.VITE_BASE_PATH}/api/auth`, loginData)
       const data = res.data
-      const bearerToken = `Bearer ${data.token}`
-      token.value = bearerToken
+      token.value = data.accessToken
       isAuthenticated.value = true
-      setToken(bearerToken)
+      setToken(token.value, data.refreshToken)
       await loadUser()
     } catch (err) {
       throw err.response.data
@@ -53,14 +67,17 @@ export const useUser = defineStore('user', () => {
   }
 
   const getToken = () => localStorage.getItem('token')
+  const getRefreshToken = () => localStorage.getItem('refreshToken')
 
   return {
     user,
     loginUser,
     registerUser,
     loadUser,
+    refreshToken,
     logout,
     getToken,
+    getRefreshToken,
     isAuthenticated,
   }
 })

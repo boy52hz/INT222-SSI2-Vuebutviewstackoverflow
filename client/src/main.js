@@ -1,4 +1,3 @@
-import moment from 'moment'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
@@ -17,11 +16,14 @@ import { far } from '@fortawesome/free-regular-svg-icons'
 
 /* import font awesome icon component */
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import axios from 'axios'
+import { configureVueApp } from './config/app'
 
 library.add(fas, far)
 
 const app = createApp(App)
+
+configureVueApp(app)
+
 const pinia = createPinia()
 
 app.use(router)
@@ -31,19 +33,5 @@ app.component('font-awesome-icon', FontAwesomeIcon)
 app.component('app-button', AppButton)
 app.component('app-loading-screen', AppLoadingScreen)
 app.component('app-modal', AppModal)
-
-app.config.globalProperties.$getFormattedEventPeriod = (time, duration) => {
-  const startTime = moment(time)
-  const finishTime = startTime.clone().add(duration, 'minutes')
-  return `${startTime.format('LT')} - ${finishTime.format('LT')}`
-}
-
-app.config.globalProperties.$truncate = (str, maxLength) => {
-  return str.length > maxLength ? `${str.substr(0, maxLength - 1)}\u2026` : str
-}
-
-app.config.globalProperties.$capitalize = (str) => {
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
-}
 
 app.mount('#app')
