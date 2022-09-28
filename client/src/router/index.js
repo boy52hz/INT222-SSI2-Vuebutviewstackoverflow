@@ -74,20 +74,16 @@ const routes = [
 const router = createRouter({ history, routes })
 router.beforeEach(async (to, from, next) => {
   const userStore = useUser()
-  if (to.meta.requireAuth && !userStore.getToken()) {
-    userStore.logout()
-    return next('/login')
-  }
 
   if (['Login', 'Register'].includes(to.name) && userStore.getToken()) {
     return next('/')
   }
 
-  if (to.meta.requireAuth && !userStore.isAuthenticated) {
+  if (to.meta.requireAuth && (!userStore.isAuthenticated || !userStore.getToken())) {
     try {
       await userStore.loadUser()
     } catch (err) {
-      if (err.response.status === 401) {
+      if (err.response.status !== 200) {
         if (!userStore.getRefreshToken()) {
           return next('/login')
         }
