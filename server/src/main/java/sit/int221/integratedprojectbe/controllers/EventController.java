@@ -2,6 +2,7 @@ package sit.int221.integratedprojectbe.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,9 @@ import sit.int221.integratedprojectbe.dtos.EventDetailsDTO;
 import sit.int221.integratedprojectbe.entities.Event;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
+import sit.int221.integratedprojectbe.services.EmailService;
 import sit.int221.integratedprojectbe.services.EventService;
+
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,6 +28,9 @@ import java.util.Set;
 public class EventController {
     @Autowired
     private EventService eventService;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("")
     public List<EventDetailsDTO> getAllEvents(
@@ -66,6 +72,7 @@ public class EventController {
         } catch (ArgumentNotValidException ex) {
             throw ex;
         }
+
     }
     
     @DeleteMapping("/{bookingId}")
@@ -87,5 +94,8 @@ public class EventController {
             throw ex;
         }
     }
-
+    @PostMapping("/send-email")
+    public EventDetailsDTO sendMail (@Valid @RequestBody EventDetailsDTO details){
+        return  emailService.sendSimpleMessage(details);
+    }
 }

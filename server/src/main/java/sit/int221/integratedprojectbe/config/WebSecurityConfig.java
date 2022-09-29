@@ -31,6 +31,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/api/auth").permitAll()
                 .mvcMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .mvcMatchers(HttpMethod.GET, "/api/roles").permitAll()
+                .mvcMatchers( "/api/events/send-email").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)

@@ -5,6 +5,7 @@ import de.mkammerer.argon2.Argon2Factory;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.SimpleMailMessage;
 import sit.int221.integratedprojectbe.utils.ListMapper;
 
 
@@ -27,5 +28,6 @@ public class ApplicationConfig {
                 10,
                 10);
     }
+
 
 }
