@@ -16,9 +16,11 @@ import sit.int221.integratedprojectbe.dtos.EventCategoryDTO;
 import sit.int221.integratedprojectbe.dtos.EventDetailsDTO;
 import sit.int221.integratedprojectbe.entities.Event;
 import sit.int221.integratedprojectbe.entities.EventCategory;
+import sit.int221.integratedprojectbe.entities.User;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
 import sit.int221.integratedprojectbe.repositories.EventRepository;
+import sit.int221.integratedprojectbe.repositories.UserRepository;
 import sit.int221.integratedprojectbe.utils.ListMapper;
 
 import java.time.Instant;
@@ -32,6 +34,8 @@ public class EventService {
     private EventRepository eventRepository;
     @Autowired
     private EventCategoryService eventCategoryService;
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -77,6 +81,13 @@ public class EventService {
         if (isOverlap) {
             throw new DateTimeOverlapException("This time is already reserve");
         }
+
+        User user = userRepository.findById(newEvent.getUserId()).orElseThrow(() ->
+                new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        String.format("User ID %s is doesn't exist.", newEvent.getUserId())
+                ));
+        event.setUser(user);
 
         return modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
     }

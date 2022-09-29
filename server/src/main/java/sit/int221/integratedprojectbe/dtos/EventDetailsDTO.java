@@ -18,6 +18,6 @@ public class EventDetailsDTO {
     private EventDetailCategoryDTO category;
     private Date eventStartTime;
     private Integer eventDuration;
-    private String bookingEmail;
+    private String userEmail;
     private String eventNotes;
 }

@@ -21,6 +21,4 @@ public class UserDetailsDTO {
     private UserRole role;
     private Date createdOn;
     private Date updatedOn;
-
-
 }

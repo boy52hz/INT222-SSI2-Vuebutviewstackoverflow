@@ -12,6 +12,7 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     List<User> findAllByOrderByUserIdDesc();
+    public String findEmailByUserId(Integer userId);
 
     public boolean existsByNameAndUserIdNot(String Name, Integer userId);
 
