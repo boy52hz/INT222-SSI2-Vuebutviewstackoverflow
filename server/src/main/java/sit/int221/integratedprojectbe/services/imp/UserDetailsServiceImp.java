@@ -6,9 +6,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import sit.int221.integratedprojectbe.entities.User;
+import sit.int221.integratedprojectbe.imp.MyUserDetails;
 import sit.int221.integratedprojectbe.repositories.UserRepository;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserDetailsServiceImp implements UserDetailsService {
@@ -20,7 +22,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException(String.format("Email %s not found.", username));
         }
-
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
+        return new MyUserDetails(user);
     }
 }

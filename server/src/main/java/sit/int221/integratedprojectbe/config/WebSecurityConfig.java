@@ -32,6 +32,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .mvcMatchers(HttpMethod.GET, "/api/roles").permitAll()
                 .mvcMatchers(HttpMethod.POST, "/api/guests").permitAll()
+                .mvcMatchers("/api/events").hasAnyRole("STUDENT", "LECTURER", "ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
