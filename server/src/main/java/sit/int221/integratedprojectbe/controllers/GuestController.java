@@ -45,6 +45,6 @@ public class GuestController {
 
         EventDetailsDTO guests =modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
         emailService.sendSimpleMessage(guests);
-        return ResponseEntity.ok("Your booking event already save and sent to "+ newEvent.getBookingEmail());
+        return ResponseEntity.ok("Your booking event already save and sent to "+ guests.getUserEmail());
     }
 }

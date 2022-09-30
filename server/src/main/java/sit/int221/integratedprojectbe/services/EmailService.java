@@ -18,8 +18,8 @@ public class EmailService {
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(sender);
-        message.setTo(details.getBookingEmail());
-        message.setSubject("Category-"+details.getCategory().getCategoryName());
+        message.setTo(details.getUserEmail());
+        message.setSubject("Category-" +details.getCategory().getCategoryName());
         message.setText("You event was create" +
                 "\n" +
                 "Booking name: " +details.getBookingName()
