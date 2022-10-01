@@ -44,4 +44,13 @@ public class UserController {
         return userService.addNewUser(newUser, bindingResult);
 
     }
+
+    @PostMapping("/check-password")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDetailsDTO passwordCheck(@Valid @RequestBody LoginDTO login ,BindingResult bindingResult) {
+        return  userService.checkPassword(login,bindingResult);
+
+    }
+
+
 }

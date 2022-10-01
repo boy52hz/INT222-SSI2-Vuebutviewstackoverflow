@@ -3,6 +3,8 @@ package sit.int221.integratedprojectbe.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
@@ -22,6 +24,7 @@ import sit.int221.integratedprojectbe.services.imp.UserDetailsServiceImp;
 
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 
@@ -41,6 +44,7 @@ public class EventController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) String eventDate)
+
     {
         MyUserDetails myUserDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -75,6 +79,7 @@ public class EventController {
          return eventService.getEventById(bookingId);
     }
 
+
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public EventDetailsDTO create(@Valid @RequestBody CreateEventDTO newEvent, BindingResult bindingResult) {
@@ -95,11 +100,11 @@ public class EventController {
     }
 
     @PatchMapping("/{bookingId}")
-    public EventDetailsDTO update(@Valid @RequestBody EditEventDTO editEvent,
+    public EventDetailsDTO update(Authentication auth, @Valid @RequestBody EditEventDTO editEvent,
                                   BindingResult bindingResult, @PathVariable Integer bookingId)
     {
         try {
-            return eventService.editEvent(bookingId, editEvent, bindingResult);
+            return eventService.editEvent(auth, bookingId, editEvent, bindingResult);
         } catch (DateTimeOverlapException ex) {
             FieldError error = new FieldError("editEventDTO", "eventStartTime", "overlap");
             bindingResult.addError(error);

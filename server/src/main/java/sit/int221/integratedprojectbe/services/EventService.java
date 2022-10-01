@@ -1,31 +1,35 @@
 package sit.int221.integratedprojectbe.services;
 
 
+import de.mkammerer.argon2.Argon2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.server.ResponseStatusException;
 
 
-import sit.int221.integratedprojectbe.dtos.CreateEventDTO;
-import sit.int221.integratedprojectbe.dtos.EditEventDTO;
-import sit.int221.integratedprojectbe.dtos.EventCategoryDTO;
-import sit.int221.integratedprojectbe.dtos.EventDetailsDTO;
+import sit.int221.integratedprojectbe.dtos.*;
 import sit.int221.integratedprojectbe.entities.Event;
 import sit.int221.integratedprojectbe.entities.EventCategory;
 import sit.int221.integratedprojectbe.entities.User;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
+import sit.int221.integratedprojectbe.imp.MyUserDetails;
 import sit.int221.integratedprojectbe.repositories.EventRepository;
 import sit.int221.integratedprojectbe.repositories.UserRepository;
 import sit.int221.integratedprojectbe.utils.ListMapper;
 
+import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -40,8 +44,11 @@ public class EventService {
     private ModelMapper modelMapper;
     @Autowired
     private ListMapper listMapper;
+    @Autowired
+    private Argon2 argon2Factory;
 
     public List<EventDetailsDTO> getEvents() {
+
         return listMapper.mapList(eventRepository.findAllByOrderByEventStartTimeDesc(), EventDetailsDTO.class, modelMapper);
     }
 
@@ -70,12 +77,22 @@ public class EventService {
                         HttpStatus.NOT_FOUND,
                         String.format("Booking ID %s is doesn't exist.", bookingId)
                 ));
+        if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
+            if(!getCurrentEmail().equals(event.getUser().getEmail())){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch with your student's email");
+            }
+        }
         return modelMapper.map(event, EventDetailsDTO.class);
     }
 
     public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, BindingResult bindingResult) {
+        User x = userRepository.findByUserId(newEvent.getUserId());
         if (bindingResult.hasErrors()) throw new ArgumentNotValidException(bindingResult);
-
+        if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
+             if(!getCurrentEmail().equals(x.getEmail())){
+                 throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch with your student's email");
+             }
+        }
         Event event = modelMapper.map(newEvent, Event.class);
         EventCategory eventCategory = eventCategoryService.getCategoryById(newEvent.getCategoryId());
         event.setCategory(eventCategory);
@@ -97,7 +114,15 @@ public class EventService {
     }
 
     public void removeEvent(Integer bookingId) {
-        eventRepository.findById(bookingId).orElseThrow(() ->
+      Event userId = eventRepository.findByBookingId(bookingId);
+      User email = userRepository.findByUserId(userId.getUser().getUserId());
+
+      if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
+          if(!getCurrentEmail().equals(email.getEmail())){
+              throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch");
+          }
+      }
+       eventRepository.findById(bookingId).orElseThrow(() ->
                 new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         String.format("Booking ID %s is doesn't exist", bookingId)
@@ -105,13 +130,24 @@ public class EventService {
         eventRepository.deleteById(bookingId);
     }
 
-    public EventDetailsDTO editEvent(Integer bookingId, EditEventDTO updateEvent, BindingResult bindingResult) {
-        Event event = eventRepository.findById(bookingId)
-                .map(existingEvent -> mapEvent(existingEvent, updateEvent))
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        String.format("Booking ID %s is doesn't exist.", bookingId)
-                ));
+    public EventDetailsDTO editEvent(Authentication auth, Integer bookingId, EditEventDTO updateEvent, BindingResult bindingResult) {
+        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
+        Event event = null;
+        if (myUserDetails.hasRole("STUDENT")) {
+            event = eventRepository.findByBookingIdAndUserEmail(bookingId, myUserDetails.getUsername())
+                    .map(existingEvent -> mapEvent(existingEvent, updateEvent))
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            String.format("Booking ID %s with an email %s is doesn't exist.", bookingId, myUserDetails.getUsername())
+                    ));
+        } else {
+            event = eventRepository.findById(bookingId)
+                    .map(existingEvent -> mapEvent(existingEvent, updateEvent))
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            String.format("Booking ID %s is doesn't exist.", bookingId)
+                    ));
+        }
 
         boolean isOverlap = checkEventPeriodOverlap(event);
         if (isOverlap) {
@@ -168,6 +204,18 @@ public class EventService {
         return false;
     }
 
+
+
+
+    private String getCurrentAuthority(){
+        UserDetails getCurrentAuthentication = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return  getCurrentAuthentication.getAuthorities().toString();
+    }
+
+    private String getCurrentEmail(){
+        UserDetails getCurrentAuthentication = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return  getCurrentAuthentication.getUsername();
+    }
 
 
 

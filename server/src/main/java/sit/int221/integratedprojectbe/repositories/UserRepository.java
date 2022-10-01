@@ -14,6 +14,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findAllByOrderByUserIdDesc();
     public String findEmailByUserId(Integer userId);
 
+    User findByUserId(Integer userId);
+
+     Integer findUserIdByEmail(String email);
+
     public boolean existsByNameAndUserIdNot(String Name, Integer userId);
 
     public boolean existsByEmailAndUserIdNot(String Email, Integer userId);
