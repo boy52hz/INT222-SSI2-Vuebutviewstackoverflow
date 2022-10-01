@@ -45,11 +45,6 @@ public class EventService {
     private Argon2 argon2Factory;
 
     public List<EventDetailsDTO> getEvents() {
-        if(getCurrentAuthority().equals("ROLE_STUDENT")){
-            String email = getCurrentEmail();
-            Integer x = userRepository.findUserIdByEmail(email);
-            return listMapper.mapList(eventRepository.findAllByUserUserId(x), EventDetailsDTO.class, modelMapper);
-        }
 
         return listMapper.mapList(eventRepository.findAllByOrderByEventStartTimeDesc(), EventDetailsDTO.class, modelMapper);
     }
@@ -81,22 +76,15 @@ public class EventService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch with your student's email");
             }
         }
-
         return modelMapper.map(event, EventDetailsDTO.class);
-
-
     }
 
     public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, BindingResult bindingResult) {
-        String emailFromUser = userRepository.findEmailByUserId(newEvent.getUserId());
+        User x = userRepository.findByUserId(newEvent.getUserId());
         if (bindingResult.hasErrors()) throw new ArgumentNotValidException(bindingResult);
         if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
-             if(!getCurrentEmail().equals(emailFromUser)){
-                 FieldError error = new FieldError(
-                         "EventDetailsDTO",
-                         "Email",
-                         "Email mismatch with your student's email");
-                 bindingResult.addError(error);
+             if(!getCurrentEmail().equals(x.getEmail())){
+                 throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch with your student's email");
              }
         }
         Event event = modelMapper.map(newEvent, Event.class);
@@ -120,11 +108,11 @@ public class EventService {
     }
 
     public void removeEvent(Integer bookingId) {
-      Integer userId = eventRepository.findUserIdByBookingId(bookingId);
-      String email = userRepository.findEmailByUserId(userId);
+      Event userId = eventRepository.findByBookingId(bookingId);
+      User email = userRepository.findByUserId(userId.getUser().getUserId());
 
       if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
-          if(!getCurrentEmail().equals(email)){
+          if(!getCurrentEmail().equals(email.getEmail())){
               throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch");
           }
       }

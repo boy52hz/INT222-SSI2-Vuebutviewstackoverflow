@@ -18,6 +18,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
         )
         List<Event> findAllByCategoryId(Integer categoryId);
         List<Event> findAllByUserUserId(Integer userId);
+        Event findByBookingId (Integer bookingId);
 
         @Query(
                 value = "SELECT * FROM event WHERE DATE_ADD(eventStartTime, INTERVAL eventDuration MINUTE) >= NOW() ORDER BY eventStartTime DESC",

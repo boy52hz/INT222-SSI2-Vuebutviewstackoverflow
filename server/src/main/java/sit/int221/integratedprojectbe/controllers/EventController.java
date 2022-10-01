@@ -37,6 +37,7 @@ public class EventController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) String eventDate)
+
     {
        if(sort != null){
            if(sort.equals("past")){
@@ -60,11 +61,6 @@ public class EventController {
          return eventService.getEventById(bookingId);
     }
 
-//    @GetMapping("/email")
-//    public List<EventDetailsDTO> getEventsByEmail(){
-//        e
-//        return eventService.getEventByEmail(email);
-//    }
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
