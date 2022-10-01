@@ -5,6 +5,7 @@ import de.mkammerer.argon2.Argon2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -19,10 +20,12 @@ import sit.int221.integratedprojectbe.entities.EventCategory;
 import sit.int221.integratedprojectbe.entities.User;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
+import sit.int221.integratedprojectbe.imp.MyUserDetails;
 import sit.int221.integratedprojectbe.repositories.EventRepository;
 import sit.int221.integratedprojectbe.repositories.UserRepository;
 import sit.int221.integratedprojectbe.utils.ListMapper;
 
+import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -127,22 +130,24 @@ public class EventService {
         eventRepository.deleteById(bookingId);
     }
 
-    public EventDetailsDTO editEvent(Integer bookingId, EditEventDTO updateEvent, BindingResult bindingResult) {
-
-        Integer userId = eventRepository.findUserIdByBookingId(bookingId);
-        String email = userRepository.findEmailByUserId(userId);
-
-        if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
-            if(!getCurrentEmail().equals(email)){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch");
-            }
+    public EventDetailsDTO editEvent(Authentication auth, Integer bookingId, EditEventDTO updateEvent, BindingResult bindingResult) {
+        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
+        Event event = null;
+        if (myUserDetails.hasRole("STUDENT")) {
+            event = eventRepository.findByBookingIdAndUserEmail(bookingId, myUserDetails.getUsername())
+                    .map(existingEvent -> mapEvent(existingEvent, updateEvent))
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            String.format("Booking ID %s with an email %s is doesn't exist.", bookingId, myUserDetails.getUsername())
+                    ));
+        } else {
+            event = eventRepository.findById(bookingId)
+                    .map(existingEvent -> mapEvent(existingEvent, updateEvent))
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            String.format("Booking ID %s is doesn't exist.", bookingId)
+                    ));
         }
-        Event event = eventRepository.findById(bookingId)
-                .map(existingEvent -> mapEvent(existingEvent, updateEvent))
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        String.format("Booking ID %s is doesn't exist.", bookingId)
-                ));
 
         boolean isOverlap = checkEventPeriodOverlap(event);
         if (isOverlap) {
