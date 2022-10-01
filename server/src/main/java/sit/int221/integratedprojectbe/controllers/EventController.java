@@ -60,6 +60,12 @@ public class EventController {
          return eventService.getEventById(bookingId);
     }
 
+//    @GetMapping("/email")
+//    public List<EventDetailsDTO> getEventsByEmail(){
+//        e
+//        return eventService.getEventByEmail(email);
+//    }
+
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public EventDetailsDTO create(@Valid @RequestBody CreateEventDTO newEvent, BindingResult bindingResult) {
