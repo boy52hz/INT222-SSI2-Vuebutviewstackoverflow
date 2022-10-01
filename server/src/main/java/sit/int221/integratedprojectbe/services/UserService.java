@@ -144,6 +144,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Password mismatch.");
 
         return modelMapper.map(user, UserDetailsDTO.class);
+
     }
 
     private User mapUser(User existingUser, EditUserDTO updateUser) {
