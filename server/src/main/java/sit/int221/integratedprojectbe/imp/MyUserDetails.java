@@ -16,6 +16,11 @@ public class MyUserDetails implements UserDetails {
         this.user = user;
     }
 
+    public boolean hasRole(String role) {
+        SimpleGrantedAuthority myRole = new SimpleGrantedAuthority("ROLE_" + role);
+        return getAuthorities().contains(myRole);
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();

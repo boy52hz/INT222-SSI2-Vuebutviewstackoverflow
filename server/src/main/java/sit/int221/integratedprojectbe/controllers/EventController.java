@@ -3,6 +3,8 @@ package sit.int221.integratedprojectbe.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +15,10 @@ import sit.int221.integratedprojectbe.dtos.EventDetailsDTO;
 import sit.int221.integratedprojectbe.entities.Event;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
+import sit.int221.integratedprojectbe.imp.MyUserDetails;
 import sit.int221.integratedprojectbe.services.EmailService;
 import sit.int221.integratedprojectbe.services.EventService;
+import sit.int221.integratedprojectbe.services.imp.UserDetailsServiceImp;
 
 
 import javax.validation.Valid;
@@ -38,21 +42,32 @@ public class EventController {
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) String eventDate)
     {
-       if(sort != null){
-           if(sort.equals("past")){
-               return eventService.getAllPastEvent();
-           }
-           if(sort.equals("upcoming")){
-             return  eventService.getAllFutureEvent();
-           }
-           if(sort.equals("date") && eventDate != null){
-               return eventService.getAllEventByDate(eventDate);
-           }
-           if(sort.equals("category")){
-               return eventService.getAllEventsByCategoryId(categoryId);
-           }
-       }
-       return eventService.getEvents();
+        MyUserDetails myUserDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (myUserDetails.getAuthorities().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No Authorities");
+        }
+
+        if (myUserDetails.hasRole("ADMIN")) {
+            if(sort != null){
+                if(sort.equals("past")){
+                    return eventService.getAllPastEvent();
+                }
+                if(sort.equals("upcoming")){
+                    return  eventService.getAllFutureEvent();
+                }
+                if(sort.equals("date") && eventDate != null){
+                    return eventService.getAllEventByDate(eventDate);
+                }
+                if(sort.equals("category")){
+                    return eventService.getAllEventsByCategoryId(categoryId);
+                }
+            }
+
+            return eventService.getEvents();
+        }
+
+        return eventService.getAllEventByUserEmail(myUserDetails.getUsername());
     }
 
     @GetMapping("/{bookingId}")
@@ -72,7 +87,6 @@ public class EventController {
         } catch (ArgumentNotValidException ex) {
             throw ex;
         }
-
     }
     
     @DeleteMapping("/{bookingId}")

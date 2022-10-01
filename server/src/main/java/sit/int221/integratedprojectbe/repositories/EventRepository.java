@@ -41,4 +41,6 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
                 nativeQuery = true
         )
         List<Event> findAllByEventStartTimeEquals(@Param("eventDate") String eventDate);
+
+        List<Event> findAllByUserEmail(String email);
 }

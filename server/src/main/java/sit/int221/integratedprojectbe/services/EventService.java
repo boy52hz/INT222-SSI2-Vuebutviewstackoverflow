@@ -60,6 +60,10 @@ public class EventService {
         return listMapper.mapList(eventRepository.findAllByEventStartTimeBefore(), EventDetailsDTO.class, modelMapper);
     }
 
+    public List<EventDetailsDTO> getAllEventByUserEmail(String email) {
+        return listMapper.mapList(eventRepository.findAllByUserEmail(email), EventDetailsDTO.class, modelMapper);
+    }
+
     public EventDetailsDTO getEventById(Integer bookingId) {
         Event event = eventRepository.findById(bookingId).orElseThrow(() ->
                 new ResponseStatusException(
