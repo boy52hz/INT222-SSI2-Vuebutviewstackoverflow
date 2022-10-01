@@ -4,11 +4,13 @@ import { extendMoment } from 'moment-range'
 import { computed, onUpdated, ref } from 'vue'
 import { useEventCategories } from '../../stores/eventCategories.js'
 import { useEvents } from '../../stores/events.js'
+import { useUser } from '../../stores/user'
 
 const moment = extendMoment(Moment)
 
 const categoryStore = useEventCategories()
 const eventStore = useEvents()
+const userStore = useUser()
 
 const props = defineProps({
   modalState: {
@@ -32,12 +34,10 @@ const formConfig = ref({
   isLoading: true,
   maxLength: {
     bookingName: 100,
-    bookingEmail: 50,
     eventNotes: 500,
   },
   minLength: {
     bookingName: 1,
-    bookingEmail: 1,
   },
   min: {
     eventStartTime: moment().add(1, 'minutes').format('YYYY-MM-DDTHH:mm'),
@@ -145,27 +145,10 @@ defineEmits(['add-event', 'edit-event', 'reset-form'])
         <div class="input-group">
           <label for="form-booking-email" class="required">Booking email</label>
           <input
-            v-model.trim="eventModel.bookingEmail"
-            id="form-booking-email"
-            name="bookingEmail"
-            style="width: 100%"
-            type="email"
-            pattern="^[^(\.)][a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}"
-            @focusout="onInputFocusOut"
-            :class="eventModelError.bookingEmail && 'invalid'"
-            :minlength="formConfig.minLength.bookingName"
-            :maxlength="formConfig.maxLength.bookingEmail"
-            :disabled="isEditMode"
-            required
+            v-if="userStore.user"
+            :value="userStore.user.email"
+            disabled
           />
-          <div class="input-validation-box">
-            <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
-              {{ eventModelError.bookingEmail || '' }}
-            </div>
-            <div class="input-counter">
-              {{ eventModel.bookingEmail.length }}/{{ formConfig.maxLength.bookingEmail }}
-            </div>
-          </div>
         </div>
       </div>
       <div class="form-group">

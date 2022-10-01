@@ -3,6 +3,7 @@ import moment from 'moment'
 import { computed, onBeforeMount, ref } from 'vue'
 import { useEvents } from '../stores/events.js'
 import { useEventCategories } from '../stores/eventCategories.js'
+import { useUser } from '../stores/user'
 
 import ScheduleFormInput from '../components/VSchedules/ScheduleFormInput.vue'
 import DeleteSchedule from '../components/VSchedules/DeleteSchedule.vue'
@@ -11,6 +12,7 @@ import PageWrapper from '../components/PageWrapper.vue'
 
 const eventStore = useEvents()
 const categoryStore = useEventCategories()
+const userStore = useUser()
 
 const isLoading = ref(false)
 const searchEvent = ref('')
@@ -22,7 +24,7 @@ const filterDropdown = ref(false)
 const eventModelTemplate = {
   category: null,
   bookingName: '',
-  bookingEmail: '',
+  userId: userStore.user.id,
   eventStartTime: '',
   eventNotes: '',
 }
@@ -293,7 +295,7 @@ onBeforeMount(async () => {
           <h1 style="font-size: 18pt">
             {{ eventDetail.bookingName }}
           </h1>
-          <cite>({{ eventDetail.bookingEmail }})</cite>
+          <cite>({{ eventDetail.userEmail }})</cite>
           <EventCategory :category="eventDetail.category" />
           <p class="detail-datetime">
             <font-awesome-icon icon="calendar-days" />
