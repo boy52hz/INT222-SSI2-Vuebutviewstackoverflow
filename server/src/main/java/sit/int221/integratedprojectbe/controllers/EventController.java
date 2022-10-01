@@ -41,6 +41,7 @@ public class EventController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) String eventDate)
+
     {
         MyUserDetails myUserDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -74,6 +75,7 @@ public class EventController {
     public EventDetailsDTO getEventsByBookingId(@PathVariable Integer bookingId){
          return eventService.getEventById(bookingId);
     }
+
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)

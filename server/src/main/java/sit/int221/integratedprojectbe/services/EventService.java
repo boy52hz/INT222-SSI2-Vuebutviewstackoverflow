@@ -1,19 +1,19 @@
 package sit.int221.integratedprojectbe.services;
 
 
+import de.mkammerer.argon2.Argon2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.server.ResponseStatusException;
 
 
-import sit.int221.integratedprojectbe.dtos.CreateEventDTO;
-import sit.int221.integratedprojectbe.dtos.EditEventDTO;
-import sit.int221.integratedprojectbe.dtos.EventCategoryDTO;
-import sit.int221.integratedprojectbe.dtos.EventDetailsDTO;
+import sit.int221.integratedprojectbe.dtos.*;
 import sit.int221.integratedprojectbe.entities.Event;
 import sit.int221.integratedprojectbe.entities.EventCategory;
 import sit.int221.integratedprojectbe.entities.User;
@@ -26,6 +26,7 @@ import sit.int221.integratedprojectbe.utils.ListMapper;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -40,8 +41,11 @@ public class EventService {
     private ModelMapper modelMapper;
     @Autowired
     private ListMapper listMapper;
+    @Autowired
+    private Argon2 argon2Factory;
 
     public List<EventDetailsDTO> getEvents() {
+
         return listMapper.mapList(eventRepository.findAllByOrderByEventStartTimeDesc(), EventDetailsDTO.class, modelMapper);
     }
 
@@ -70,12 +74,22 @@ public class EventService {
                         HttpStatus.NOT_FOUND,
                         String.format("Booking ID %s is doesn't exist.", bookingId)
                 ));
+        if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
+            if(!getCurrentEmail().equals(event.getUser().getEmail())){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch with your student's email");
+            }
+        }
         return modelMapper.map(event, EventDetailsDTO.class);
     }
 
     public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, BindingResult bindingResult) {
+        User x = userRepository.findByUserId(newEvent.getUserId());
         if (bindingResult.hasErrors()) throw new ArgumentNotValidException(bindingResult);
-
+        if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
+             if(!getCurrentEmail().equals(x.getEmail())){
+                 throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch with your student's email");
+             }
+        }
         Event event = modelMapper.map(newEvent, Event.class);
         EventCategory eventCategory = eventCategoryService.getCategoryById(newEvent.getCategoryId());
         event.setCategory(eventCategory);
@@ -97,7 +111,15 @@ public class EventService {
     }
 
     public void removeEvent(Integer bookingId) {
-        eventRepository.findById(bookingId).orElseThrow(() ->
+      Event userId = eventRepository.findByBookingId(bookingId);
+      User email = userRepository.findByUserId(userId.getUser().getUserId());
+
+      if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
+          if(!getCurrentEmail().equals(email.getEmail())){
+              throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch");
+          }
+      }
+       eventRepository.findById(bookingId).orElseThrow(() ->
                 new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         String.format("Booking ID %s is doesn't exist", bookingId)
@@ -106,6 +128,15 @@ public class EventService {
     }
 
     public EventDetailsDTO editEvent(Integer bookingId, EditEventDTO updateEvent, BindingResult bindingResult) {
+
+        Integer userId = eventRepository.findUserIdByBookingId(bookingId);
+        String email = userRepository.findEmailByUserId(userId);
+
+        if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
+            if(!getCurrentEmail().equals(email)){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch");
+            }
+        }
         Event event = eventRepository.findById(bookingId)
                 .map(existingEvent -> mapEvent(existingEvent, updateEvent))
                 .orElseThrow(() -> new ResponseStatusException(
@@ -168,6 +199,18 @@ public class EventService {
         return false;
     }
 
+
+
+
+    private String getCurrentAuthority(){
+        UserDetails getCurrentAuthentication = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return  getCurrentAuthentication.getAuthorities().toString();
+    }
+
+    private String getCurrentEmail(){
+        UserDetails getCurrentAuthentication = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return  getCurrentAuthentication.getUsername();
+    }
 
 
 
