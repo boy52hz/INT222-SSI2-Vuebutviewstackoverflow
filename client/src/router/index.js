@@ -1,6 +1,7 @@
 import { useUsers } from '../stores/users'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUser } from '../stores/user'
+import { Roles } from '../utils/roles'
 
 const history = createWebHistory(import.meta.env.VITE_BASE_PATH)
 const routes = [
@@ -30,20 +31,20 @@ const routes = [
   {
     path: '/categories/:categoryId',
     name: 'EditCategory',
-    meta: { requireAuth: true },
+    meta: { requireAuth: true, authorities: [Roles.ADMIN, Roles.LECTURER] },
     component: () => import('../views/VEditCategory.vue'),
   },
   {
     path: '/users',
     name: 'Users',
-    meta: { requireAuth: true },
+    meta: { requireAuth: true, authorities: [Roles.ADMIN] },
     component: () => import('../views/VUsers.vue'),
   },
   {
     path: '/users/:userId/edit',
     name: 'EditUser',
     props: true,
-    meta: { requireAuth: true },
+    meta: { requireAuth: true, authorities: [Roles.ADMIN] },
     component: () => import('../views/VEditUser.vue'),
     beforeEnter: async (to, from, next) => {
       const userId = parseInt(to.params.userId)
@@ -72,6 +73,7 @@ const routes = [
 ]
 
 const router = createRouter({ history, routes })
+
 router.beforeEach(async (to, from, next) => {
   const userStore = useUser()
 
@@ -96,6 +98,10 @@ router.beforeEach(async (to, from, next) => {
         await userStore.loadUser()
       }
     }
+  }
+
+  if (to.meta.authorities && !to.meta.authorities.includes(userStore.user.role.name.toUpperCase())) {
+    return next('/')
   }
 
   next()

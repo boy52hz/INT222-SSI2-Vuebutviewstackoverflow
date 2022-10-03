@@ -9,6 +9,7 @@ import ScheduleFormInput from '../components/VSchedules/ScheduleFormInput.vue'
 import DeleteSchedule from '../components/VSchedules/DeleteSchedule.vue'
 import EventCategory from '../components/VSchedules/EventCategory.vue'
 import PageWrapper from '../components/PageWrapper.vue'
+import { Roles } from '../utils/roles'
 
 const eventStore = useEvents()
 const categoryStore = useEventCategories()
@@ -285,7 +286,12 @@ onBeforeMount(async () => {
           </div>
         </div>
 
-        <font-awesome-icon id="schedules-add" icon="add" @click="scheduleFormInputModal.show" />
+        <font-awesome-icon
+          v-if="[Roles.ADMIN].includes(userStore.user.role.name.toUpperCase())"
+          id="schedules-add"
+          icon="add"
+          @click="scheduleFormInputModal.show"
+        />
       </div>
       <div
         :class="`schedule-detail-container ${Object.keys(eventDetail).length > 0 && 'slide-in'}`"

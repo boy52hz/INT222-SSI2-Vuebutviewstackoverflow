@@ -1,9 +1,12 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useUser } from '../../stores/user'
+import { Roles } from '../../utils/roles'
 
 const router = useRouter()
+const route = useRoute()
+
 const userStore = useUser()
 const user = ref(userStore.user)
 const navOpened = ref(false)
@@ -34,7 +37,6 @@ const logout = () => {
         <div></div>
       </button>
     </div>
-    <!-- <div style="text-align: center; color: white; font-size: 0.8em">Welcome, {{ user.name }}</div> -->
     <ul ref="navsRef" id="navs" :class="isMobile && { opened: navOpened }">
       <li>
         <router-link :to="{ path: '/' }">
@@ -48,7 +50,7 @@ const logout = () => {
           <span>Categories</span>
         </router-link>
       </li>
-      <li>
+      <li v-if="[Roles.ADMIN].includes(user.role.name.toUpperCase())">
         <router-link :to="{ path: '/users' }" :class="$route.path.includes('/users') && 'router-link-active'">
           <font-awesome-icon icon="users" />
           <span>Users</span>

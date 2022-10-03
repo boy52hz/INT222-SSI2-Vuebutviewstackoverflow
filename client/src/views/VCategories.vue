@@ -2,8 +2,12 @@
 import { onBeforeMount, ref } from 'vue'
 import { useEventCategories } from '../stores/eventCategories'
 import PageWrapper from '../components/PageWrapper.vue'
+import { Roles } from '../utils/roles'
+import { useUser } from '../stores/user'
 
 const categoryStore = useEventCategories()
+const userStore = useUser()
+const user = ref(userStore.user)
 const isLoading = ref(false)
 
 onBeforeMount(async () => {
@@ -39,7 +43,7 @@ onBeforeMount(async () => {
             </p>
             <p v-else class="description empty">No description</p>
           </div>
-          <div class="button-group">
+          <div class="button-group" v-if="[Roles.LECTURER, Roles.ADMIN].includes(user.role.name.toUpperCase())">
             <router-link :to="`/categories/${category.categoryId}`">
               <app-button button-type="warning">
                 <font-awesome-icon icon="pen-to-square" />
