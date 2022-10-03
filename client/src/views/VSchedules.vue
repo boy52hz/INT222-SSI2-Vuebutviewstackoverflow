@@ -205,7 +205,12 @@ onBeforeMount(async () => {
 
 <template>
   <PageWrapper>
-    <DeleteSchedule :modal-state="confirmDeleteModal" :event-detail="eventDetail" :event-store="eventStore" />
+    <DeleteSchedule
+      :modal-state="confirmDeleteModal"
+      :event-detail="eventDetail"
+      :event-store="eventStore"
+      v-if="[Roles.ADMIN, Roles.STUDENT].includes(userStore.user.role.name.toUpperCase())"
+    />
     <ScheduleFormInput
       :event-model="eventModel"
       :event-model-error="eventModelError"
@@ -214,6 +219,7 @@ onBeforeMount(async () => {
       @add-event="addEvent"
       @edit-event="editEvent"
       @reset-form="resetEventForm"
+      v-if="[Roles.ADMIN, Roles.STUDENT].includes(userStore.user.role.name.toUpperCase())"
     />
     <app-loading-screen v-if="isLoading" />
     <div id="schedules">
@@ -287,7 +293,7 @@ onBeforeMount(async () => {
         </div>
 
         <font-awesome-icon
-          v-if="[Roles.ADMIN].includes(userStore.user.role.name.toUpperCase())"
+          v-if="[Roles.ADMIN, Roles.STUDENT].includes(userStore.user.role.name.toUpperCase())"
           id="schedules-add"
           icon="add"
           @click="scheduleFormInputModal.show"
