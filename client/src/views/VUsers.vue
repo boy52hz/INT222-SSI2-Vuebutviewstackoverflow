@@ -2,12 +2,15 @@
 import { onBeforeMount, ref } from 'vue'
 import moment from 'moment'
 import { useUsers } from '../stores/users.js'
+import { useUser } from '../stores/user.js'
 import AppDropdown from '../components/App/Dropdown/AppDropdown.vue'
 import AppDropdownItem from '../components/App/Dropdown/AppDropdownItem.vue'
 import PageWrapper from '../components/PageWrapper.vue'
+import UserFormInput from '../components/VSchedules/UserFormInput.vue'
 
 const isLoading = ref(true)
 const userStore = useUsers()
+const userStores = useUser()
 
 const confirmDeleteModal = ref(false)
 const setConfirmDeleteModal = (state) => (confirmDeleteModal.value = state)
@@ -16,6 +19,24 @@ const viewDetailModal = ref(false)
 const setViewDetailModal = (state) => (viewDetailModal.value = state)
 
 const selectedUser = ref({})
+
+const userModelError = ref({
+  confirmPassword: '',
+  role: '',
+  email: '',
+  password: '',
+  name: '',
+})
+
+const userModelTemplate = {
+  confirmPassword: '',
+  role: "admin",
+  email: '',
+  password: '',
+  name: '',
+}
+
+const userModel = ref(UserFormInput.props.userModel.default)
 
 const deleteUser = (user) => {
   selectedUser.value = user
@@ -34,6 +55,45 @@ const confirmDeleteUser = async () => {
     isLoading.value = false
   }
 }
+
+const addUser = async () => { 
+  const userModel = ref(UserFormInput.props.userModel.default)
+  if(userModel.value.password == userModel.value.confirmPassword) {
+    try {
+    await userStores.registerUser({
+      email: userModel.value.email,
+      name: userModel.value.name,
+      role: userModel.value.role,
+      password: userModel.value.password,
+    })
+    alert('Account has been created!')
+    userFormInputModal.value.state = false
+    cancelUserForm()
+    await userStore.fetchUsers()
+    } catch (err) {
+    const fieldErrors = err.fieldErrors
+    for (let key in fieldErrors) {
+      fieldErrors[key] = fieldErrors[key].join(', ')
+    }
+    userModelError.value = fieldErrors
+    }
+  }
+  else return
+}
+
+const cancelUserForm = () => {
+  userModel.value = {...UserFormInput.props.userModel.default={...userModelTemplate}}
+  userModelError.value = {}
+}
+
+const userFormInputModal = ref({
+  state: false,
+  show: () => (userFormInputModal.value.state = true),
+  close: () => {
+    cancelUserForm()
+    userFormInputModal.value.state = false
+  },
+})
 
 const viewUserDetail = (user) => {
   selectedUser.value = user
@@ -72,6 +132,13 @@ onBeforeMount(async () => {
       <h3 class="delete-modal-title">Are you sure to Delete?</h3>
       <h2>Delete User {{ selectedUser.name }}</h2>
     </app-modal>
+    <UserFormInput
+      :event-model="userModel"
+      :event-model-error="userModelError"
+      :modal-state="userFormInputModal"
+      @add-user="addUser"
+      @cancel-form="cancelUserForm"
+    />
     <app-loading-screen v-if="isLoading" />
     <div v-else id="users">
       <div class="user-list-header">
@@ -109,6 +176,10 @@ onBeforeMount(async () => {
       <div style="position: relative; width: 100%; height: 100%" v-else>
         <div class="no-user">No user(s).</div>
       </div>
+      <font-awesome-icon
+      id="schedules-add"
+      icon="add"
+      @click="userFormInputModal.show()"/>  
     </div>
   </PageWrapper>
 </template>
@@ -190,6 +261,25 @@ onBeforeMount(async () => {
   left: 50%;
   transform: translate(-50%, -50%);
   opacity: 0.5;
+}
+
+#schedules-add {
+  position: absolute;
+  bottom: 50px;
+  right: 50px;
+  background-color: #27e6cc;
+  color: white;
+  width: fit-content;
+  height: 20px;
+  padding: 1rem;
+  border-radius: 100%;
+  transition: all 0.3s ease-out;
+}
+
+#schedules-add:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+  background-color: #06ffff;
 }
 
 @media screen and (max-width: 1097px) {
