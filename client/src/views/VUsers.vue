@@ -50,13 +50,6 @@ const confirmDeleteUser = async () => {
 }
 
 const addUser = async () => {
-  userModelError.value.confirmPassword = ''
-
-  if (userModel.value.password !== userModel.value.confirmPassword) {
-    userModelError.value.confirmPassword = 'Password mismatch with comfirmation.'
-    return
-  }
-
   try {
     await userStores.registerUser({
       email: userModel.value.email,
