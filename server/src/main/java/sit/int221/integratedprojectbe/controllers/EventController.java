@@ -36,8 +36,7 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
-    @Autowired
-    private EmailService emailService;
+
 
     @GetMapping("")
     public List<EventDetailsDTO> getAllEvents(
@@ -112,9 +111,5 @@ public class EventController {
         } catch (ArgumentNotValidException ex) {
             throw ex;
         }
-    }
-    @PostMapping("/send-email")
-    public EventDetailsDTO sendMail (@Valid @RequestBody EventDetailsDTO details){
-        return  emailService.sendSimpleMessage(details);
     }
 }

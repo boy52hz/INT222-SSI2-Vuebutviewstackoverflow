@@ -35,6 +35,8 @@ public class AuthenticationController {
     @Autowired
     private UserDetailsServiceImp userDetailsServiceImp;
 
+    @Autowired
+    private UserService userService;
 
 
     @GetMapping("")
@@ -47,6 +49,13 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.OK)
     public JwtTokenDTO login(@Valid @RequestBody LoginDTO newUser , BindingResult bindingResult) {
         return authenticationService.login(newUser, bindingResult);
+    }
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDetailsDTO create(@Valid @RequestBody CreateUserDTO newUser, BindingResult bindingResult) {
+        return userService.addNewUser(newUser, bindingResult);
+
     }
 
     @GetMapping("/refreshToken")

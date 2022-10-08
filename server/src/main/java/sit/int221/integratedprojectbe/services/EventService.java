@@ -47,6 +47,9 @@ public class EventService {
     @Autowired
     private Argon2 argon2Factory;
 
+    @Autowired
+    private EmailService emailService;
+
     public List<EventDetailsDTO> getEvents() {
 
         return listMapper.mapList(eventRepository.findAllByOrderByEventStartTimeDesc(), EventDetailsDTO.class, modelMapper);
@@ -109,6 +112,8 @@ public class EventService {
                         String.format("User ID %s is doesn't exist.", newEvent.getUserId())
                 ));
         event.setUser(user);
+        EventDetailsDTO eventDTO =modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
+        emailService.sendSimpleMessage(eventDTO);
 
         return modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
     }
