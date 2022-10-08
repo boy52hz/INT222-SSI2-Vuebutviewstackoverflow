@@ -20,23 +20,16 @@ const setViewDetailModal = (state) => (viewDetailModal.value = state)
 
 const selectedUser = ref({})
 
-const userModelError = ref({
+const userModelTemplate = {
   confirmPassword: '',
   role: '',
   email: '',
   password: '',
   name: '',
-})
-
-const userModelTemplate = {
-  confirmPassword: '',
-  role: "admin",
-  email: '',
-  password: '',
-  name: '',
 }
 
-const userModel = ref(UserFormInput.props.userModel.default)
+const userModelError = ref({ ...userModelTemplate })
+const userModel = ref({ ...userModelTemplate })
 
 const deleteUser = (user) => {
   selectedUser.value = user
@@ -56,10 +49,15 @@ const confirmDeleteUser = async () => {
   }
 }
 
-const addUser = async () => { 
-  const userModel = ref(UserFormInput.props.userModel.default)
-  if(userModel.value.password == userModel.value.confirmPassword) {
-    try {
+const addUser = async () => {
+  userModelError.value.confirmPassword = ''
+
+  if (userModel.value.password !== userModel.value.confirmPassword) {
+    userModelError.value.confirmPassword = 'Password mismatch with comfirmation.'
+    return
+  }
+
+  try {
     await userStores.registerUser({
       email: userModel.value.email,
       name: userModel.value.name,
@@ -70,20 +68,18 @@ const addUser = async () => {
     userFormInputModal.value.state = false
     cancelUserForm()
     await userStore.fetchUsers()
-    } catch (err) {
+  } catch (err) {
     const fieldErrors = err.fieldErrors
     for (let key in fieldErrors) {
       fieldErrors[key] = fieldErrors[key].join(', ')
     }
     userModelError.value = fieldErrors
-    }
   }
-  else return
 }
 
 const cancelUserForm = () => {
-  userModel.value = {...UserFormInput.props.userModel.default={...userModelTemplate}}
-  userModelError.value = {}
+  userModel.value = { ...userModelTemplate }
+  userModelError.value = { ...userModelTemplate }
 }
 
 const userFormInputModal = ref({
@@ -133,8 +129,8 @@ onBeforeMount(async () => {
       <h2>Delete User {{ selectedUser.name }}</h2>
     </app-modal>
     <UserFormInput
-      :event-model="userModel"
-      :event-model-error="userModelError"
+      :user-model="userModel"
+      :user-model-error="userModelError"
       :modal-state="userFormInputModal"
       @add-user="addUser"
       @cancel-form="cancelUserForm"
@@ -176,10 +172,7 @@ onBeforeMount(async () => {
       <div style="position: relative; width: 100%; height: 100%" v-else>
         <div class="no-user">No user(s).</div>
       </div>
-      <font-awesome-icon
-      id="schedules-add"
-      icon="add"
-      @click="userFormInputModal.show()"/>  
+      <font-awesome-icon id="schedules-add" icon="add" @click="userFormInputModal.show()" />
     </div>
   </PageWrapper>
 </template>
