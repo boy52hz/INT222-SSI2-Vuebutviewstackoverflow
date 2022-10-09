@@ -73,8 +73,19 @@ public class EventService {
     public List<EventDetailsDTO> getAllEventByUserEmail(String email) {
         return listMapper.mapList(eventRepository.findAllByUserEmail(email), EventDetailsDTO.class, modelMapper);
     }
+    public List<EventDetailsDTO> getAllEventByOwnerCategory(String email) {
+        Event event = eventRepository.findByUserEmail(email);
+        return listMapper.mapList(eventRepository.findAllEventOfOwnerCategoryByUserId(event.getUser().getUserId()), EventDetailsDTO.class, modelMapper);
+    }
 
     public EventDetailsDTO getEventById(Integer bookingId) {
+        Event x = eventRepository.findByUserEmail(getCurrentEmail());
+        if(getCurrentAuthority().equals("[ROLE_LECTURER]")){
+             Event y = eventRepository.findEventOfOwnerCategoryByUserIdAndBookingId(x.getUser().getUserId(),bookingId);
+             if(y == null) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"This Booking not exist or Category mismatch ");
+             return modelMapper.map(y, EventDetailsDTO.class);
+        }
+
         Event event = eventRepository.findById(bookingId).orElseThrow(() ->
                 new ResponseStatusException(
                         HttpStatus.NOT_FOUND,

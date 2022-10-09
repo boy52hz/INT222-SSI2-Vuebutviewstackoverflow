@@ -50,7 +50,9 @@ public class EventController {
         if (myUserDetails.getAuthorities().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No Authorities");
         }
-
+        if(myUserDetails.hasRole("LECTURER")){
+            return eventService.getAllEventByOwnerCategory(myUserDetails.getUsername());
+        }
         if (myUserDetails.hasRole("ADMIN")) {
             if(sort != null){
                 if(sort.equals("past")){

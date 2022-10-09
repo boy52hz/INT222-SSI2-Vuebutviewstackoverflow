@@ -47,4 +47,17 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
         List<Event> findAllByEventStartTimeEquals(@Param("eventDate") String eventDate);
 
         List<Event> findAllByUserEmail(String email);
+        Event findByUserEmail(String email);
+
+        @Query(
+                value = "select e.* from `event` e join `event_category_has_user` eco on e.categoryId = eco.categoryId join `user` u on eco.userId = u.userId where u.userId =:userId",
+                nativeQuery = true
+        )
+        List<Event> findAllEventOfOwnerCategoryByUserId(@Param("userId") Integer userId);
+
+        @Query(
+                value = "select e.* from `event` e join `event_category_has_user` eco on e.categoryId = eco.categoryId join `user` u on eco.userId = u.userId where e.bookingId =:bookingId and u.userId =:userId",
+                nativeQuery = true
+        )
+       Event findEventOfOwnerCategoryByUserIdAndBookingId(@Param("userId") Integer userId,@Param("bookingId") Integer bookingId);
 }
