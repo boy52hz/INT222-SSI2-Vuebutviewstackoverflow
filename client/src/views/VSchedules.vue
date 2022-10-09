@@ -315,7 +315,10 @@ onBeforeMount(async () => {
             {{ $getFormattedEventPeriod(eventDetail.eventStartTime, eventDetail.eventDuration) }}
           </p>
           <cite v-show="eventDetail.eventNotes">‟ {{ eventDetail.eventNotes }} ”</cite>
-          <div class="app-input-group">
+          <div
+            v-if="[Roles.ADMIN, Roles.STUDENT].includes(userStore.user.role.name.toUpperCase())"
+            class="app-input-group"
+          >
             <app-button button-type="warning" @click="editDetail">Edit Details</app-button>
             <app-button button-type="outline-danger" @click="confirmDeleteModal.show">Cancel Event</app-button>
           </div>
