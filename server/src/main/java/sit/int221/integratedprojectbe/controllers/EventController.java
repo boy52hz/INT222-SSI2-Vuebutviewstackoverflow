@@ -1,8 +1,12 @@
 package sit.int221.integratedprojectbe.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,7 +34,11 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/events")
-
+@Configuration
+@EnableGlobalMethodSecurity(
+        prePostEnabled = true,
+        securedEnabled = true,
+        jsr250Enabled = true)
 
 public class EventController {
     @Autowired
@@ -82,6 +90,7 @@ public class EventController {
 
 
     @PostMapping("")
+    @PreAuthorize("!hasRole('LECTURER')")
     @ResponseStatus(HttpStatus.CREATED)
     public EventDetailsDTO create(@Valid @RequestBody CreateEventDTO newEvent, BindingResult bindingResult) {
         try {
@@ -96,11 +105,13 @@ public class EventController {
     }
     
     @DeleteMapping("/{bookingId}")
+    @PreAuthorize("!hasRole('LECTURER')")
     public void delete(@PathVariable Integer bookingId) {
         eventService.removeEvent(bookingId);
     }
 
     @PatchMapping("/{bookingId}")
+    @PreAuthorize("!hasRole('LECTURER')")
     public EventDetailsDTO update(Authentication auth, @Valid @RequestBody EditEventDTO editEvent,
                                   BindingResult bindingResult, @PathVariable Integer bookingId)
     {
@@ -114,4 +125,5 @@ public class EventController {
             throw ex;
         }
     }
+
 }
