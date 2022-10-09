@@ -37,4 +37,7 @@ public class CreateUserDTO {
         this.email = email.trim();
     }
 
+    public void setRole(String role) {
+        this.role = role.toLowerCase();
+    }
 }

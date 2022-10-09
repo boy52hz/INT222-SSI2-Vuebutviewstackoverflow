@@ -29,4 +29,5 @@ public class EditUserDTO {
         this.email = email.trim();
     }
 
+    public void setRole(String role) { this.role = role.toLowerCase(); }
 }
