@@ -73,9 +73,8 @@ public class EventService {
     public List<EventDetailsDTO> getAllEventByUserEmail(String email) {
         return listMapper.mapList(eventRepository.findAllByUserEmail(email), EventDetailsDTO.class, modelMapper);
     }
-    public List<EventDetailsDTO> getAllEventByOwnerCategory(String email) {
-        Event event = eventRepository.findByUserEmail(email);
-        return listMapper.mapList(eventRepository.findAllEventOfOwnerCategoryByUserId(event.getUser().getUserId()), EventDetailsDTO.class, modelMapper);
+    public List<EventDetailsDTO> getAllEventByOwnerCategory(Integer userId) {
+        return listMapper.mapList(eventRepository.findAllEventOfOwnerCategoryByUserId(userId), EventDetailsDTO.class, modelMapper);
     }
 
     public EventDetailsDTO getOwnedEventById (Integer bookingId, String userEmail) {

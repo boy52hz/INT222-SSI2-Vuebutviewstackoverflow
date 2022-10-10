@@ -43,7 +43,7 @@ onBeforeMount(async () => {
             </p>
             <p v-else class="description empty">No description</p>
           </div>
-          <div class="button-group" v-if="[Roles.LECTURER, Roles.ADMIN].includes(user.role.name.toUpperCase())">
+          <div class="button-group" v-if="[Roles.ADMIN].includes(user.role.name.toUpperCase())">
             <router-link :to="`/categories/${category.categoryId}`">
               <app-button button-type="warning">
                 <font-awesome-icon icon="pen-to-square" />
