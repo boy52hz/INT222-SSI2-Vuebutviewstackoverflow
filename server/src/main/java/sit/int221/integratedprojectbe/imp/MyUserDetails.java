@@ -21,6 +21,10 @@ public class MyUserDetails implements UserDetails {
         return getAuthorities().contains(myRole);
     }
 
+    public Integer getUserId() {
+        return user.getUserId();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();

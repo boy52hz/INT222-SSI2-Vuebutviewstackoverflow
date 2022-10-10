@@ -12,7 +12,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import sit.int221.integratedprojectbe.filters.JwtRequestFilter;
 import sit.int221.integratedprojectbe.services.imp.UserDetailsServiceImp;
 import sit.int221.integratedprojectbe.utils.RestAuthenticationEntryPoint;
@@ -29,10 +28,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-                .mvcMatchers(HttpMethod.GET, "/api/roles").permitAll()
-                .mvcMatchers(HttpMethod.POST, "/api/guests").permitAll()
-                .mvcMatchers("/api/events").hasAnyRole("STUDENT","ADMIN","LECTURER")
-                .mvcMatchers( "/api/users").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/api/roles").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/guests/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/events", "/api/events/*").authenticated()
+                .antMatchers("/api/events/**").hasAnyRole("STUDENT", "ADMIN")
+                .antMatchers( "/api/users", "/api/users/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)

@@ -1,16 +1,8 @@
 package sit.int221.integratedprojectbe.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -18,61 +10,47 @@ import org.springframework.web.server.ResponseStatusException;
 import sit.int221.integratedprojectbe.dtos.CreateEventDTO;
 import sit.int221.integratedprojectbe.dtos.EditEventDTO;
 import sit.int221.integratedprojectbe.dtos.EventDetailsDTO;
-import sit.int221.integratedprojectbe.entities.Event;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
 import sit.int221.integratedprojectbe.imp.MyUserDetails;
-import sit.int221.integratedprojectbe.services.EmailService;
 import sit.int221.integratedprojectbe.services.EventService;
-import sit.int221.integratedprojectbe.services.imp.UserDetailsServiceImp;
-
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/events")
-@Configuration
-@EnableGlobalMethodSecurity(
-        prePostEnabled = true,
-        securedEnabled = true,
-        jsr250Enabled = true)
-
 public class EventController {
     @Autowired
     private EventService eventService;
 
-
-
     @GetMapping("")
     public List<EventDetailsDTO> getAllEvents(
+            Authentication auth,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) String eventDate)
-
     {
-        MyUserDetails myUserDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
 
         if (myUserDetails.getAuthorities().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No Authorities");
         }
-        if(myUserDetails.hasRole("LECTURER")){
+        if (myUserDetails.hasRole("LECTURER")) {
             return eventService.getAllEventByOwnerCategory(myUserDetails.getUsername());
         }
         if (myUserDetails.hasRole("ADMIN")) {
-            if(sort != null){
-                if(sort.equals("past")){
+            if (sort != null) {
+                if (sort.equals("past")) {
                     return eventService.getAllPastEvent();
                 }
-                if(sort.equals("upcoming")){
-                    return  eventService.getAllFutureEvent();
+                if (sort.equals("upcoming")) {
+                    return eventService.getAllFutureEvent();
                 }
-                if(sort.equals("date") && eventDate != null){
+                if (sort.equals("date") && eventDate != null) {
                     return eventService.getAllEventByDate(eventDate);
                 }
-                if(sort.equals("category")){
+                if (sort.equals("category")) {
                     return eventService.getAllEventsByCategoryId(categoryId);
                 }
             }
@@ -84,16 +62,26 @@ public class EventController {
     }
 
     @GetMapping("/{bookingId}")
-    public EventDetailsDTO getEventsByBookingId(@PathVariable Integer bookingId){
-         return eventService.getEventById(bookingId);
+    public EventDetailsDTO getEventsByBookingId(Authentication auth, @PathVariable Integer bookingId){
+        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
+        if (myUserDetails.hasRole("STUDENT")) {
+            return eventService.getOwnedEventById(bookingId, myUserDetails.getUsername());
+        }
+        if (myUserDetails.hasRole("LECTURER")) {
+            return eventService.getEventOfOwnerCategoryById(bookingId, myUserDetails.getUserId());
+        }
+        return eventService.getEventById(bookingId);
     }
 
-
     @PostMapping("")
-    @PreAuthorize("!hasRole('LECTURER')")
     @ResponseStatus(HttpStatus.CREATED)
-    public EventDetailsDTO create(@Valid @RequestBody CreateEventDTO newEvent, BindingResult bindingResult) {
+    public EventDetailsDTO create(Authentication auth, @Valid @RequestBody CreateEventDTO newEvent, BindingResult bindingResult) {
         try {
+            MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
+            if (myUserDetails.hasRole("STUDENT") && myUserDetails.getUserId() != newEvent.getUserId()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Input userId doesn't match with your userId");
+            }
+
             return eventService.addNewEvent(newEvent, bindingResult);
         } catch (DateTimeOverlapException ex) {
             FieldError error = new FieldError("createEventDTO", "eventStartTime", ex.getMessage());
@@ -105,13 +93,19 @@ public class EventController {
     }
     
     @DeleteMapping("/{bookingId}")
-    @PreAuthorize("!hasRole('LECTURER')")
-    public void delete(@PathVariable Integer bookingId) {
+    public void delete(Authentication auth, @PathVariable Integer bookingId) {
+        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
+
+        if (myUserDetails.hasRole("STUDENT") && !eventService.isOwnedEvent(bookingId, myUserDetails.getUserId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    String.format("You are not owned this event; booking id %s", bookingId)
+            );
+        }
         eventService.removeEvent(bookingId);
     }
 
     @PatchMapping("/{bookingId}")
-    @PreAuthorize("!hasRole('LECTURER')")
     public EventDetailsDTO update(Authentication auth, @Valid @RequestBody EditEventDTO editEvent,
                                   BindingResult bindingResult, @PathVariable Integer bookingId)
     {
@@ -125,5 +119,4 @@ public class EventController {
             throw ex;
         }
     }
-
 }

@@ -1,15 +1,12 @@
 package sit.int221.integratedprojectbe.controllers;
 
-import io.jsonwebtoken.impl.DefaultClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import sit.int221.integratedprojectbe.dtos.*;
-import sit.int221.integratedprojectbe.entities.User;
 import sit.int221.integratedprojectbe.services.AuthenticationService;
 import sit.int221.integratedprojectbe.services.UserService;
 import sit.int221.integratedprojectbe.services.imp.UserDetailsServiceImp;
@@ -18,8 +15,6 @@ import sit.int221.integratedprojectbe.utils.JwtUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.security.Principal;
-import java.util.List;
 
 
 @RestController
@@ -55,7 +50,6 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDetailsDTO create(@Valid @RequestBody CreateUserDTO newUser, BindingResult bindingResult) {
         return userService.addNewUser(newUser, bindingResult);
-
     }
 
     @GetMapping("/refreshToken")
@@ -72,7 +66,5 @@ public class AuthenticationController {
         else {
             return ResponseEntity.status(401).build();
         }
-
     }
-
 }

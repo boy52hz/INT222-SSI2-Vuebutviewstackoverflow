@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sit.int221.integratedprojectbe.exceptions.Enummismatch;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Getter
@@ -38,6 +36,6 @@ public class CreateUserDTO {
     }
 
     public void setRole(String role) {
-        this.role = role.toLowerCase();
+        this.role = role.toLowerCase().trim();
     }
 }

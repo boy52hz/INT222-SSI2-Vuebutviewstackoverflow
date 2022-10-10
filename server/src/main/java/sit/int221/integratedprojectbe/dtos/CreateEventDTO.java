@@ -29,6 +29,4 @@ public class CreateEventDTO {
 
     @Size(max = 500, message = "size must be between 0 and 500")
     private String eventNotes;
-
-//    private Integer eventDuration;
 }

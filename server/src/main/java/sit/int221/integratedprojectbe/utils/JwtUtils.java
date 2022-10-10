@@ -65,9 +65,11 @@ public class JwtUtils {
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
+
     private Date calculateExpirationDate(Date createdDate) {
         return new Date(createdDate.getTime() + refreshTokenExpiration * 1000 );
     }
+
     public String refreshToken(String token) {
         final Date createdDate = new Date();
         final Date expirationDate = calculateExpirationDate(createdDate);
@@ -79,13 +81,12 @@ public class JwtUtils {
         return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, SECRET_KEY).compact();
     }
 
-
     private Boolean ignoreTokenExpiration(String token) {
         // here you specify tokens, for that the expiration is ignored
         return false;
     }
+
     public Boolean canTokenBeRefreshed(String token) {
         return (!isTokenExpired(token) || ignoreTokenExpiration(token));
     }
-
 }

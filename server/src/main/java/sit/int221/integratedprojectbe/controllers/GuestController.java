@@ -5,18 +5,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sit.int221.integratedprojectbe.dtos.CreateEventDTO;
 import sit.int221.integratedprojectbe.dtos.EventDetailsDTO;
 import sit.int221.integratedprojectbe.entities.Event;
 import sit.int221.integratedprojectbe.entities.EventCategory;
-import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
-import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
 import sit.int221.integratedprojectbe.repositories.EventRepository;
 import sit.int221.integratedprojectbe.services.EmailService;
 import sit.int221.integratedprojectbe.services.EventCategoryService;
-import sit.int221.integratedprojectbe.services.EventService;
 
 @RestController
 @RequestMapping("/api/guests")

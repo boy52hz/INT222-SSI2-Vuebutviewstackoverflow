@@ -59,5 +59,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
                 value = "select e.* from `event` e join `event_category_has_user` eco on e.categoryId = eco.categoryId join `user` u on eco.userId = u.userId where e.bookingId =:bookingId and u.userId =:userId",
                 nativeQuery = true
         )
-       Event findEventOfOwnerCategoryByUserIdAndBookingId(@Param("userId") Integer userId,@Param("bookingId") Integer bookingId);
+        Optional<Event> findEventOfOwnerCategoryByUserIdAndBookingId(@Param("userId") Integer userId,@Param("bookingId") Integer bookingId);
+
+        boolean existsByBookingIdAndUserUserId(Integer bookingId, Integer userId);
 }

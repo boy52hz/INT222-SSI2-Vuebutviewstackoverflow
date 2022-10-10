@@ -36,6 +36,4 @@ public class Event {
     @Lob
     @Column
     private String eventNotes;
-
-
 }

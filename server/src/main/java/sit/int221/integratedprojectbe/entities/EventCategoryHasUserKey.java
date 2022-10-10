@@ -45,5 +45,4 @@ public class EventCategoryHasUserKey implements Serializable {
     public int hashCode() {
         return Objects.hash(userId, categoryId);
     }
-
 }

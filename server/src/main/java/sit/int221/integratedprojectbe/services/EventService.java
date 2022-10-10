@@ -78,35 +78,36 @@ public class EventService {
         return listMapper.mapList(eventRepository.findAllEventOfOwnerCategoryByUserId(event.getUser().getUserId()), EventDetailsDTO.class, modelMapper);
     }
 
-    public EventDetailsDTO getEventById(Integer bookingId) {
-        Event x = eventRepository.findByUserEmail(getCurrentEmail());
-        if(getCurrentAuthority().equals("[ROLE_LECTURER]")){
-             Event y = eventRepository.findEventOfOwnerCategoryByUserIdAndBookingId(x.getUser().getUserId(),bookingId);
-             if(y == null) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"This Booking not exist or Category mismatch ");
-             return modelMapper.map(y, EventDetailsDTO.class);
-        }
+    public EventDetailsDTO getOwnedEventById (Integer bookingId, String userEmail) {
+        Event event = eventRepository.findByBookingIdAndUserEmail(bookingId, userEmail).orElseThrow(() ->
+                new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        String.format("Booking ID %s with an email %s is doesn't exist.", bookingId, userEmail)
+                ));
+        return modelMapper.map(event, EventDetailsDTO.class);
+    }
 
+    public EventDetailsDTO getEventOfOwnerCategoryById(Integer bookingId, Integer userId) {
+        Event event = eventRepository.findEventOfOwnerCategoryByUserIdAndBookingId(userId, bookingId).orElseThrow(() ->
+            new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "This Booking not exist or Category mismatch"
+        ));
+        return modelMapper.map(event, EventDetailsDTO.class);
+    }
+
+    public EventDetailsDTO getEventById(Integer bookingId) {
         Event event = eventRepository.findById(bookingId).orElseThrow(() ->
                 new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         String.format("Booking ID %s is doesn't exist.", bookingId)
                 ));
-        if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
-            if(!getCurrentEmail().equals(event.getUser().getEmail())){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch with your student's email");
-            }
-        }
         return modelMapper.map(event, EventDetailsDTO.class);
     }
 
-    public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, BindingResult bindingResult) {
-        User x = userRepository.findByUserId(newEvent.getUserId());
+    public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, BindingResult bindingResult) {;
         if (bindingResult.hasErrors()) throw new ArgumentNotValidException(bindingResult);
-        if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
-             if(!getCurrentEmail().equals(x.getEmail())){
-                 throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch with your student's email");
-             }
-        }
+
         Event event = modelMapper.map(newEvent, Event.class);
         EventCategory eventCategory = eventCategoryService.getCategoryById(newEvent.getCategoryId());
         event.setCategory(eventCategory);
@@ -130,14 +131,6 @@ public class EventService {
     }
 
     public void removeEvent(Integer bookingId) {
-      Event userId = eventRepository.findByBookingId(bookingId);
-      User email = userRepository.findByUserId(userId.getUser().getUserId());
-
-      if(getCurrentAuthority().equals("[ROLE_STUDENT]")){
-          if(!getCurrentEmail().equals(email.getEmail())){
-              throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Email mismatch");
-          }
-      }
        eventRepository.findById(bookingId).orElseThrow(() ->
                 new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -177,6 +170,10 @@ public class EventService {
         return modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
     }
 
+    public boolean isOwnedEvent(Integer bookingId, Integer userId) {
+        return eventRepository.existsByBookingIdAndUserUserId(bookingId, userId);
+    }
+
     private Event mapEvent(Event existingEvent, EditEventDTO updateEvent) {
         if (updateEvent.getEventStartTime() != null) {
             existingEvent.setEventStartTime(updateEvent.getEventStartTime());
@@ -205,36 +202,8 @@ public class EventService {
     }
 
     private boolean isEventPeriodOverlap(Instant startTimeA , Instant endTimeA, Instant startTimeB, Instant endTimeB){
-        if (startTimeA.isBefore(endTimeB) && startTimeB.isBefore(endTimeA)) {
-                System.out.println("This time is already reserve");
-                return true;
-        }
-
-//        if (startTimeA.isBefore(endTimeB)) {
-//            if (endTimeB.isBefore(endTimeA)) {
-//                System.out.println("Time range intersects with other end time");
-//                return true;
-//            }
-//        }
-
-        return false;
+        return startTimeA.isBefore(endTimeB) && startTimeB.isBefore(endTimeA);
     }
-
-
-
-
-    private String getCurrentAuthority(){
-        UserDetails getCurrentAuthentication = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return  getCurrentAuthentication.getAuthorities().toString();
-    }
-
-    private String getCurrentEmail(){
-        UserDetails getCurrentAuthentication = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return  getCurrentAuthentication.getUsername();
-    }
-
-
-
 }
 
 

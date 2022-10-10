@@ -74,7 +74,6 @@ public class UserService {
             throw new ArgumentNotValidException(bindingResult);
         }
         return userRepository.saveAndFlush(user);
-
     }
 
     public void removeUser(Integer userId) {
@@ -91,9 +90,7 @@ public class UserService {
         newUser.setName(newUser.getName().strip());
         newUser.setPassword(argon2Password);
 
-
-        if(newUser.getRole() == null || newUser.getRole().trim() == ""){
-
+        if(newUser.getRole() == null){
             newUser.setRole("student");
         }
 
@@ -103,7 +100,7 @@ public class UserService {
             user.setRole(userRole);
         } catch (ResponseStatusException ex) {
             FieldError error = new FieldError(
-                    "addUserDTO",
+                    "createUserDto",
                     "role",
                     ex.getReason());
             bindingResult.addError(error);
@@ -112,7 +109,7 @@ public class UserService {
         if (newUser.getName() != null && userRepository.existsByName(newUser.getName())
         ) {
             FieldError error = new FieldError(
-                    "editUserDTO",
+                    "createUserDto",
                     "name",
                     "Name is already used.");
             bindingResult.addError(error);
@@ -120,7 +117,7 @@ public class UserService {
         if (newUser.getEmail() != null && userRepository.existsByEmail(newUser.getEmail())
         ) {
             FieldError error = new FieldError(
-                    "editUserDTO",
+                    "createUserDto",
                     "email",
                     "Email is already used.");
             bindingResult.addError(error);
@@ -130,21 +127,22 @@ public class UserService {
         }
         return modelMapper.map(userRepository.saveAndFlush(user), UserDetailsDTO.class);
     }
+
     public UserDetailsDTO checkPassword(LoginDTO login ,BindingResult bindingResult){
-        User user;
         if (bindingResult.hasErrors()) {
             throw new ArgumentNotValidException(bindingResult);
         }
-        if(login.getEmail() != null && userRepository.existsByEmail(login.getEmail())){
-            user = userRepository.findByEmail(login.getEmail().strip());
-        }else  {
+
+        User user = userRepository.findByEmail(login.getEmail());
+
+        if(user == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Email not found.");
         }
+
         if(!argon2Factory.verify(user.getPassword(), login.getPassword()) )
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Password mismatch.");
 
         return modelMapper.map(user, UserDetailsDTO.class);
-
     }
 
     private User mapUser(User existingUser, EditUserDTO updateUser) {

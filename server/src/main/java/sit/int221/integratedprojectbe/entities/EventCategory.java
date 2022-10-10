@@ -31,7 +31,4 @@ public class EventCategory {
     @JsonIgnore
     @OneToMany(mappedBy = "category")
     private Set<Event> events = new LinkedHashSet<>();
-
-
-
 }

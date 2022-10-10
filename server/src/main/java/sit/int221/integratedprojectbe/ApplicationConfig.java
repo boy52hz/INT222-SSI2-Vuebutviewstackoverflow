@@ -28,6 +28,4 @@ public class ApplicationConfig {
                 10,
                 10);
     }
-
-
 }
