@@ -19,9 +19,9 @@ public class Event {
     @Column(nullable = false, length = 100)
     private String bookingName;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "userId", nullable = false)
-    private User user;
+
+    @Column(nullable = false, length = 50)
+    private String bookingEmail;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "categoryId", nullable = false)

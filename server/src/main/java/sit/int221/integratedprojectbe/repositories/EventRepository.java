@@ -18,9 +18,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
                 nativeQuery = true
         )
         List<Event> findAllByCategoryId(Integer categoryId);
-        List<Event> findAllByUserUserId(Integer userId);
-        Event findByBookingId (Integer bookingId);
-        Optional<Event> findByBookingIdAndUserEmail (Integer bookingId, String email);
+        Optional<Event> findByBookingIdAndBookingEmail (Integer bookingId, String bookingEmail);
 
         @Query(
                 value = "SELECT * FROM event WHERE DATE_ADD(eventStartTime, INTERVAL eventDuration MINUTE) >= NOW() ORDER BY eventStartTime DESC",
@@ -46,8 +44,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
         )
         List<Event> findAllByEventStartTimeEquals(@Param("eventDate") String eventDate);
 
-        List<Event> findAllByUserEmail(String email);
-        Event findByUserEmail(String email);
+        List<Event> findAllByBookingEmail(String bookingEmail);
 
         @Query(
                 value = "select e.* from `event` e join `event_category_has_user` eco on e.categoryId = eco.categoryId join `user` u on eco.userId = u.userId where u.userId =:userId",
@@ -61,5 +58,5 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
         )
         Optional<Event> findEventOfOwnerCategoryByUserIdAndBookingId(@Param("userId") Integer userId,@Param("bookingId") Integer bookingId);
 
-        boolean existsByBookingIdAndUserUserId(Integer bookingId, Integer userId);
+        boolean existsByBookingIdAndBookingEmail(Integer bookingId, String bookingEmail);
 }

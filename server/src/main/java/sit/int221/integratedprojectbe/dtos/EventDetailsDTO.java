@@ -14,9 +14,9 @@ import java.util.Date;
 public class EventDetailsDTO {
     private Integer bookingId;
     private String bookingName;
+    private String bookingEmail;
     private EventDetailCategoryDTO category;
     private Date eventStartTime;
     private Integer eventDuration;
-    private String userEmail;
     private String eventNotes;
 }

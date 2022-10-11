@@ -6,18 +6,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.server.ResponseStatusException;
 
 
 import sit.int221.integratedprojectbe.dtos.*;
 import sit.int221.integratedprojectbe.entities.Event;
 import sit.int221.integratedprojectbe.entities.EventCategory;
-import sit.int221.integratedprojectbe.entities.User;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
 import sit.int221.integratedprojectbe.imp.MyUserDetails;
@@ -25,12 +21,9 @@ import sit.int221.integratedprojectbe.repositories.EventRepository;
 import sit.int221.integratedprojectbe.repositories.UserRepository;
 import sit.int221.integratedprojectbe.utils.ListMapper;
 
-import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class EventService {
@@ -70,15 +63,15 @@ public class EventService {
         return listMapper.mapList(eventRepository.findAllByEventStartTimeBefore(), EventDetailsDTO.class, modelMapper);
     }
 
-    public List<EventDetailsDTO> getAllEventByUserEmail(String email) {
-        return listMapper.mapList(eventRepository.findAllByUserEmail(email), EventDetailsDTO.class, modelMapper);
+    public List<EventDetailsDTO> getAllEventByBookingEmail(String email) {
+        return listMapper.mapList(eventRepository.findAllByBookingEmail(email), EventDetailsDTO.class, modelMapper);
     }
     public List<EventDetailsDTO> getAllEventByOwnerCategory(Integer userId) {
         return listMapper.mapList(eventRepository.findAllEventOfOwnerCategoryByUserId(userId), EventDetailsDTO.class, modelMapper);
     }
 
-    public EventDetailsDTO getOwnedEventById (Integer bookingId, String userEmail) {
-        Event event = eventRepository.findByBookingIdAndUserEmail(bookingId, userEmail).orElseThrow(() ->
+    public EventDetailsDTO getOwnedEventByEmail (Integer bookingId, String userEmail) {
+        Event event = eventRepository.findByBookingIdAndBookingEmail(bookingId, userEmail).orElseThrow(() ->
                 new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         String.format("Booking ID %s with an email %s is doesn't exist.", bookingId, userEmail)
@@ -117,13 +110,7 @@ public class EventService {
             throw new DateTimeOverlapException("This time is already reserve");
         }
 
-        User user = userRepository.findById(newEvent.getUserId()).orElseThrow(() ->
-                new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        String.format("User ID %s is doesn't exist.", newEvent.getUserId())
-                ));
-        event.setUser(user);
-        EventDetailsDTO eventDTO =modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
+        EventDetailsDTO eventDTO = modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
         emailService.sendSimpleMessage(eventDTO);
 
         return modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
@@ -142,7 +129,7 @@ public class EventService {
         MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
         Event event = null;
         if (myUserDetails.hasRole("STUDENT")) {
-            event = eventRepository.findByBookingIdAndUserEmail(bookingId, myUserDetails.getUsername())
+            event = eventRepository.findByBookingIdAndBookingEmail(bookingId, myUserDetails.getUsername())
                     .map(existingEvent -> mapEvent(existingEvent, updateEvent))
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND,
@@ -169,8 +156,8 @@ public class EventService {
         return modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
     }
 
-    public boolean isOwnedEvent(Integer bookingId, Integer userId) {
-        return eventRepository.existsByBookingIdAndUserUserId(bookingId, userId);
+    public boolean isOwnedEvent(Integer bookingId, String email) {
+        return eventRepository.existsByBookingIdAndBookingEmail(bookingId, email);
     }
 
     private Event mapEvent(Event existingEvent, EditEventDTO updateEvent) {

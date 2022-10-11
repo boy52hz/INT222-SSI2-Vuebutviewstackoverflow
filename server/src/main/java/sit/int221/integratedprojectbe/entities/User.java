@@ -3,6 +3,7 @@ package sit.int221.integratedprojectbe.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -38,8 +39,4 @@ public class User {
 
     @Column(name = "updatedOn", nullable = false,insertable = false,updatable = false)
     private Date updatedOn;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "user")
-    private Set<Event> events = new LinkedHashSet();
 }

@@ -58,14 +58,14 @@ public class EventController {
             return eventService.getEvents();
         }
 
-        return eventService.getAllEventByUserEmail(myUserDetails.getUsername());
+        return eventService.getAllEventByBookingEmail(myUserDetails.getUsername());
     }
 
     @GetMapping("/{bookingId}")
     public EventDetailsDTO getEventsByBookingId(Authentication auth, @PathVariable Integer bookingId){
         MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
         if (myUserDetails.hasRole("STUDENT")) {
-            return eventService.getOwnedEventById(bookingId, myUserDetails.getUsername());
+            return eventService.getOwnedEventByEmail(bookingId, myUserDetails.getUsername());
         }
         if (myUserDetails.hasRole("LECTURER")) {
             return eventService.getEventOfOwnerCategoryById(bookingId, myUserDetails.getUserId());
@@ -78,8 +78,8 @@ public class EventController {
     public EventDetailsDTO create(Authentication auth, @Valid @RequestBody CreateEventDTO newEvent, BindingResult bindingResult) {
         try {
             MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
-            if (myUserDetails.hasRole("STUDENT") && myUserDetails.getUserId() != newEvent.getUserId()) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Input userId doesn't match with your userId");
+            if (myUserDetails.hasRole("STUDENT") && !myUserDetails.getUsername().equals(newEvent.getBookingEmail())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid Email");
             }
 
             return eventService.addNewEvent(newEvent, bindingResult);
@@ -96,7 +96,7 @@ public class EventController {
     public void delete(Authentication auth, @PathVariable Integer bookingId) {
         MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
 
-        if (myUserDetails.hasRole("STUDENT") && !eventService.isOwnedEvent(bookingId, myUserDetails.getUserId())) {
+        if (myUserDetails.hasRole("STUDENT") && !eventService.isOwnedEvent(bookingId, myUserDetails.getUsername())) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     String.format("You are not owned this event; booking id %s", bookingId)

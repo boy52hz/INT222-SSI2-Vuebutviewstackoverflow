@@ -17,8 +17,11 @@ public class CreateEventDTO {
     @Size(min = 1, max = 100, message = "size must be between 1 and 100")
     private String bookingName;
 
-    @NotNull(message = "must not be null")
-    private Integer userId;
+    @NotBlank(message = "must not be blank")
+    @Email(regexp = "^[^(.)][a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,3}",
+            message = "Email must be well formed")
+    @Size(min = 1, max =50 , message = "Email size must be between 1 and 50")
+    private String bookingEmail;
 
     @NotNull(message = "must not be null")
     private Integer categoryId;
