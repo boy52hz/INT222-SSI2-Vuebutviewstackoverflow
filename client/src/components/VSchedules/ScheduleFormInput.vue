@@ -34,10 +34,12 @@ const formConfig = ref({
   isLoading: true,
   maxLength: {
     bookingName: 100,
+    bookingEmail: 50,
     eventNotes: 500,
   },
   minLength: {
     bookingName: 1,
+    bookingEmail: 1,
   },
   min: {
     eventStartTime: moment().add(1, 'minutes').format('YYYY-MM-DDTHH:mm'),
@@ -52,9 +54,7 @@ const onInputFocusOut = (evt) => {
       evt.target.setCustomValidity('Must be future date and time')
     } else {
       const categoryEvents = eventStore.getEventsSameCategory(props.eventModel)
-      const eventOverlap = categoryEvents.some((event) =>
-        isEventPeriodOverlap(props.eventModel, event)
-      )
+      const eventOverlap = categoryEvents.some((event) => isEventPeriodOverlap(props.eventModel, event))
 
       if (categoryEvents.length > 0 && eventOverlap) {
         evt.target.setCustomValidity('This time is already reserve')
@@ -98,9 +98,7 @@ onUpdated(async () => {
     }
 
     formConfig.value.min.updateMinInterval = setInterval(() => {
-      formConfig.value.min.eventStartTime = moment()
-        .add(1, 'minutes')
-        .format('YYYY-MM-DDTHH:mm')
+      formConfig.value.min.eventStartTime = moment().add(1, 'minutes').format('YYYY-MM-DDTHH:mm')
     }, 1000)
   } else if (!props.modalState.state) {
     clearInterval(formConfig.value.min.updateMinInterval)
@@ -113,10 +111,7 @@ defineEmits(['add-event', 'edit-event', 'reset-form'])
 <template>
   <app-modal :show="modalState.state">
     <h3 style="text-align: center">{{ isEditMode ? 'Edit event' : 'Add new event' }}</h3>
-    <form
-      @submit.prevent="isEditMode ? $emit('edit-event') : $emit('add-event')"
-      @reset.prevent="$emit('reset-form')"
-    >
+    <form @submit.prevent="isEditMode ? $emit('edit-event') : $emit('add-event')" @reset.prevent="$emit('reset-form')">
       <div class="form-group" style="display: block">
         <div class="input-group">
           <label for="form-booking-name" class="required">Booking name</label>
@@ -137,18 +132,31 @@ defineEmits(['add-event', 'edit-event', 'reset-form'])
             <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
               {{ eventModelError.bookingName || '' }}
             </div>
-            <div class="input-counter">
-              {{ eventModel.bookingName.length }}/{{ formConfig.maxLength.bookingName }}
-            </div>
+            <div class="input-counter">{{ eventModel.bookingName.length }}/{{ formConfig.maxLength.bookingName }}</div>
           </div>
         </div>
-        <div class="input-group">
-          <label for="form-booking-email" class="required">Booking email</label>
-          <input
-            v-if="userStore.user"
-            :value="userStore.user.email"
-            disabled
-          />
+      </div>
+      <div class="input-group">
+        <label for="form-booking-email" class="required">Booking email</label>
+        <input
+          v-model.trim="eventModel.bookingEmail"
+          id="form-booking-email"
+          name="bookingEmail"
+          style="width: 100%"
+          type="email"
+          pattern="^[^(\.)][a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}"
+          @focusout="onInputFocusOut"
+          :class="eventModelError.bookingEmail && 'invalid'"
+          :minlength="formConfig.minLength.bookingName"
+          :maxlength="formConfig.maxLength.bookingEmail"
+          :disabled="isEditMode || userStore.isAuthenticated"
+          required
+        />
+        <div class="input-validation-box">
+          <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
+            {{ eventModelError.bookingEmail || '' }}
+          </div>
+          <div class="input-counter">{{ eventModel.bookingEmail.length }}/{{ formConfig.maxLength.bookingEmail }}</div>
         </div>
       </div>
       <div class="form-group">
@@ -174,11 +182,7 @@ defineEmits(['add-event', 'edit-event', 'reset-form'])
         </div>
         <div class="input-group">
           <label>Duration (Minutes)</label>
-          <input
-            v-if="eventModel.category"
-            v-model="eventModel.category.eventDuration"
-            disabled
-          />
+          <input v-if="eventModel.category" v-model="eventModel.category.eventDuration" disabled />
         </div>
         <div class="input-group">
           <label for="form-event-starttime" class="required">Start time</label>
@@ -213,9 +217,7 @@ defineEmits(['add-event', 'edit-event', 'reset-form'])
             {{ eventModelError.eventNotes || '' }}
           </div>
           <div class="input-counter">
-            {{ (eventModel.eventNotes && eventModel.eventNotes.length) || 0 }}/{{
-              formConfig.maxLength.eventNotes
-            }}
+            {{ (eventModel.eventNotes && eventModel.eventNotes.length) || 0 }}/{{ formConfig.maxLength.eventNotes }}
           </div>
         </div>
       </div>
@@ -223,25 +225,14 @@ defineEmits(['add-event', 'edit-event', 'reset-form'])
         <b>Event period summary : </b>
         <span v-if="!!eventModel.eventStartTime">
           {{ moment(eventModel.eventStartTime).format('LL') }} at
-          {{
-            $getFormattedEventPeriod(
-              eventModel.eventStartTime,
-              eventModel.category.eventDuration
-            )
-          }}
+          {{ $getFormattedEventPeriod(eventModel.eventStartTime, eventModel.category.eventDuration) }}
         </span>
         <span v-else>—</span>
       </div>
       <div class="app-button-group">
-        <app-button type="submit" button-type="success">{{
-          isEditMode ? 'Save' : 'Add event'
-        }}</app-button>
-        <app-button v-show="!isEditMode" type="reset" button-type="warning"
-          >Reset</app-button
-        >
-        <app-button type="reset" button-type="danger" @click="modalState.close()"
-          >Cancel</app-button
-        >
+        <app-button type="submit" button-type="success">{{ isEditMode ? 'Save' : 'Add event' }}</app-button>
+        <app-button v-show="!isEditMode" type="reset" button-type="warning">Reset</app-button>
+        <app-button type="reset" button-type="danger" @click="modalState.close()">Cancel</app-button>
       </div>
     </form>
   </app-modal>

@@ -21,6 +21,7 @@ defineProps({
   padding: 10px;
   margin: 5px 8px;
   transition: all 0.3s ease-out;
+  filter: drop-shadow(1px 1px 1px rgba(10, 10, 10, 0.2));
 }
 .btn:hover {
   cursor: pointer;

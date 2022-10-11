@@ -1,22 +1,76 @@
 <script setup>
 import { ref } from 'vue'
+import moment from 'moment'
 import { useUser } from '../stores/user'
 import AppInput from '../components/App/AppInput.vue'
+import ScheduleFormInput from '../components/VSchedules/ScheduleFormInput.vue'
 import { useRouter } from 'vue-router'
+import { useEventCategories } from '../stores/eventCategories'
+import { useEvents } from '../stores/events'
 
 const router = useRouter()
-
 const userStore = useUser()
-
-const formLogin = ref({
+const eventStore = useEvents()
+const categoryStore = useEventCategories()
+const isLoading = ref(false)
+const loginModelTemplate = {
   email: '',
   password: '',
+}
+
+const eventModelTemplate = {
+  category: null,
+  bookingName: '',
+  bookingEmail: userStore.user.email || '',
+  eventStartTime: '',
+  eventNotes: '',
+}
+
+const formLogin = ref({ ...loginModelTemplate })
+const errorMessage = ref({ ...loginModelTemplate })
+
+const eventModel = ref({ ...eventModelTemplate })
+const eventModelError = ref({ ...eventModelTemplate })
+
+const scheduleFormInputModal = ref({
+  state: false,
+  show: async () => {
+    if (categoryStore.eventCategories.length <= 0) {
+      await categoryStore.fetchEventCategories()
+    }
+    scheduleFormInputModal.value.state = true
+  },
+  close: () => {
+    resetEventForm()
+    scheduleFormInputModal.value.state = false
+  },
 })
 
-const errorMessage = ref({
-  email: '',
-  password: '',
-})
+const addEvent = async () => {
+  try {
+    isLoading.value = true
+    const data = await eventStore.addNewEventAsGuest({
+      ...eventModel.value,
+      categoryId: eventModel.value.category.categoryId,
+      eventStartTime: moment(eventModel.value.eventStartTime).toISOString(),
+    })
+    alert(`Event added successfully (Booking ID: ${data.bookingId})`)
+    scheduleFormInputModal.value.close()
+  } catch (err) {
+    const fieldErrors = err.fieldErrors
+    for (let key in fieldErrors) {
+      fieldErrors[key] = fieldErrors[key].join(', ')
+    }
+    eventModelError.value = fieldErrors
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const resetEventForm = () => {
+  eventModel.value = { ...eventModelTemplate }
+  eventModelError.value = {}
+}
 
 const loginUser = async () => {
   const passwordValid = validatePassword()
@@ -24,6 +78,7 @@ const loginUser = async () => {
   if (!passwordValid) return
 
   try {
+    isLoading.value = true
     await userStore.loginUser(formLogin.value)
     router.push('/')
   } catch (err) {
@@ -33,6 +88,8 @@ const loginUser = async () => {
     } else if (err.status === 401) {
       errorMessage.value.password = err.message
     }
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -49,6 +106,14 @@ const validatePassword = () => {
 </script>
 
 <template>
+  <app-loading-screen v-if="isLoading" />
+  <ScheduleFormInput
+    :event-model="eventModel"
+    :event-model-error="eventModelError"
+    :modal-state="scheduleFormInputModal"
+    @add-event="addEvent"
+    @reset-form="resetEventForm"
+  />
   <div class="container">
     <div class="wrapper">
       <div class="welcome-title">Welcome to OASIP-SSI2</div>
@@ -71,7 +136,12 @@ const validatePassword = () => {
           :error-message="errorMessage.password"
           :required="true"
         />
-        <app-button class="btn-submit" type="submit">Login</app-button>
+        <div>
+          <app-button class="btn-submit" type="submit">Login</app-button>
+          <app-button class="btn-guest" type="button" @click="scheduleFormInputModal.show"
+            >Create event without sign-in</app-button
+          >
+        </div>
       </form>
       <router-link class="register-href" to="/register">I don't have an account</router-link>
     </div>
@@ -124,5 +194,17 @@ form .btn-submit {
   margin-top: 2em;
   margin-left: auto;
   margin-right: auto;
+}
+
+.btn-guest {
+  margin: 0;
+  padding: 5px;
+  width: 100%;
+  background-color: whitesmoke !important;
+  color: black !important;
+}
+
+.btn-guest:hover {
+  background-color: white !important;
 }
 </style>

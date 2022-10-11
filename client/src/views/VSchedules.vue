@@ -25,7 +25,7 @@ const filterDropdown = ref(false)
 const eventModelTemplate = {
   category: null,
   bookingName: '',
-  userId: userStore.user.id,
+  bookingEmail: userStore.user.email || '',
   eventStartTime: '',
   eventNotes: '',
 }
@@ -307,7 +307,7 @@ onBeforeMount(async () => {
           <h1 style="font-size: 18pt">
             {{ eventDetail.bookingName }}
           </h1>
-          <cite>({{ eventDetail.userEmail }})</cite>
+          <cite>({{ eventDetail.bookingEmail }})</cite>
           <EventCategory :category="eventDetail.category" />
           <p class="detail-datetime">
             <font-awesome-icon icon="calendar-days" />

@@ -15,6 +15,15 @@ export const useEvents = defineStore('events', () => {
     }
   }
 
+  const addNewEventAsGuest = async (newEvent) => {
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_BASE_PATH}/api/guests`, newEvent)
+      return res.data
+    } catch (err) {
+      throw err.response.data
+    }
+  }
+
   const updateEvent = async (bookingId, editedEvent) => {
     try {
       await axios.patch(`${import.meta.env.VITE_BASE_PATH}/api/events/${bookingId}`, editedEvent)
@@ -64,6 +73,7 @@ export const useEvents = defineStore('events', () => {
     getEventDetailById,
     getEventsSameCategory,
     addNewEvent,
+    addNewEventAsGuest,
     updateEvent,
     deleteEventById,
   }
