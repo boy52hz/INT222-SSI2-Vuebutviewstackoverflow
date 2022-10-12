@@ -53,7 +53,7 @@ export const useUser = defineStore('user', () => {
 
   const registerUser = async (registerData) => {
     try {
-      await axios.post(`${import.meta.env.VITE_BASE_PATH}/api/users`, registerData)
+      await axios.post(`${import.meta.env.VITE_BASE_PATH}/api/auth/register`, registerData)
     } catch (err) {
       throw err.response.data
     }
