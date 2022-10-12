@@ -7,7 +7,8 @@ export const useUsers = defineStore('users', () => {
 
   const editUser = async (userId, editedData) => {
     try {
-      await axios.patch(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`, editedData)
+      const res = await axios.patch(`${import.meta.env.VITE_BASE_PATH}/api/users/${userId}`, editedData)
+      return res.data
     } catch (err) {
       throw err.response.data
     }

@@ -31,7 +31,7 @@ const routes = [
   {
     path: '/categories/:categoryId',
     name: 'EditCategory',
-    meta: { requireAuth: true, authorities: [Roles.ADMIN, Roles.LECTURER] },
+    meta: { requireAuth: true, authorities: [Roles.ADMIN] },
     component: () => import('../views/VEditCategory.vue'),
   },
   {
