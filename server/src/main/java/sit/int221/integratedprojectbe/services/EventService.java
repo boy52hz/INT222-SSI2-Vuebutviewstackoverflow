@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import sit.int221.integratedprojectbe.dtos.*;
 import sit.int221.integratedprojectbe.entities.Event;
 import sit.int221.integratedprojectbe.entities.EventCategory;
+import sit.int221.integratedprojectbe.entities.File;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
 import sit.int221.integratedprojectbe.imp.MyUserDetails;
@@ -21,6 +22,7 @@ import sit.int221.integratedprojectbe.repositories.EventRepository;
 import sit.int221.integratedprojectbe.repositories.UserRepository;
 import sit.int221.integratedprojectbe.utils.ListMapper;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -42,6 +44,8 @@ public class EventService {
 
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private FileService fileService;
 
     public List<EventDetailsDTO> getEvents() {
 
@@ -97,13 +101,15 @@ public class EventService {
         return modelMapper.map(event, EventDetailsDTO.class);
     }
 
-    public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, BindingResult bindingResult) {;
+    public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, BindingResult bindingResult) throws IOException {;
         if (bindingResult.hasErrors()) throw new ArgumentNotValidException(bindingResult);
 
         Event event = modelMapper.map(newEvent, Event.class);
         EventCategory eventCategory = eventCategoryService.getCategoryById(newEvent.getCategoryId());
         event.setCategory(eventCategory);
         event.setEventDuration(eventCategory.getEventDuration());
+        File file = fileService.store(newEvent.getAttachment());
+        event.setFileId(file.getId());
 
         boolean isOverlap = checkEventPeriodOverlap(event);
         if (isOverlap) {
@@ -111,7 +117,7 @@ public class EventService {
         }
 
         EventDetailsDTO eventDTO = modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
-        emailService.sendSimpleMessage(eventDTO);
+//        emailService.sendSimpleMessage(eventDTO);
 
         return modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
     }

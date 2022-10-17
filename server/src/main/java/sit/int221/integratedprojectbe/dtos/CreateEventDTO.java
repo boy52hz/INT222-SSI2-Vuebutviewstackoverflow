@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.*;
 import java.util.Date;
@@ -26,10 +28,13 @@ public class CreateEventDTO {
     @NotNull(message = "must not be null")
     private Integer categoryId;
 
-    @NotNull(message = "must not be null")
-    @Future(message = "must be a future date")
+//    @NotNull(message = "must not be null")
+//    @Future(message = "must be a future date")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date eventStartTime;
 
     @Size(max = 500, message = "size must be between 0 and 500")
     private String eventNotes;
+
+    private MultipartFile attachment;
 }

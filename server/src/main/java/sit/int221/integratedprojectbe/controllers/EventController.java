@@ -1,21 +1,33 @@
 package sit.int221.integratedprojectbe.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import sit.int221.integratedprojectbe.dtos.CreateEventDTO;
 import sit.int221.integratedprojectbe.dtos.EditEventDTO;
 import sit.int221.integratedprojectbe.dtos.EventDetailsDTO;
+import sit.int221.integratedprojectbe.entities.Event;
+import sit.int221.integratedprojectbe.entities.File;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
 import sit.int221.integratedprojectbe.imp.MyUserDetails;
 import sit.int221.integratedprojectbe.services.EventService;
+import sit.int221.integratedprojectbe.services.FileService;
 
+import javax.annotation.Resource;
+import javax.mail.Multipart;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -23,6 +35,8 @@ import java.util.List;
 public class EventController {
     @Autowired
     private EventService eventService;
+    @Autowired
+    private FileService fileService;
 
     @GetMapping("")
     public List<EventDetailsDTO> getAllEvents(
@@ -73,11 +87,27 @@ public class EventController {
         return eventService.getEventById(bookingId);
     }
 
-    @PostMapping("")
+    @GetMapping(value = "/{bookingId}/attachment")
+    public HttpEntity<byte[]> downloadAttachment (@PathVariable Integer bookingId) {
+        EventDetailsDTO event = eventService.getEventById(bookingId);
+        File file = fileService.getFile(event.getFileId());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(file.getType()));
+        headers.setContentDispositionFormData("attachment", file.getName());
+
+        return new HttpEntity<>(file.getData(), headers);
+    }
+
+    @PostMapping(value = "", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @ResponseStatus(HttpStatus.CREATED)
-    public EventDetailsDTO create(Authentication auth, @Valid @RequestBody CreateEventDTO newEvent, BindingResult bindingResult) {
+    public EventDetailsDTO create(
+            Authentication auth,
+            @Valid @ModelAttribute CreateEventDTO newEvent,
+            BindingResult bindingResult) throws IOException {
         try {
             MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
+
             if (myUserDetails.hasRole("STUDENT") && !myUserDetails.getUsername().equals(newEvent.getBookingEmail())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid Email");
             }

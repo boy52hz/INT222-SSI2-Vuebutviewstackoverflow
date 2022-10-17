@@ -4,6 +4,7 @@ package sit.int221.integratedprojectbe.controllers;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -19,15 +20,18 @@ import sit.int221.integratedprojectbe.services.EmailService;
 import sit.int221.integratedprojectbe.services.EventCategoryService;
 import sit.int221.integratedprojectbe.services.EventService;
 
+import javax.validation.Valid;
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/guests")
 public class GuestController {
     @Autowired
     private EventService eventService;
 
-    @PostMapping("")
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public EventDetailsDTO addEventGuest(@RequestBody CreateEventDTO newEvent, BindingResult bindingResult) {
+    public EventDetailsDTO addEventGuest(@Valid @ModelAttribute CreateEventDTO newEvent, BindingResult bindingResult) throws IOException {
         try {
             return eventService.addNewEvent(newEvent, bindingResult);
         } catch (DateTimeOverlapException ex) {

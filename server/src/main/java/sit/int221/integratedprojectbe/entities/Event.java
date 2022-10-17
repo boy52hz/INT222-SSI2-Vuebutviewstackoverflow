@@ -36,4 +36,7 @@ public class Event {
     @Lob
     @Column
     private String eventNotes;
+
+    @Column
+    private String fileId;
 }

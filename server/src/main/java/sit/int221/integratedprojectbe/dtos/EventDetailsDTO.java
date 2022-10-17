@@ -19,4 +19,5 @@ public class EventDetailsDTO {
     private Date eventStartTime;
     private Integer eventDuration;
     private String eventNotes;
+    private String fileId;
 }
