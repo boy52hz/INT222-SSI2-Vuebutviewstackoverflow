@@ -1,5 +1,6 @@
 package sit.int221.integratedprojectbe.controllers;
 
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -10,6 +11,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import sit.int221.integratedprojectbe.dtos.CreateEventDTO;
@@ -19,6 +21,7 @@ import sit.int221.integratedprojectbe.entities.Event;
 import sit.int221.integratedprojectbe.entities.File;
 import sit.int221.integratedprojectbe.exceptions.ArgumentNotValidException;
 import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
+
 import sit.int221.integratedprojectbe.imp.MyUserDetails;
 import sit.int221.integratedprojectbe.services.EventService;
 import sit.int221.integratedprojectbe.services.FileService;
@@ -120,6 +123,8 @@ public class EventController {
         } catch (ArgumentNotValidException ex) {
             throw ex;
         }
+
+
     }
     
     @DeleteMapping("/{bookingId}")

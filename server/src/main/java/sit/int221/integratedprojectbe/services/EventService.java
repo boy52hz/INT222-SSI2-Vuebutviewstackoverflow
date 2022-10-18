@@ -108,8 +108,10 @@ public class EventService {
         EventCategory eventCategory = eventCategoryService.getCategoryById(newEvent.getCategoryId());
         event.setCategory(eventCategory);
         event.setEventDuration(eventCategory.getEventDuration());
+        if(!newEvent.getAttachment().isEmpty()){
         File file = fileService.store(newEvent.getAttachment());
         event.setFileId(file.getId());
+        }
 
         boolean isOverlap = checkEventPeriodOverlap(event);
         if (isOverlap) {
@@ -117,7 +119,7 @@ public class EventService {
         }
 
         EventDetailsDTO eventDTO = modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
-//        emailService.sendSimpleMessage(eventDTO);
+        emailService.sendSimpleMessage(eventDTO);
 
         return modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
     }

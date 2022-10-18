@@ -1,12 +1,17 @@
 package sit.int221.integratedprojectbe.exceptions;
 
+import org.apache.tomcat.util.http.fileupload.FileUploadBase;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +53,13 @@ public class ApiExceptionHandler {
     protected  ResponseEntity<Object> handleResponseStatus(ResponseStatusException ex, HttpServletRequest request) {
         return getErrorResponseBody(ex.getStatus(), request, ex.getReason());
     }
+
+    @ExceptionHandler({MaxUploadSizeExceededException.class})
+    protected  ResponseEntity<Object>multipartStatus(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        return getErrorResponseBody(HttpStatus.BAD_REQUEST, request, String.format("File size must between 1 and 10 MB",ex.getLocalizedMessage()));
+    }
+
+
 
     private static ResponseEntity<Object> getErrorResponseBody(
             HttpStatus status, HttpServletRequest request, String message) {
