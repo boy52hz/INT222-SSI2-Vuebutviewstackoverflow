@@ -54,7 +54,7 @@ export const useEvents = defineStore('events', () => {
   const downloadAttachment = async (bookingId, file) => {
     try {
       axios({
-        url: `/api/events/${bookingId}/attachment`,
+        url: `${import.meta.env.VITE_BASE_PATH}/api/events/${bookingId}/attachment`,
         method: 'GET',
         responseType: 'blob',
       }).then((response) => {
