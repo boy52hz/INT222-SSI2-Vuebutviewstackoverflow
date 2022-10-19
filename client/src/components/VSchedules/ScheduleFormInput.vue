@@ -8,6 +8,8 @@ import { useUser } from '../../stores/user'
 
 const moment = extendMoment(Moment)
 
+const attachmentRef = ref()
+
 const categoryStore = useEventCategories()
 const eventStore = useEvents()
 const userStore = useUser()
@@ -46,6 +48,18 @@ const formConfig = ref({
     updateMinInterval: null,
   },
 })
+
+const openAttachmentSelector = () => attachmentRef.value.click()
+
+const onFileInputChanged = (evt) => {
+  props.eventModel.attachment = evt.target.files[0]
+  console.log(props.eventModel.attachment)
+}
+
+const removeAttachment = () => {
+  props.eventModel.attachment = ''
+  props.eventModelError.attachment = ''
+}
 
 const onInputFocusOut = (evt) => {
   if (evt.target.name === 'eventStartTime') {
@@ -221,6 +235,27 @@ defineEmits(['add-event', 'edit-event', 'reset-form'])
           </div>
         </div>
       </div>
+      <div class="upload-field">
+        <input ref="attachmentRef" type="file" name="attachment" @change="onFileInputChanged" hidden />
+        <app-button id="upload-btn" type="button" @click="openAttachmentSelector">
+          <font-awesome-icon icon="paperclip" />
+        </app-button>
+        <div class="file-field">
+          {{
+            eventModel.attachment
+              ? `${eventModel.attachment.name} (${(eventModel.attachment.size / (1024 * 1024)).toFixed(2)} MB)`
+              : 'No selected file. (Max: 10MB)'
+          }}
+          <button v-if="eventModel.attachment" type="button" class="file-field-remove" @click="removeAttachment">
+            <font-awesome-icon icon="xmark" />
+          </button>
+        </div>
+      </div>
+      <div class="input-validation-box">
+        <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
+          {{ eventModelError.attachment || '' }}
+        </div>
+      </div>
       <div class="duration-summary">
         <b>Event period summary : </b>
         <span v-if="!!eventModel.eventStartTime">
@@ -268,5 +303,45 @@ defineEmits(['add-event', 'edit-event', 'reset-form'])
 
 .input-validation-box .input-counter {
   color: rgba(10, 10, 10, 0.5);
+}
+
+.upload-field {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.upload-field .file-field {
+  position: relative;
+  background-color: rgba(135, 206, 250, 0.5);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-style: italic;
+  width: 100%;
+}
+
+.file-field .file-field-remove {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  outline: none;
+  border: none;
+  background: transparent;
+  color: darkred;
+  transition: all 0.3s cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.file-field .file-field-remove:hover {
+  cursor: pointer;
+  color: rgb(222, 0, 0);
+}
+
+#upload-btn {
+  margin: 0;
+  padding: 5px;
+  font-size: 12px;
+  width: 30px;
 }
 </style>

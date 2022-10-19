@@ -11,6 +11,8 @@ import EventCategory from '../components/VSchedules/EventCategory.vue'
 import PageWrapper from '../components/PageWrapper.vue'
 import { Roles } from '../utils/roles'
 
+const MAX_FILE_SIZE = 10 * (1024 * 1024) // MB to byte
+
 const eventStore = useEvents()
 const categoryStore = useEventCategories()
 const userStore = useUser()
@@ -28,6 +30,7 @@ const eventModelTemplate = {
   bookingEmail: userStore.user.email || '',
   eventStartTime: '',
   eventNotes: '',
+  attachment: '',
 }
 
 const eventModel = ref({ ...eventModelTemplate })
@@ -36,6 +39,10 @@ const eventDetail = ref({})
 const editMode = ref(false)
 
 const addEvent = async () => {
+  if (eventModel.value.attachment.size > MAX_FILE_SIZE) {
+    eventModelError.value.attachment = 'File size is exceed maximum 10Mb'
+    return
+  }
   try {
     isLoading.value = true
     const data = await eventStore.addNewEvent({
@@ -47,6 +54,7 @@ const addEvent = async () => {
     eventDetail.value = { ...data }
   } catch (err) {
     const fieldErrors = err.fieldErrors
+    if (!fieldErrors) return
     for (let key in fieldErrors) {
       fieldErrors[key] = fieldErrors[key].join(', ')
     }
@@ -89,6 +97,9 @@ const deleteEvent = async () => {
     confirmDeleteModal.value.close()
   }
 }
+
+const downloadAttachment = async () =>
+  await eventStore.downloadAttachment(eventDetail.value.bookingId, eventDetail.value.file)
 
 const resetEventForm = () => {
   eventModel.value = { ...eventModelTemplate }
@@ -315,6 +326,10 @@ onBeforeMount(async () => {
             {{ $getFormattedEventPeriod(eventDetail.eventStartTime, eventDetail.eventDuration) }}
           </p>
           <cite v-show="eventDetail.eventNotes">‟ {{ eventDetail.eventNotes }} ”</cite>
+          <div class="detail-attachment" v-if="eventDetail.file !== null">
+            <font-awesome-icon icon="paperclip" />
+            <button id="download-btn" @click="downloadAttachment">{{ eventDetail.file.name }}</button>
+          </div>
           <div
             v-if="[Roles.ADMIN, Roles.STUDENT].includes(userStore.user.role.name.toUpperCase())"
             class="app-input-group"
@@ -451,6 +466,27 @@ onBeforeMount(async () => {
 .schedule-detail .detail-datetime {
   margin: 10px 0px;
   color: rgba(10, 10, 10, 0.8);
+}
+
+.schedule-detail .detail-attachment {
+  font-size: 12px;
+  font-style: italic;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.schedule-detail .detail-attachment #download-btn {
+  background: transparent;
+  outline: none;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.39, 0.575, 0.565, 1);
+}
+
+.schedule-detail .detail-attachment #download-btn:hover {
+  cursor: pointer;
+  color: #1b98e0;
 }
 
 .schedule-detail-container {

@@ -93,7 +93,7 @@ public class EventController {
     @GetMapping(value = "/{bookingId}/attachment")
     public HttpEntity<byte[]> downloadAttachment (@PathVariable Integer bookingId) {
         EventDetailsDTO event = eventService.getEventById(bookingId);
-        File file = fileService.getFile(event.getFileId());
+        File file = fileService.getFile(event.getFile().getId());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(file.getType()));

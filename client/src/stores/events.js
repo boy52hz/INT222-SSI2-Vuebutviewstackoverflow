@@ -6,12 +6,20 @@ export const useEvents = defineStore('events', () => {
   const events = ref([])
 
   const addNewEvent = async (newEvent) => {
+    const formData = new FormData()
+    for (let [key, value] of Object.entries(newEvent)) {
+      formData.append(key, value)
+    }
     try {
-      const res = await axios.post(`${import.meta.env.VITE_BASE_PATH}/api/events`, newEvent)
+      const res = await axios.post(`${import.meta.env.VITE_BASE_PATH}/api/events`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
       await fetchEvents()
       return res.data
     } catch (err) {
-      throw err.response.data
+      throw err.response
     }
   }
 
@@ -40,6 +48,25 @@ export const useEvents = defineStore('events', () => {
       throw err.response.data
     } finally {
       await fetchEvents()
+    }
+  }
+
+  const downloadAttachment = async (bookingId, file) => {
+    try {
+      axios({
+        url: `/api/events/${bookingId}/attachment`,
+        method: 'GET',
+        responseType: 'blob',
+      }).then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', file.name)
+        document.body.appendChild(link)
+        link.click()
+      })
+    } catch (err) {
+      throw err.response.data
     }
   }
 
@@ -76,6 +103,7 @@ export const useEvents = defineStore('events', () => {
     addNewEventAsGuest,
     updateEvent,
     deleteEventById,
+    downloadAttachment,
   }
 })
 

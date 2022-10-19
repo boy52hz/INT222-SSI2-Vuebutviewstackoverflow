@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sit.int221.integratedprojectbe.entities.File;
 
 import java.util.Date;
 
@@ -19,5 +20,5 @@ public class EventDetailsDTO {
     private Date eventStartTime;
     private Integer eventDuration;
     private String eventNotes;
-    private String fileId;
+    private FileDTO file;
 }

@@ -27,4 +27,7 @@ public class File {
     @Lob
     @Column
     private byte[] data;
+
+    @OneToOne(mappedBy = "file")
+    private Event event;
 }

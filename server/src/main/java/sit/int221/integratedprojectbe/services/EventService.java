@@ -2,12 +2,15 @@ package sit.int221.integratedprojectbe.services;
 
 
 import de.mkammerer.argon2.Argon2;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 
 
@@ -108,9 +111,18 @@ public class EventService {
         EventCategory eventCategory = eventCategoryService.getCategoryById(newEvent.getCategoryId());
         event.setCategory(eventCategory);
         event.setEventDuration(eventCategory.getEventDuration());
+
         if(!newEvent.getAttachment().isEmpty()){
-        File file = fileService.store(newEvent.getAttachment());
-        event.setFileId(file.getId());
+            try {
+                File file = fileService.store(newEvent.getAttachment());
+                event.setFile(file);
+            } catch (SizeLimitExceededException ex) {
+                FieldError error = new FieldError(
+                        "createEventDto",
+                        "attachment",
+                        "File size is exceed maximum 10Mb");
+                bindingResult.addError(error);
+            }
         }
 
         boolean isOverlap = checkEventPeriodOverlap(event);

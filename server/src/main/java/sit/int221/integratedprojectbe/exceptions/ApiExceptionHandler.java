@@ -56,7 +56,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler({MaxUploadSizeExceededException.class})
     protected  ResponseEntity<Object>multipartStatus(MaxUploadSizeExceededException ex, HttpServletRequest request) {
-        return getErrorResponseBody(HttpStatus.BAD_REQUEST, request, String.format("File size must between 1 and 10 MB",ex.getLocalizedMessage()));
+        return getErrorResponseBody(HttpStatus.BAD_REQUEST, request, "File size is exceed maximum 10Mb");
     }
 
 
