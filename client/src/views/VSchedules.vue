@@ -11,8 +11,6 @@ import EventCategory from '../components/VSchedules/EventCategory.vue'
 import PageWrapper from '../components/PageWrapper.vue'
 import { Roles } from '../utils/roles'
 
-const MAX_FILE_SIZE = 10 * (1024 * 1024) // MB to byte
-
 const eventStore = useEvents()
 const categoryStore = useEventCategories()
 const userStore = useUser()
@@ -39,10 +37,6 @@ const eventDetail = ref({})
 const editMode = ref(false)
 
 const addEvent = async () => {
-  if (eventModel.value.attachment.size > MAX_FILE_SIZE) {
-    eventModelError.value.attachment = 'File size is exceed maximum 10Mb'
-    return
-  }
   try {
     isLoading.value = true
     const data = await eventStore.addNewEvent({

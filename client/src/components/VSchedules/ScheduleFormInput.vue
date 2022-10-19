@@ -8,6 +8,7 @@ import { useUser } from '../../stores/user'
 
 const moment = extendMoment(Moment)
 
+const MAX_FILE_SIZE = 10 * (1024 * 1024) // MB to byte
 const attachmentRef = ref()
 
 const categoryStore = useEventCategories()
@@ -52,11 +53,16 @@ const formConfig = ref({
 const openAttachmentSelector = () => attachmentRef.value.click()
 
 const onFileInputChanged = (evt) => {
-  props.eventModel.attachment = evt.target.files[0]
-  console.log(props.eventModel.attachment)
+  const file = evt.target.files[0]
+  if (file.size > MAX_FILE_SIZE) {
+    props.eventModelError.attachment = 'File size is exceed maximum 10Mb'
+    return
+  }
+  props.eventModel.attachment = file
 }
 
 const removeAttachment = () => {
+  attachmentRef.value.value = []
   props.eventModel.attachment = ''
   props.eventModelError.attachment = ''
 }
