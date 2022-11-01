@@ -28,6 +28,6 @@ public class File {
     @Column
     private byte[] data;
 
-    @OneToOne(mappedBy = "file")
+    @OneToOne(mappedBy = "file", fetch = FetchType.LAZY)
     private Event event;
 }
