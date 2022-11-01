@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import sit.int221.integratedprojectbe.dtos.CreateEventDTO;
 import sit.int221.integratedprojectbe.dtos.EventDetailsDTO;
 import sit.int221.integratedprojectbe.entities.Event;
@@ -29,11 +30,15 @@ public class GuestController {
     @Autowired
     private EventService eventService;
 
-    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "")
     @ResponseStatus(HttpStatus.CREATED)
-    public EventDetailsDTO addEventGuest(@Valid @ModelAttribute CreateEventDTO newEvent, BindingResult bindingResult) throws IOException {
+    public EventDetailsDTO addEventGuest(
+            @Valid @ModelAttribute CreateEventDTO newEvent,
+            @RequestParam(name = "attachment", required = false)
+            MultipartFile attachment,
+            BindingResult bindingResult) throws IOException {
         try {
-            return eventService.addNewEvent(newEvent, bindingResult);
+            return eventService.addNewEvent(newEvent, attachment, bindingResult);
         } catch (DateTimeOverlapException ex) {
             FieldError error = new FieldError("createEventDTO", "eventStartTime", ex.getMessage());
             bindingResult.addError(error);

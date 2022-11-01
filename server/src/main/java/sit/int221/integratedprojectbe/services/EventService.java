@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 
@@ -104,7 +105,7 @@ public class EventService {
         return modelMapper.map(event, EventDetailsDTO.class);
     }
 
-    public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, BindingResult bindingResult) throws IOException {;
+    public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, MultipartFile attachment, BindingResult bindingResult) throws IOException {;
         if (bindingResult.hasErrors()) throw new ArgumentNotValidException(bindingResult);
 
         Event event = modelMapper.map(newEvent, Event.class);
@@ -112,9 +113,9 @@ public class EventService {
         event.setCategory(eventCategory);
         event.setEventDuration(eventCategory.getEventDuration());
 
-        if(!newEvent.getAttachment().isEmpty()){
+        if(attachment != null && !attachment.isEmpty()){
             try {
-                File file = fileService.store(newEvent.getAttachment());
+                File file = fileService.store(attachment);
                 event.setFile(file);
             } catch (SizeLimitExceededException ex) {
                 FieldError error = new FieldError(

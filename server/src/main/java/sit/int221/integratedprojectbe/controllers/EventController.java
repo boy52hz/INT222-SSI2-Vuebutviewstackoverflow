@@ -102,11 +102,12 @@ public class EventController {
         return new HttpEntity<>(file.getData(), headers);
     }
 
-    @PostMapping(value = "", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(value = "")
     @ResponseStatus(HttpStatus.CREATED)
     public EventDetailsDTO create(
             Authentication auth,
             @Valid @ModelAttribute CreateEventDTO newEvent,
+            @RequestParam(name="attachment", required = false) MultipartFile attachment,
             BindingResult bindingResult) throws IOException {
         try {
             MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
@@ -115,7 +116,7 @@ public class EventController {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid Email");
             }
 
-            return eventService.addNewEvent(newEvent, bindingResult);
+            return eventService.addNewEvent(newEvent, attachment, bindingResult);
         } catch (DateTimeOverlapException ex) {
             FieldError error = new FieldError("createEventDTO", "eventStartTime", ex.getMessage());
             bindingResult.addError(error);
