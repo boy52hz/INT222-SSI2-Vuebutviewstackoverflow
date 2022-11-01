@@ -38,6 +38,6 @@ public class Event {
     private String eventNotes;
 
     @OneToOne
-    @JoinColumn(name = "fileId", nullable = false)
+    @JoinColumn(name = "fileId")
     private File file;
 }
