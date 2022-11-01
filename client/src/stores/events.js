@@ -25,7 +25,11 @@ export const useEvents = defineStore('events', () => {
 
   const addNewEventAsGuest = async (newEvent) => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_BASE_PATH}/api/guests`, newEvent)
+      const res = await axios.post(`${import.meta.env.VITE_BASE_PATH}/api/guests`, newEvent, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
       return res.data
     } catch (err) {
       throw err.response.data

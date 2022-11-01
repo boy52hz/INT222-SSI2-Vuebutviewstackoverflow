@@ -34,8 +34,7 @@ public class GuestController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventDetailsDTO addEventGuest(
             @Valid @ModelAttribute CreateEventDTO newEvent,
-            @RequestParam(name = "attachment", required = false)
-            MultipartFile attachment,
+            @RequestParam(name="attachment", required = false) MultipartFile attachment,
             BindingResult bindingResult) throws IOException {
         try {
             return eventService.addNewEvent(newEvent, attachment, bindingResult);
