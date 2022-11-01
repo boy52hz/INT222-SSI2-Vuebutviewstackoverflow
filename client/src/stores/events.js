@@ -37,8 +37,16 @@ export const useEvents = defineStore('events', () => {
   }
 
   const updateEvent = async (bookingId, editedEvent) => {
+    const formData = new FormData()
+    for (let [key, value] of Object.entries(editedEvent)) {
+      formData.append(key, value)
+    }
     try {
-      await axios.patch(`${import.meta.env.VITE_BASE_PATH}/api/events/${bookingId}`, editedEvent)
+      await axios.patch(`${import.meta.env.VITE_BASE_PATH}/api/events/${bookingId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
       await fetchEvents()
     } catch (err) {
       throw err.response.data
@@ -55,10 +63,10 @@ export const useEvents = defineStore('events', () => {
     }
   }
 
-  const downloadAttachment = async (bookingId, file) => {
+  const downloadFile = async (bookingId, file) => {
     try {
       axios({
-        url: `${import.meta.env.VITE_BASE_PATH}/api/events/${bookingId}/attachment`,
+        url: `${import.meta.env.VITE_BASE_PATH}/api/events/${bookingId}/file`,
         method: 'GET',
         responseType: 'blob',
       }).then((response) => {
@@ -107,7 +115,7 @@ export const useEvents = defineStore('events', () => {
     addNewEventAsGuest,
     updateEvent,
     deleteEventById,
-    downloadAttachment,
+    downloadFile,
   }
 })
 

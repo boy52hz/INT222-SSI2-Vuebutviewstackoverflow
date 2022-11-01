@@ -34,10 +34,10 @@ public class GuestController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventDetailsDTO addEventGuest(
             @Valid @ModelAttribute CreateEventDTO newEvent,
-            @RequestParam(name="attachment", required = false) MultipartFile attachment,
+            @RequestParam(name="file", required = false) MultipartFile file,
             BindingResult bindingResult) throws IOException {
         try {
-            return eventService.addNewEvent(newEvent, attachment, bindingResult);
+            return eventService.addNewEvent(newEvent, file, bindingResult);
         } catch (DateTimeOverlapException ex) {
             FieldError error = new FieldError("createEventDTO", "eventStartTime", ex.getMessage());
             bindingResult.addError(error);

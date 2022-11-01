@@ -12,4 +12,5 @@ import lombok.Setter;
 public class FileDTO {
     String id;
     String name;
+    Long size;
 }

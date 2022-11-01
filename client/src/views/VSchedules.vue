@@ -28,7 +28,7 @@ const eventModelTemplate = {
   bookingEmail: userStore.user.email || '',
   eventStartTime: '',
   eventNotes: '',
-  attachment: '',
+  file: '',
 }
 
 const eventModel = ref({ ...eventModelTemplate })
@@ -64,8 +64,9 @@ const editEvent = async () => {
     await eventStore.updateEvent(eventModel.value.bookingId, {
       eventStartTime: moment(eventModel.value.eventStartTime).toISOString(),
       eventNotes: eventModel.value.eventNotes,
+      file: eventModel.value.file,
     })
-
+    console.log(eventModel.value)
     eventDetail.value = { ...eventModel.value }
     scheduleFormInputModal.value.close()
   } catch (err) {
@@ -92,8 +93,7 @@ const deleteEvent = async () => {
   }
 }
 
-const downloadAttachment = async () =>
-  await eventStore.downloadAttachment(eventDetail.value.bookingId, eventDetail.value.file)
+const downloadFile = async () => await eventStore.downloadFile(eventDetail.value.bookingId, eventDetail.value.file)
 
 const resetEventForm = () => {
   eventModel.value = { ...eventModelTemplate }
@@ -320,9 +320,9 @@ onBeforeMount(async () => {
             {{ $getFormattedEventPeriod(eventDetail.eventStartTime, eventDetail.eventDuration) }}
           </p>
           <cite v-show="eventDetail.eventNotes">‟ {{ eventDetail.eventNotes }} ”</cite>
-          <div class="detail-attachment" v-if="eventDetail.file !== null">
+          <div class="detail-file" v-if="eventDetail.file">
             <font-awesome-icon icon="paperclip" />
-            <button id="download-btn" @click="downloadAttachment">{{ eventDetail.file.name }}</button>
+            <button id="download-btn" @click="downloadFile">{{ eventDetail.file.name }}</button>
           </div>
           <div
             v-if="[Roles.ADMIN, Roles.STUDENT].includes(userStore.user.role.name.toUpperCase())"
@@ -462,7 +462,7 @@ onBeforeMount(async () => {
   color: rgba(10, 10, 10, 0.8);
 }
 
-.schedule-detail .detail-attachment {
+.schedule-detail .detail-file {
   font-size: 12px;
   font-style: italic;
   display: flex;
@@ -471,14 +471,14 @@ onBeforeMount(async () => {
   gap: 8px;
 }
 
-.schedule-detail .detail-attachment #download-btn {
+.schedule-detail .detail-file #download-btn {
   background: transparent;
   outline: none;
   border: none;
   transition: all 0.3s cubic-bezier(0.39, 0.575, 0.565, 1);
 }
 
-.schedule-detail .detail-attachment #download-btn:hover {
+.schedule-detail .detail-file #download-btn:hover {
   cursor: pointer;
   color: #1b98e0;
 }

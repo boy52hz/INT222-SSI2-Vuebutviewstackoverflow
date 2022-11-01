@@ -28,6 +28,9 @@ public class File {
     @Column
     private byte[] data;
 
+    @Column
+    private Long size;
+
     @OneToOne(mappedBy = "file", fetch = FetchType.LAZY)
     private Event event;
 }

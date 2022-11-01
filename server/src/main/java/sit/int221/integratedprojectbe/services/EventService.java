@@ -105,7 +105,7 @@ public class EventService {
         return modelMapper.map(event, EventDetailsDTO.class);
     }
 
-    public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, MultipartFile attachment, BindingResult bindingResult) throws IOException {;
+    public EventDetailsDTO addNewEvent(CreateEventDTO newEvent, MultipartFile file, BindingResult bindingResult) throws IOException {;
         if (bindingResult.hasErrors()) throw new ArgumentNotValidException(bindingResult);
 
         Event event = modelMapper.map(newEvent, Event.class);
@@ -113,14 +113,14 @@ public class EventService {
         event.setCategory(eventCategory);
         event.setEventDuration(eventCategory.getEventDuration());
 
-        if(attachment != null && !attachment.isEmpty()){
+        if(file != null && !file.isEmpty()){
             try {
-                File file = fileService.store(attachment);
-                event.setFile(file);
+                File newFile = fileService.store(file);
+                event.setFile(newFile);
             } catch (SizeLimitExceededException ex) {
                 FieldError error = new FieldError(
                         "createEventDto",
-                        "attachment",
+                        "file",
                         "File size is exceed maximum 10Mb");
                 bindingResult.addError(error);
             }
@@ -146,7 +146,7 @@ public class EventService {
         eventRepository.deleteById(bookingId);
     }
 
-    public EventDetailsDTO editEvent(Authentication auth, Integer bookingId, EditEventDTO updateEvent, BindingResult bindingResult) {
+    public EventDetailsDTO editEvent(Authentication auth, Integer bookingId, EditEventDTO updateEvent, MultipartFile file, BindingResult bindingResult) throws IOException {
         MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
         Event event = null;
         if (myUserDetails.hasRole("STUDENT")) {
@@ -168,6 +168,14 @@ public class EventService {
         boolean isOverlap = checkEventPeriodOverlap(event);
         if (isOverlap) {
             throw new DateTimeOverlapException("This time is already reserve");
+        }
+
+        if (file == null && event.getFile() != null) {
+            fileService.deleteById(event.getFile().getId());
+            event.setFile(null);
+        } else if (file != null) {
+            File updatedFile = fileService.store(file);
+            event.setFile(updatedFile);
         }
 
         if (bindingResult.hasErrors()) {

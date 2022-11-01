@@ -90,8 +90,8 @@ public class EventController {
         return eventService.getEventById(bookingId);
     }
 
-    @GetMapping(value = "/{bookingId}/attachment")
-    public HttpEntity<byte[]> downloadAttachment (@PathVariable Integer bookingId) {
+    @GetMapping(value = "/{bookingId}/file")
+    public HttpEntity<byte[]> downloadFile (@PathVariable Integer bookingId) {
         EventDetailsDTO event = eventService.getEventById(bookingId);
         File file = fileService.getFile(event.getFile().getId());
 
@@ -107,7 +107,7 @@ public class EventController {
     public EventDetailsDTO create(
             Authentication auth,
             @Valid @ModelAttribute CreateEventDTO newEvent,
-            @RequestParam(name="attachment", required = false) MultipartFile attachment,
+            @RequestParam(name="file", required = false) MultipartFile file,
             BindingResult bindingResult) throws IOException {
         try {
             MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
@@ -116,7 +116,7 @@ public class EventController {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid Email");
             }
 
-            return eventService.addNewEvent(newEvent, attachment, bindingResult);
+            return eventService.addNewEvent(newEvent, file, bindingResult);
         } catch (DateTimeOverlapException ex) {
             FieldError error = new FieldError("createEventDTO", "eventStartTime", ex.getMessage());
             bindingResult.addError(error);
@@ -142,16 +142,18 @@ public class EventController {
     }
 
     @PatchMapping("/{bookingId}")
-    public EventDetailsDTO update(Authentication auth, @Valid @RequestBody EditEventDTO editEvent,
-                                  BindingResult bindingResult, @PathVariable Integer bookingId)
-    {
+    public EventDetailsDTO update(Authentication auth, @Valid @ModelAttribute EditEventDTO editEvent,
+                                  @RequestParam(name="file", required = false) MultipartFile file,
+                                  BindingResult bindingResult, @PathVariable Integer bookingId) throws IOException {
         try {
-            return eventService.editEvent(auth, bookingId, editEvent, bindingResult);
+            return eventService.editEvent(auth, bookingId, editEvent, file, bindingResult);
         } catch (DateTimeOverlapException ex) {
             FieldError error = new FieldError("editEventDTO", "eventStartTime", "overlap");
             bindingResult.addError(error);
             throw new ArgumentNotValidException(bindingResult);
         } catch (ArgumentNotValidException ex) {
+            throw ex;
+        } catch (IOException ex) {
             throw ex;
         }
     }

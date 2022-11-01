@@ -9,7 +9,7 @@ import { useUser } from '../../stores/user'
 const moment = extendMoment(Moment)
 
 const MAX_FILE_SIZE = 10 * (1024 * 1024) // MB to byte
-const attachmentRef = ref()
+const fileRef = ref()
 
 const categoryStore = useEventCategories()
 const eventStore = useEvents()
@@ -50,21 +50,21 @@ const formConfig = ref({
   },
 })
 
-const openAttachmentSelector = () => attachmentRef.value.click()
+const openFileSelector = () => fileRef.value.click()
 
 const onFileInputChanged = (evt) => {
   const file = evt.target.files[0]
   if (file.size > MAX_FILE_SIZE) {
-    props.eventModelError.attachment = 'File size is exceed maximum 10Mb'
+    props.eventModelError.file = 'File size is exceed maximum 10Mb'
     return
   }
-  props.eventModel.attachment = file
+  props.eventModel.file = file
 }
 
-const removeAttachment = () => {
-  attachmentRef.value.value = []
-  props.eventModel.attachment = ''
-  props.eventModelError.attachment = ''
+const removeFile = () => {
+  fileRef.value.value = []
+  props.eventModel.file = ''
+  props.eventModelError.file = ''
 }
 
 const onInputFocusOut = (evt) => {
@@ -242,24 +242,24 @@ defineEmits(['add-event', 'edit-event', 'reset-form'])
         </div>
       </div>
       <div class="upload-field">
-        <input ref="attachmentRef" type="file" name="attachment" @change="onFileInputChanged" hidden />
-        <app-button id="upload-btn" type="button" @click="openAttachmentSelector">
+        <input ref="fileRef" type="file" name="file" @change="onFileInputChanged" hidden />
+        <app-button id="upload-btn" type="button" @click="openFileSelector">
           <font-awesome-icon icon="paperclip" />
         </app-button>
         <div class="file-field">
           {{
-            eventModel.attachment
-              ? `${eventModel.attachment.name} (${(eventModel.attachment.size / (1024 * 1024)).toFixed(2)} MB)`
+            eventModel.file
+              ? `${eventModel.file.name} (${(eventModel.file.size / (1024 * 1024)).toFixed(2)} MB)`
               : 'No selected file. (Max: 10MB)'
           }}
-          <button v-if="eventModel.attachment" type="button" class="file-field-remove" @click="removeAttachment">
+          <button v-if="eventModel.file" type="button" class="file-field-remove" @click="removeFile">
             <font-awesome-icon icon="xmark" />
           </button>
         </div>
       </div>
       <div class="input-validation-box">
         <div class="input-invalid-msg" :style="visibleValidationErrorMsg">
-          {{ eventModelError.attachment || '' }}
+          {{ eventModelError.file || '' }}
         </div>
       </div>
       <div class="duration-summary">

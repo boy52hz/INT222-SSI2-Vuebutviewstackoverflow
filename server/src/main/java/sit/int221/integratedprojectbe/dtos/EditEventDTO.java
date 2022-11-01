@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.validation.constraints.Size;
 import java.util.Date;
 
@@ -15,7 +17,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EditEventDTO {
-    @Future(message = "must be a future date")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date eventStartTime;
 
     @Size(max = 500, message = "size must be between 0 and 500")

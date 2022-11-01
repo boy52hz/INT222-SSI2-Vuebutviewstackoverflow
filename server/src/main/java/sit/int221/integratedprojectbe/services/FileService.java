@@ -23,8 +23,13 @@ public class FileService {
         newFile.setName(fileName);
         newFile.setData(file.getBytes());
         newFile.setType(file.getContentType());
+        newFile.setSize(file.getSize());
 
         return fileRepository.save(newFile);
+    }
+
+    public void deleteById(String fileId) throws IOException {
+        fileRepository.deleteById(fileId);
     }
 
     public File getFile(String id) {
