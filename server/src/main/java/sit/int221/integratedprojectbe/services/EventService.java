@@ -137,12 +137,15 @@ public class EventService {
         return modelMapper.map(eventRepository.saveAndFlush(event), EventDetailsDTO.class);
     }
 
-    public void removeEvent(Integer bookingId) {
-       eventRepository.findById(bookingId).orElseThrow(() ->
+    public void removeEvent(Integer bookingId) throws IOException {
+       Event event= eventRepository.findById(bookingId).orElseThrow(() ->
                 new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         String.format("Booking ID %s is doesn't exist", bookingId)
                 ));
+       if(event.getFile() != null){
+          fileService.deleteById(event.getFile().getId());
+       }
         eventRepository.deleteById(bookingId);
     }
 

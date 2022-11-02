@@ -129,7 +129,7 @@ public class EventController {
     }
     
     @DeleteMapping("/{bookingId}")
-    public void delete(Authentication auth, @PathVariable Integer bookingId) {
+    public void delete(Authentication auth, @PathVariable Integer bookingId) throws IOException {
         MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
 
         if (myUserDetails.hasRole("STUDENT") && !eventService.isOwnedEvent(bookingId, myUserDetails.getUsername())) {
