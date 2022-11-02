@@ -177,7 +177,13 @@ public class EventService {
             fileService.deleteById(event.getFile().getId());
             event.setFile(null);
         } else if (file != null) {
-            File updatedFile = fileService.store(file);
+            File updatedFile;
+            if (event.getFile() != null) {
+                updatedFile = fileService.replace(event.getFile().getId(), file);
+            } else {
+                updatedFile = fileService.store(file);
+            }
+
             event.setFile(updatedFile);
         }
 

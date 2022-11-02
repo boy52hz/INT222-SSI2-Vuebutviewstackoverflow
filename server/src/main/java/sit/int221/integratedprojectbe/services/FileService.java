@@ -25,7 +25,19 @@ public class FileService {
         newFile.setType(file.getContentType());
         newFile.setSize(file.getSize());
 
-        return fileRepository.save(newFile);
+        return fileRepository.saveAndFlush(newFile);
+    }
+
+    public File replace(String fildId, MultipartFile file) throws IOException {
+        File existFile = fileRepository.findById(fildId).orElseThrow();
+        if (file !=null && existFile != null) {
+            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            existFile.setName(fileName);
+            existFile.setData(file.getBytes());
+            existFile.setType(file.getContentType());
+            existFile.setSize(file.getSize());
+        }
+        return fileRepository.saveAndFlush(existFile);
     }
 
     public void deleteById(String fileId) throws IOException {

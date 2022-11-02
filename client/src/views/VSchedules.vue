@@ -47,7 +47,8 @@ const addEvent = async () => {
     scheduleFormInputModal.value.close()
     eventDetail.value = { ...data }
   } catch (err) {
-    const fieldErrors = err.fieldErrors
+    console.log(err)
+    const fieldErrors = err.data.fieldErrors
     if (!fieldErrors) return
     for (let key in fieldErrors) {
       fieldErrors[key] = fieldErrors[key].join(', ')
