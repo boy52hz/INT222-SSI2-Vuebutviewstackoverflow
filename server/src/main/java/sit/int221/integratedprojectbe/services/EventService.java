@@ -172,19 +172,21 @@ public class EventService {
         if (isOverlap) {
             throw new DateTimeOverlapException("This time is already reserve");
         }
-
-        if (file == null && event.getFile() != null) {
-            fileService.deleteById(event.getFile().getId());
-            event.setFile(null);
-        } else if (file != null) {
+        if (file != null) {
             File updatedFile;
-            if (event.getFile() != null) {
-                updatedFile = fileService.replace(event.getFile().getId(), file);
-            } else {
-                updatedFile = fileService.store(file);
+            if (file.getSize() > 0) {
+                if (event.getFile() != null) {
+                    updatedFile = fileService.replace(event.getFile().getId(), file);
+                } else {
+                    updatedFile = fileService.store(file);
+                }
+                event.setFile(updatedFile);
             }
-
-            event.setFile(updatedFile);
+        } else {
+            if (event.getFile() != null) {
+                fileService.deleteById(event.getFile().getId());
+                event.setFile(null);
+            }
         }
 
         if (bindingResult.hasErrors()) {
