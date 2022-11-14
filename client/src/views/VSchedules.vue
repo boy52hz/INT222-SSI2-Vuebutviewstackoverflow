@@ -60,6 +60,11 @@ const addEvent = async () => {
 }
 
 const editEvent = async () => {
+  if (eventModel.value.file && eventModel.value.file instanceof File !== true) {
+    console.log('new File')
+    eventModel.value.file = new File([], eventModel.value.file.name, { type: eventModel.value.file.type })
+  }
+  console.log(eventModel.value.file)
   try {
     isLoading.value = true
     await eventStore.updateEvent(eventModel.value.bookingId, {
