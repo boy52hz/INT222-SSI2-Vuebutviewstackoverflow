@@ -28,7 +28,6 @@ const logout = () => {
 
 <template>
   <nav id="app-sidebar">
-    <img id="app-sidebar-logo" src="../../assets/logo.png" alt="Nav Logo" />
     <div id="app-nav">
       <div>OASIP - SSI2</div>
       <button id="btn-menu" :class="{ toggled: navOpened }" @click="toggleMenu">
@@ -38,6 +37,11 @@ const logout = () => {
       </button>
     </div>
     <ul ref="navsRef" id="navs" :class="isMobile && { opened: navOpened }">
+      <img id="app-sidebar-logo" src="../../assets/logo.png" alt="Nav Logo" />
+      <div id="userDetail" v-if="user">
+      <div>Welcome, {{user.name}}</div>
+      <div>Role : {{user.role.label}}</div>
+    </div>
       <li>
         <router-link :to="{ path: '/' }">
           <font-awesome-icon icon="calendar-days" />
@@ -86,10 +90,6 @@ const logout = () => {
 @media screen and (max-width: 788px) {
   #app-sidebar {
     flex: 0 !important;
-  }
-
-  #app-sidebar-logo {
-    display: none;
   }
 
   #app-nav {
@@ -198,5 +198,11 @@ const logout = () => {
 .logout:hover {
   cursor: pointer;
   opacity: 1;
+}
+
+#userDetail {
+  color: white;
+  text-align: center;
+  padding-bottom: 5%;
 }
 </style>

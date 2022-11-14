@@ -7,6 +7,7 @@ import AppDropdown from '../components/App/Dropdown/AppDropdown.vue'
 import AppDropdownItem from '../components/App/Dropdown/AppDropdownItem.vue'
 import PageWrapper from '../components/PageWrapper.vue'
 import UserFormInput from '../components/VSchedules/UserFormInput.vue'
+import Swal from 'sweetalert2'
 
 const isLoading = ref(true)
 const userStore = useUsers()
@@ -42,6 +43,11 @@ const confirmDeleteUser = async () => {
   isLoading.value = true
   try {
     await userStore.deleteUserById(selectedUser.value.id)
+    Swal.fire(
+      'Success!',
+      'User has been deleted!',
+      'success'
+    )
   } catch (err) {
     console.log(err)
   } finally {
@@ -57,7 +63,11 @@ const addUser = async () => {
       role: userModel.value.role,
       password: userModel.value.password,
     })
-    alert('Account has been created!')
+    Swal.fire(
+      'Success!',
+      'User has been created!',
+      'success'
+    )
     userFormInputModal.value.state = false
     cancelUserForm()
     await userStore.fetchUsers()

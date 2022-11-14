@@ -16,6 +16,7 @@
     "moment": "^2.29.3",
     "moment-range": "^4.0.2",
     "pinia": "^2.0.13",
+    "sweetalert2": "^11.6.8",
     "vue": "^3.2.25",
     "vue-router": "^4.0.14"
   },

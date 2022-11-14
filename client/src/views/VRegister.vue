@@ -4,6 +4,7 @@ import { useUser } from '../stores/user'
 import AppInput from '../components/App/AppInput.vue'
 import { useUserRoles } from '../stores/userRoles'
 import { useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 
@@ -40,7 +41,11 @@ const registerUser = async () => {
       role: formRegister.value.role,
       password: formRegister.value.password,
     })
-    alert('Your account has been created!')
+    Swal.fire(
+      'Success!',
+      'Your account has been created!',
+      'success'
+    )
     router.push('/login')
   } catch (err) {
     errorMessage.value = {}

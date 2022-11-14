@@ -5,6 +5,7 @@ import { useUsers } from '../stores/users'
 import { computed, onBeforeMount, ref } from 'vue'
 import { useUserRoles } from '../stores/userRoles'
 import router from '../router'
+import Swal from 'sweetalert2'
 
 const props = defineProps(['userId', 'user'])
 
@@ -35,7 +36,11 @@ const editUser = async () => {
   try {
     const success = await userStore.editUser(props.user.id, formEdit.value)
     if (success) {
-      alert('Your data has been edited!')
+      Swal.fire(
+      'Success!',
+      'User data has been edited!',
+      'success'
+    )
       router.push('/users')
     }
   } catch (err) {

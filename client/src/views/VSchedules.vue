@@ -28,7 +28,7 @@ const eventModelTemplate = {
   bookingEmail: userStore.user.email || '',
   eventStartTime: '',
   eventNotes: '',
-  file: '',
+  file: undefined,
 }
 
 const eventModel = ref({ ...eventModelTemplate })
