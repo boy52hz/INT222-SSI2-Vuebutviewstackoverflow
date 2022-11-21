@@ -30,6 +30,8 @@ defineEmits(['login', 'login-ms'])
       >
         <font-awesome-icon icon="fa-brands fa-microsoft" /><span>Sign-in with Microsoft</span>
       </AppButton>
+      <hr class="divide-x bg-slate-300" />
+      <button class="block mx-auto text-sm" type="button">Create an account</button>
     </div>
   </form>
 </template>

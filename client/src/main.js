@@ -10,10 +10,18 @@ import 'vue-toastification/dist/index.css'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCalendarAlt, faList, faUsers, faClock } from '@fortawesome/free-solid-svg-icons'
+import {
+  faCalendarAlt,
+  faList,
+  faUsers,
+  faClock,
+  faXmark,
+  faPaperclip,
+  faPlus,
+} from '@fortawesome/free-solid-svg-icons'
 import { faMicrosoft } from '@fortawesome/free-brands-svg-icons'
 
-library.add(faCalendarAlt, faList, faUsers, faClock, faMicrosoft)
+library.add(faCalendarAlt, faList, faUsers, faClock, faMicrosoft, faXmark, faPaperclip, faPlus)
 
 const app = createApp(App)
 app.use(Toast, {

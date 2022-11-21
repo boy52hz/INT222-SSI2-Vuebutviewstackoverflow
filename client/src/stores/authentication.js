@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import * as authenticationApi from '../apis/authentication'
 import msal, { openLoginPopup } from '../utils/msal'
-import { setToken } from '../utils/axios'
+import { setAccessToken } from '../utils/axios'
 
 export const useAuthenticationStore = defineStore('authentication', () => {
   const user = ref({
@@ -30,23 +30,23 @@ export const useAuthenticationStore = defineStore('authentication', () => {
         email: idTokenClaims.preferred_username,
         role: idTokenClaims?.roles[0] || 'Guest',
       }
-      setToken(accessToken)
-      isAuthenticated.value = true
+      setAccessToken(accessToken)
     } catch (err) {
       console.log(err)
     }
   }
 
   const retrieveUser = async () => {
-    const res = await authenticationApi.retrieveUser()
-    if (res.status === 200) {
-      const { name, email, role } = res.data
-      user.value = {
-        name,
-        email,
-        role: role.name.toUpperCase(),
-      }
+    const { data, error } = await authenticationApi.retrieveUser()
+    if (error) throw error
+    const { name, email, role } = data
+    user.value = {
+      name,
+      email,
+      role: role.label,
     }
+    isAuthenticated.value = true
+    return data
   }
 
   return { user, isAuthenticated, login, loginWithMs, retrieveUser }

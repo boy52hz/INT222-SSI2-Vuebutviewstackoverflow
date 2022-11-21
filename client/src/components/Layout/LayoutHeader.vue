@@ -37,7 +37,7 @@ const loginWithMs = async () => {
   <div class="px-5 py-3 bg-light drop-shadow-sm w-full flex justify-end">
     <div
       class="underline transition-all duration-300 hover:text-sky-500 hover:cursor-pointer"
-      v-if="!authStore?.isAuthenticated"
+      v-if="!authStore.isAuthenticated"
       @click="openAuthenticationPopup"
     >
       Login

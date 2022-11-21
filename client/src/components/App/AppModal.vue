@@ -20,13 +20,6 @@ const closeModal = () => {
       <Transition name="bounce" appear>
         <div @click="(evt) => evt.stopPropagation()" v-if="modal.show" class="modal-box">
           <slot />
-          <!-- <div class="modal-input-group" v-if="modalType === 'info'">
-            <button @click="$emit('ok')">Ok</button>
-          </div>
-          <div class="modal-input-group" v-if="modalType === 'confirm'">
-            <button @click="$emit('confirm')">Yes</button>
-            <button @click="$emit('cancel')">No</button>
-          </div> -->
         </div>
       </Transition>
     </div>

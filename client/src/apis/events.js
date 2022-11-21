@@ -8,3 +8,12 @@ export const getEvents = async () => {
     return error
   }
 }
+
+export const deleteEventById = async (bookingId) => {
+  try {
+    const res = await axios.delete(`/api/events/${bookingId}`)
+    return res
+  } catch (error) {
+    return error
+  }
+}

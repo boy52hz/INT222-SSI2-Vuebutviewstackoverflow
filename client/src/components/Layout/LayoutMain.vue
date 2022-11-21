@@ -5,8 +5,8 @@ import Sidebar from '../Sidebar.vue'
 
 <template>
   <div class="flex flex-col h-full lg:flex-row">
-    <Sidebar />
-    <div class="flex flex-col h-full w-full">
+    <Sidebar class="flex-[1]" />
+    <div class="flex-[7] flex flex-col h-full w-full">
       <LayoutHeader />
       <div class="p-5 h-full overflow-y-auto">
         <slot />
