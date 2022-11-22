@@ -26,14 +26,17 @@ export const useAuthenticationStore = defineStore('authentication', () => {
   const loginWithMs = async () => {
     try {
       const { idTokenClaims, accessToken } = await openLoginPopup()
+      console.log(idTokenClaims)
       user.value = {
         name: idTokenClaims.name,
         email: idTokenClaims.preferred_username,
         role: idTokenClaims?.roles[0] || 'Guest',
       }
+      isAuthenticated.value = true
       setAccessToken(accessToken)
-    } catch (err) {
-      console.log(err)
+      return true
+    } catch (error) {
+      return { error }
     }
   }
 

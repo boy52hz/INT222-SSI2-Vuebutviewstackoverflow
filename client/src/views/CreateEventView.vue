@@ -56,7 +56,7 @@ const createEvent = async ({ bookingName, bookingEmail, category, eventStartTime
 </script>
 
 <template>
-  <div class="container max-w-xl mx-auto">
+  <div>
     <ScheduleForm :event-model="createEventModel" @save-event="createEvent" :is-loading="isLoading" />
   </div>
 </template>

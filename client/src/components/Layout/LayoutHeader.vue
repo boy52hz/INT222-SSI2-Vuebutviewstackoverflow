@@ -25,7 +25,13 @@ const loginUser = async ({ email, password }) => {
   closeAuthenticationPopup()
 }
 const loginWithMs = async () => {
-  await authStore.loginWithMs()
+  const { error } = await authStore.loginWithMs()
+  if (error) {
+    toast.error(error)
+    return
+  }
+  toast.success('You are now Logged in')
+  console.log(authStore.user)
   closeAuthenticationPopup()
 }
 </script>

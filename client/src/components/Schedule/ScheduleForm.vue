@@ -53,13 +53,12 @@ const attachFile = (file) => {
 
 const submitCreateEventForm = (evt) => {
   emit('save-event', eventModel.value)
-  evt.target.reset()
 }
 
-const resetForm = () => {
-  eventModel.value = { ...props.eventModel, eventStartTime: now }
-  eventModel.value.category = categories.value[0]
-}
+// const resetForm = () => {
+//   eventModel.value = { ...props.eventModel, eventStartTime: now }
+//   eventModel.value.category = categories.value[0]
+// }
 
 fetchCategories()
 </script>
@@ -69,7 +68,6 @@ fetchCategories()
     id="create-event-form"
     class="container lg:max-w-xl mx-auto space-y-3 text-sm"
     @submit.prevent="submitCreateEventForm"
-    @reset.prevent="resetForm"
   >
     <div>
       <label class="required">Booking name</label>
@@ -111,7 +109,7 @@ fetchCategories()
           @click="selectCategory(category)"
         />
       </div>
-      <div v-else>Loading categories...</div>
+      <div v-else class="text-gray-500 italic">Loading categories...</div>
     </div>
     <div>
       <label>Note</label>

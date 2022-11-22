@@ -11,8 +11,11 @@ const route = useRoute()
 const router = useRouter()
 
 const event = ref(null)
+const isLoading = ref(false)
+const isFetching = ref(true)
 
 const saveEvent = async ({ bookingId, bookingName, category, eventStartTime, eventNotes, file }) => {
+  isLoading.value = true
   const { data, error } = await eventsApi.editEvent(bookingId, {
     bookingName,
     categoryId: category.categoryId,
@@ -20,6 +23,7 @@ const saveEvent = async ({ bookingId, bookingName, category, eventStartTime, eve
     eventNotes,
     file,
   })
+  isLoading.value = false
   if (error) {
     console.log(error)
     return
@@ -29,7 +33,9 @@ const saveEvent = async ({ bookingId, bookingName, category, eventStartTime, eve
 }
 
 const fetchEventById = async (bookingId) => {
+  isFetching.value = true
   const { data, error } = await eventsApi.getEventById(bookingId)
+  isFetching.value = false
   if (error) {
     router.replace('/')
     return
@@ -41,8 +47,15 @@ fetchEventById(parseInt(route.params?.bookingId))
 </script>
 
 <template>
-  <div>
-    <ScheduleForm :event-model="event" :is-edit-mode="true" @save-event="saveEvent" />
+  <div class="container max-w-lg mx-auto space-y-3">
+    <div class="font-bold text-xl">Edit event - {{ event?.bookingName }}</div>
+    <ScheduleForm
+      v-show="!isFetching"
+      :event-model="event"
+      :is-edit-mode="true"
+      @save-event="saveEvent"
+      :is-loading="isLoading"
+    />
   </div>
 </template>
 
