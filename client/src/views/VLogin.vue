@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import * as msal from '../utils/msal'
 import moment from 'moment'
 import { useUser } from '../stores/user'
 import AppInput from '../components/App/AppInput.vue'
@@ -137,7 +138,13 @@ const validatePassword = () => {
           :required="true"
         />
         <div>
-          <app-button class="btn-submit" type="submit">Login</app-button>
+          <div>
+            <app-button class="btn-submit" type="submit">Login</app-button>
+            <app-button class="btn-login-ms" type="button" @click="userStore.loginWithMs"
+              >Sign-in with Microsoft</app-button
+            >
+          </div>
+
           <app-button class="btn-guest" type="button" @click="scheduleFormInputModal.show"
             >Create event without sign-in</app-button
           >
@@ -196,8 +203,15 @@ form .btn-submit {
   margin-right: auto;
 }
 
+form .btn-login-ms {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .btn-guest {
   margin: 0;
+  margin-top: 2em;
   padding: 5px;
   width: 100%;
   background-color: whitesmoke !important;

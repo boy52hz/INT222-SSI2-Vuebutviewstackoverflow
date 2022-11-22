@@ -1,4 +1,5 @@
 import axios from 'axios'
+import * as msal from '../utils/msal'
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import { computed, ref } from 'vue'
 import { deleteToken, setToken } from '../utils/token'
@@ -51,6 +52,23 @@ export const useUser = defineStore('user', () => {
     }
   }
 
+  const loginWithMs = async () => {
+    const res = await msal.loginPopup()
+    if (!res) {
+      throw new Error('Cannot Sign in')
+    }
+    isAuthenticated.value = true
+    const role = res.account.idTokenClaims.roles[0] ? res.account.idTokenClaims.roles[0] : 'Guest'
+    console.log(role)
+    user.value = {
+      email: res.account.username,
+      name: res.account.name,
+      role: { name: role.toLowerCase(), label: role },
+    }
+    token.value = res.accessToken
+    setToken(token.value)
+  }
+
   const registerUser = async (registerData) => {
     try {
       await axios.post(`${import.meta.env.VITE_BASE_PATH}/api/auth/register`, registerData)
@@ -79,6 +97,7 @@ export const useUser = defineStore('user', () => {
     getToken,
     getRefreshToken,
     isAuthenticated,
+    loginWithMs,
   }
 })
 
