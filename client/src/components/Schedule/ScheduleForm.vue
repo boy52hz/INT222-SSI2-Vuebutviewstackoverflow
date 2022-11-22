@@ -23,6 +23,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isLoading: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['save-event'])
@@ -115,7 +119,7 @@ fetchCategories()
     </div>
     <AppFileInput @input="attachFile" />
     <div class="mt-5">
-      <AppButton type="submit">Save</AppButton>
+      <AppButton type="submit" :is-loading="isLoading">Save</AppButton>
     </div>
   </form>
 </template>

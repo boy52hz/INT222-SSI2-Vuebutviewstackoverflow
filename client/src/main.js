@@ -4,27 +4,13 @@ import './assets/main.scss'
 import App from './App.vue'
 import router from './router'
 import moment from 'moment'
-
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import './font-awesomes'
 import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import {
-  faCalendarAlt,
-  faList,
-  faUsers,
-  faClock,
-  faXmark,
-  faPaperclip,
-  faPlus,
-  faUpload,
-} from '@fortawesome/free-solid-svg-icons'
-import { faMicrosoft } from '@fortawesome/free-brands-svg-icons'
+export const app = createApp(App)
 
-library.add(faCalendarAlt, faList, faUsers, faClock, faMicrosoft, faXmark, faPaperclip, faPlus, faUpload)
-
-const app = createApp(App)
 app.use(Toast, {
   transition: 'Vue-Toastification__bounce',
   maxToasts: 20,

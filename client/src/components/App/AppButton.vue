@@ -1,9 +1,14 @@
 <script setup>
 import { ref } from 'vue'
+import LoadingSpinner from '../LoadingSpinner.vue'
 const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
+  },
+  isLoading: {
+    type: Boolean,
+    default: false,
   },
 })
 const theme = ref({
@@ -17,9 +22,17 @@ const theme = ref({
 <template>
   <button
     v-bind="$attrs"
-    :class="['block py-2 px-4 rounded-md w-full transition-all duration-300 hover:cursor-pointer', theme[variant]]"
+    :class="[
+      'block py-2 px-4 rounded-md w-full transition-all duration-300 hover:cursor-pointer disabled:opacity-70 disabled:pointer-events-none',
+      theme[variant],
+    ]"
+    :disabled="isLoading"
   >
-    <slot />
+    <slot v-if="!isLoading" />
+    <div v-else class="flex justify-center items-center">
+      <LoadingSpinner />
+      <span>Processing...</span>
+    </div>
   </button>
 </template>
 

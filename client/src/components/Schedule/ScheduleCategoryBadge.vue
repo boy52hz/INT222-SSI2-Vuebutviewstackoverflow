@@ -21,14 +21,9 @@ defineProps({
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .event-category {
-  margin-top: 8px;
-  font-weight: bold;
-  width: fit-content;
-  padding: 2px 18px;
-  border-radius: 20px;
-  font-size: 8pt;
+  @apply font-bold w-fit py-1 px-5 rounded-full text-xs;
 }
 .event-category.dev-ops {
   background: rgb(105, 237, 255);

@@ -11,6 +11,7 @@ import { useAuthenticationStore } from '../stores/authentication'
 const toast = useToast()
 const router = useRouter()
 const authStore = useAuthenticationStore()
+const isLoading = ref(false)
 
 const createEventModelTemplate = {
   bookingName: '',
@@ -29,6 +30,7 @@ watchEffect(() => {
 
 const createEvent = async ({ bookingName, bookingEmail, category, eventStartTime, eventNotes, file }) => {
   const isGuest = authStore.user?.role === Role.Guest
+  isLoading.value = true
   const { data, error } = await eventsApi.createEvent(
     {
       bookingName,
@@ -40,6 +42,7 @@ const createEvent = async ({ bookingName, bookingEmail, category, eventStartTime
     },
     isGuest
   )
+  isLoading.value = false
   if (error) {
     console.log(error)
     return
@@ -54,7 +57,7 @@ const createEvent = async ({ bookingName, bookingEmail, category, eventStartTime
 
 <template>
   <div class="container max-w-xl mx-auto">
-    <ScheduleForm :event-model="createEventModel" @save-event="createEvent" />
+    <ScheduleForm :event-model="createEventModel" @save-event="createEvent" :is-loading="isLoading" />
   </div>
 </template>
 

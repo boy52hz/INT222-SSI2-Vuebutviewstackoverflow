@@ -5,7 +5,7 @@ import { useAuthenticationStore } from '@/stores/authentication'
 import AppButton from '../App/AppButton.vue'
 import ScheduleCategoryBadge from './ScheduleCategoryBadge.vue'
 import AppModal from '../App/AppModal.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -14,19 +14,15 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  isLoading: {
+    type: Boolean,
+    default: false,
+  },
 })
+const isLoading = computed(() => props.isLoading)
 const emit = defineEmits(['close', 'delete-event'])
 
 const authStore = useAuthenticationStore()
-const deleteConfirmModal = ref(false)
-
-const showDeleteConfirmModal = () => (deleteConfirmModal.value = true)
-const closeDeleteConfirmModal = () => (deleteConfirmModal.value = false)
-
-const deleteEvent = () => {
-  closeDeleteConfirmModal()
-  emit('delete-event', props.eventDetail)
-}
 
 const editEvent = () => {
   router.push(`/schedules/${props.eventDetail?.bookingId}`)
@@ -56,7 +52,7 @@ const editEvent = () => {
       </div>
       <div class="flex justify-center gap-4 mt-6" v-if="[Role.Admin, Role.Student].includes(authStore.user?.role)">
         <AppButton class="w-fit" variant="warning" @click="editEvent">Edit Details</AppButton>
-        <AppButton class="w-fit" variant="danger" @click="showDeleteConfirmModal">Cancel Event</AppButton>
+        <AppButton class="w-fit" variant="danger" @click="$emit('delete-event')">Cancel Event</AppButton>
       </div>
     </div>
 
@@ -66,16 +62,6 @@ const editEvent = () => {
       @click="$emit('close')"
     />
   </div>
-  <AppModal :show="deleteConfirmModal">
-    <div class="space-y-3">
-      <h2 class="text-gray-500">Are you sure to cancel this event?</h2>
-      <div class="text-center text-xl">#{{ eventDetail?.bookingId }} {{ eventDetail?.bookingName }}</div>
-      <div class="flex gap-2">
-        <AppButton variant="danger" @click="deleteEvent">Yes</AppButton>
-        <AppButton variant="light" @click="closeDeleteConfirmModal">No</AppButton>
-      </div>
-    </div>
-  </AppModal>
 </template>
 
 <style scoped>
