@@ -18,10 +18,11 @@ import {
   faXmark,
   faPaperclip,
   faPlus,
+  faUpload,
 } from '@fortawesome/free-solid-svg-icons'
 import { faMicrosoft } from '@fortawesome/free-brands-svg-icons'
 
-library.add(faCalendarAlt, faList, faUsers, faClock, faMicrosoft, faXmark, faPaperclip, faPlus)
+library.add(faCalendarAlt, faList, faUsers, faClock, faMicrosoft, faXmark, faPaperclip, faPlus, faUpload)
 
 const app = createApp(App)
 app.use(Toast, {

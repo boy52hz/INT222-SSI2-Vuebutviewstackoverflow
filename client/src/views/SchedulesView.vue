@@ -10,6 +10,9 @@ import * as eventsApi from '../apis/events'
 import { ref, watch } from 'vue'
 import { useAuthenticationStore } from '../stores/authentication'
 import ScheduleCategoryBadge from '../components/Schedule/ScheduleCategoryBadge.vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const toast = useToast()
 const authStore = useAuthenticationStore()
@@ -22,22 +25,29 @@ const resetSelectedEvent = () => (selectedEvent.value = null)
 
 const deleteEvent = async ({ bookingId, bookingName }) => {
   isLoading.value = true
+  resetSelectedEvent()
   const { data, error } = await eventsApi.deleteEventById(bookingId)
   if (error) {
     toast.error(error.message)
     return
   }
-  resetSelectedEvent()
-  toast.success(`An event #${bookingId} ${bookingName} has been deleted.`)
   isLoading.value = false
 
   await fetchEvents()
+  toast.success(`An event #${bookingId} ${bookingName} has been deleted.`)
 }
 
 const fetchEvents = async () => {
   isLoading.value = true
   const { data, error } = await eventsApi.getEvents()
   events.value = data
+
+  // Show event detail if url come with query.
+  if (route?.query?.bookingId) {
+    const event = events.value.find((event) => event.bookingId === parseInt(route.query.bookingId))
+    selectedEvent.value = event
+  }
+
   isLoading.value = false
 }
 
@@ -105,7 +115,7 @@ fetchEvents().finally(() => (isLoading.value = false))
 .box-animate {
   transition-delay: 1000ms;
   transform-origin: left;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
 .resize-left {

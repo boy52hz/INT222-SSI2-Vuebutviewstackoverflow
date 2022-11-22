@@ -18,6 +18,12 @@ const router = createRouter({
       component: () => import('@/views/CreateEventView.vue'),
     },
     {
+      path: '/schedules/:bookingId',
+      name: 'Edit Event',
+      props: true,
+      component: () => import('@/views/EditEventView.vue'),
+    },
+    {
       path: '/categories',
       name: 'Categorie',
       component: () => import('@/views/CategoriesView.vue'),

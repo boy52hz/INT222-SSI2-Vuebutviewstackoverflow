@@ -6,6 +6,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  resize: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -20,7 +24,14 @@ const emitValue = (evt) => {
 </script>
 
 <template>
-  <input class="app-input" v-bind="$attrs" :value="modelValue" @input="emitValue" :required="required" />
+  <textarea
+    class="app-input"
+    :class="[!resize && 'resize-none']"
+    v-bind="$attrs"
+    :value="modelValue"
+    @input="emitValue"
+    :required="required"
+  />
 </template>
 
 <style lang="scss" scoped>

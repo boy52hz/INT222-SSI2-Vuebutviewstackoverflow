@@ -6,6 +6,9 @@ import AppButton from '../App/AppButton.vue'
 import ScheduleCategoryBadge from './ScheduleCategoryBadge.vue'
 import AppModal from '../App/AppModal.vue'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 const props = defineProps({
   eventDetail: {
     type: Object,
@@ -23,6 +26,10 @@ const closeDeleteConfirmModal = () => (deleteConfirmModal.value = false)
 const deleteEvent = () => {
   closeDeleteConfirmModal()
   emit('delete-event', props.eventDetail)
+}
+
+const editEvent = () => {
+  router.push(`/schedules/${props.eventDetail?.bookingId}`)
 }
 </script>
 
@@ -48,7 +55,7 @@ const deleteEvent = () => {
         <button class="italic" @click="downloadFile">{{ eventDetail.file.name }}</button>
       </div>
       <div class="flex justify-center gap-4 mt-6" v-if="[Role.Admin, Role.Student].includes(authStore.user?.role)">
-        <AppButton class="w-fit" variant="warning">Edit Details</AppButton>
+        <AppButton class="w-fit" variant="warning" @click="editEvent">Edit Details</AppButton>
         <AppButton class="w-fit" variant="danger" @click="showDeleteConfirmModal">Cancel Event</AppButton>
       </div>
     </div>
@@ -73,8 +80,8 @@ const deleteEvent = () => {
 
 <style scoped>
 .slide-in {
-  -webkit-animation: slide-in-right 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) both;
-  animation: slide-in-right 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) both;
+  -webkit-animation: slide-in-right 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) both;
+  animation: slide-in-right 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) both;
 }
 
 @keyframes slide-in-right {

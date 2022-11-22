@@ -3,12 +3,13 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import * as authenticationApi from '../apis/authentication'
 import msal, { openLoginPopup } from '../utils/msal'
 import { setAccessToken } from '../utils/axios'
+import { Role } from '../enums/Role'
 
 export const useAuthenticationStore = defineStore('authentication', () => {
   const user = ref({
     name: '',
     email: '',
-    role: '',
+    role: Role.Guest,
   })
   const isAuthenticated = ref(false)
 
