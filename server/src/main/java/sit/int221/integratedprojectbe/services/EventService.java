@@ -44,9 +44,6 @@ public class EventService {
     @Autowired
     private ListMapper listMapper;
     @Autowired
-    private Argon2 argon2Factory;
-
-    @Autowired
     private EmailService emailService;
     @Autowired
     private FileService fileService;

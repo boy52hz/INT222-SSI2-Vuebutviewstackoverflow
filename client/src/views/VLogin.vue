@@ -94,6 +94,11 @@ const loginUser = async () => {
   }
 }
 
+const loginUserWithMs = async () => {
+  await userStore.loginWithMs()
+  router.push('/')
+}
+
 const validatePassword = () => {
   errorMessage.value.password = ''
 
@@ -140,9 +145,7 @@ const validatePassword = () => {
         <div>
           <div>
             <app-button class="btn-submit" type="submit">Login</app-button>
-            <app-button class="btn-login-ms" type="button" @click="userStore.loginWithMs"
-              >Sign-in with Microsoft</app-button
-            >
+            <app-button class="btn-login-ms" type="button" @click="loginUserWithMs">Sign-in with Microsoft</app-button>
           </div>
 
           <app-button class="btn-guest" type="button" @click="scheduleFormInputModal.show"

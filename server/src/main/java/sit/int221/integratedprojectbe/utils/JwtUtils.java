@@ -1,17 +1,29 @@
 package sit.int221.integratedprojectbe.utils;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import sit.int221.integratedprojectbe.imp.MyUserDetails;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 @Component
 
@@ -25,68 +37,51 @@ public class JwtUtils {
     @Value("${jwt.refreshToken.expiration.in.seconds}")
     private Long refreshTokenExpiration;
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public Jwt generateToken(MyUserDetails userDetails, Long maxAgeSeconds) {
+        Instant expiresAt = Instant.now().plusSeconds(maxAgeSeconds);
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("http://intproj21.sit.kmutt.ac.th/ssi2")
+                .subject(userDetails.getEmail())
+                .expiresAt(expiresAt)
+                .issuedAt(Instant.now()).build();
+
+        return encodeTokenWithDefaultHeaders(claims);
     }
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public Jwt createAccessToken(MyUserDetails userDetails) {
+        return generateToken(userDetails, accessTokenExpiration);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    public Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
-    }
-
-    private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
-    }
-
-    private String createToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + (accessTokenExpiration * 1000)))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
-    }
-
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
-
-    private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
-    }
-
-    private Date calculateExpirationDate(Date createdDate) {
-        return new Date(createdDate.getTime() + refreshTokenExpiration * 1000 );
-    }
-
-    public String refreshToken(String token) {
-        final Date createdDate = new Date();
-        final Date expirationDate = calculateExpirationDate(createdDate);
-
-        final Claims claims = getAllClaimsFromToken(token);
-        claims.setIssuedAt(createdDate);
-        claims.setExpiration(expirationDate);
-
-        return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, SECRET_KEY).compact();
+    public Jwt createRefreshToken(MyUserDetails userDetails) {
+        return generateToken(userDetails, refreshTokenExpiration);
     }
 
     private Boolean ignoreTokenExpiration(String token) {
         // here you specify tokens, for that the expiration is ignored
         return false;
     }
+    public JwtEncoder Encoder () {
+        SecretKey secretKey = new SecretKeySpec(SECRET_KEY.getBytes(), "HmacSHA256");
+        JWKSource<SecurityContext> immutableSecret = new ImmutableSecret<>(secretKey);
+        return new NimbusJwtEncoder(immutableSecret);
+    }
 
-    public Boolean canTokenBeRefreshed(String token) {
-        return (!isTokenExpired(token) || ignoreTokenExpiration(token));
+    public JwtDecoder Decoder () {
+        SecretKey secretKey = new SecretKeySpec(SECRET_KEY.getBytes(), "HmacSHA256");
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey).build();
+        OAuth2TokenValidator<Jwt> withoutClockSkew = new JwtTimestampValidator(Duration.ofSeconds(0));
+        decoder.setJwtValidator(withoutClockSkew);
+        return decoder;
+    }
+
+    private Jwt encodeTokenWithDefaultHeaders(JwtClaimsSet claims) {
+        JwtEncoder encoder = Encoder();
+        return encoder.encode(JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims));
+    }
+
+    public Jwt decode(String token) throws JwtException {
+        JwtDecoder decoder = Decoder();
+        return decoder.decode(token);
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
@@ -43,18 +44,17 @@ public class EventController {
 
     @GetMapping("")
     public List<EventDetailsDTO> getAllEvents(
-            Authentication auth,
+            @AuthenticationPrincipal MyUserDetails myUserDetails,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) String eventDate)
     {
-        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
-
+        System.out.println(myUserDetails);
         if (myUserDetails.getAuthorities().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No Authorities");
         }
         if (myUserDetails.hasRole("LECTURER")) {
-            return eventService.getAllEventByOwnerCategory(myUserDetails.getUserId());
+            return eventService.getAllEventByOwnerCategory(myUserDetails.getId());
         }
         if (myUserDetails.hasRole("ADMIN")) {
             if (sort != null) {
@@ -85,7 +85,7 @@ public class EventController {
             return eventService.getOwnedEventByEmail(bookingId, myUserDetails.getUsername());
         }
         if (myUserDetails.hasRole("LECTURER")) {
-            return eventService.getEventOfOwnerCategoryById(bookingId, myUserDetails.getUserId());
+            return eventService.getEventOfOwnerCategoryById(bookingId, myUserDetails.getId());
         }
         return eventService.getEventById(bookingId);
     }

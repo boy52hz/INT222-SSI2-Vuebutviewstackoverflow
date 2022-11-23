@@ -1,5 +1,6 @@
 package sit.int221.integratedprojectbe.services.imp;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,9 +10,7 @@ import sit.int221.integratedprojectbe.entities.User;
 import sit.int221.integratedprojectbe.imp.MyUserDetails;
 import sit.int221.integratedprojectbe.repositories.UserRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@AllArgsConstructor
 @Service
 public class UserDetailsServiceImp implements UserDetailsService {
     @Autowired

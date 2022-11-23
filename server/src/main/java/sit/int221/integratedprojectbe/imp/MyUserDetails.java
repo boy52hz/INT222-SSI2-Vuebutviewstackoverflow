@@ -1,65 +1,27 @@
 package sit.int221.integratedprojectbe.imp;
 
-import org.springframework.security.core.GrantedAuthority;
+import lombok.Getter;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import sit.int221.integratedprojectbe.entities.User;
-
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-public class MyUserDetails implements UserDetails {
-    private User user;
+@Getter
+public class MyUserDetails extends org.springframework.security.core.userdetails.User {
+    private final int id;
+    private final String email;
+    private final String name;
+    private final String role;
 
     public MyUserDetails(User user) {
-        this.user = user;
+        super(user.getEmail(), user.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getLabel())));
+        this.id = user.getUserId();
+        this.email = user.getEmail();
+        this.name = user.getName();
+        this.role = user.getRole().getName();
     }
 
     public boolean hasRole(String role) {
         SimpleGrantedAuthority myRole = new SimpleGrantedAuthority("ROLE_" + role);
         return getAuthorities().contains(myRole);
-    }
-
-    public Integer getUserId() {
-        return user.getUserId();
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        String role = "ROLE_" + user.getRole().getName().toUpperCase();
-        authorities.add(new SimpleGrantedAuthority(role));
-        return authorities;
-    }
-
-    @Override
-    public String getPassword() {
-        return user.getPassword();
-    }
-
-    @Override
-    public String getUsername() {
-        return user.getEmail();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return false;
     }
 }
