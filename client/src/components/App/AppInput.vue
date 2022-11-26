@@ -1,7 +1,13 @@
 <script setup>
+import { computed } from 'vue'
+
 const props = defineProps({
   modelValue: {},
   modelModifiers: { default: () => ({}) },
+  errorMessage: {
+    type: String,
+    default: '',
+  },
   required: {
     type: Boolean,
     default: false,
@@ -20,7 +26,22 @@ const emitValue = (evt) => {
 </script>
 
 <template>
-  <input class="app-input" v-bind="$attrs" :value="modelValue" @input="emitValue" :required="required" />
+  <div class="space-y-2">
+    <input
+      :class="`app-input ${errorMessage && 'border-red-500'}`"
+      v-bind="$attrs"
+      :value="modelValue"
+      @input="emitValue"
+      :required="required"
+    />
+    <div
+      :class="`text-red-500 text-xs transition-all duration-200 text-justify ${
+        errorMessage ? 'opacity-100' : 'opacity-0'
+      }`"
+    >
+      {{ errorMessage }}
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>

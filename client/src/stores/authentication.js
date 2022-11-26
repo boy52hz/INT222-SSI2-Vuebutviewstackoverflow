@@ -1,17 +1,22 @@
-import { ref } from 'vue'
+import { readonly, ref } from 'vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import * as authenticationApi from '../apis/authentication'
 import msal, { openLoginPopup } from '../utils/msal'
-import { setAccessToken } from '../utils/axios'
+import { deleteAccessToken, setAccessToken } from '../utils/axios'
 import { Role } from '../enums/Role'
 
-export const useAuthenticationStore = defineStore('authentication', () => {
-  const user = ref({
+const initialState = readonly({
+  user: {
     name: '',
     email: '',
     role: Role.Guest,
-  })
-  const isAuthenticated = ref(false)
+  },
+  isAuthenticated: false,
+})
+
+export const useAuthenticationStore = defineStore('authentication', () => {
+  const user = ref(initialState.user)
+  const isAuthenticated = ref(initialState.isAuthenticated)
 
   const login = async ({ email, password }) => {
     const { data, error } = await authenticationApi.login({ email, password })
@@ -40,6 +45,21 @@ export const useAuthenticationStore = defineStore('authentication', () => {
     }
   }
 
+  const registerUser = async ({ name, email, password, roleName }) => {
+    const { data, error } = await authenticationApi.register({ name, email, password, roleName })
+    if (error) {
+      console.log(error)
+      return { error }
+    }
+    return { data }
+  }
+
+  const logout = () => {
+    isAuthenticated.value = initialState.isAuthenticated
+    user.value = { ...initialState.user }
+    deleteAccessToken()
+  }
+
   const retrieveUser = async () => {
     const { data, error } = await authenticationApi.retrieveUser()
     if (error) throw error
@@ -53,7 +73,7 @@ export const useAuthenticationStore = defineStore('authentication', () => {
     return data
   }
 
-  return { user, isAuthenticated, login, loginWithMs, retrieveUser }
+  return { user, isAuthenticated, login, loginWithMs, registerUser, retrieveUser, logout }
 })
 
 if (import.meta.hot) {

@@ -11,6 +11,21 @@ export const login = async ({ email, password }) => {
   }
 }
 
+export const register = async ({ name, email, password, roleName }) => {
+  try {
+    const res = await axios.post('/api/auth/register', {
+      name,
+      email,
+      password,
+      role: roleName,
+    })
+    return res
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
 export const retrieveUser = async () => {
   try {
     const res = await axios('/api/auth')
