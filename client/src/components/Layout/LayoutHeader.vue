@@ -26,7 +26,7 @@ const loginUser = async ({ email, password }) => {
     toast.error(error.message)
     return
   }
-  toast.success(data.message)
+  toast.success('You are now Logged in')
   await authStore.retrieveUser()
   closeAuthenticationPopup()
 }

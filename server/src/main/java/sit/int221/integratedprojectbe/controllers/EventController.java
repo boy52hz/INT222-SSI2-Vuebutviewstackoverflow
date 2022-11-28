@@ -5,7 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
@@ -43,13 +46,11 @@ public class EventController {
 
     @GetMapping("")
     public List<EventDetailsDTO> getAllEvents(
-            Authentication auth,
+            @AuthenticationPrincipal MyUserDetails myUserDetails,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) String eventDate)
     {
-        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
-
         if (myUserDetails.getAuthorities().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No Authorities");
         }
@@ -71,7 +72,6 @@ public class EventController {
                     return eventService.getAllEventsByCategoryId(categoryId);
                 }
             }
-
             return eventService.getEvents();
         }
 

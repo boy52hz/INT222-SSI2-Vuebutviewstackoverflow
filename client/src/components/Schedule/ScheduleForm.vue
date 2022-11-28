@@ -103,7 +103,7 @@ fetchCategories()
           v-else
           v-for="category in categories"
           :class="`opacity-60 scale-60 text-lg drop-shadow-sm hover:opacity-100 hover:cursor-pointer transition-all duration-300 ${
-            category.categoryId === eventModel.category?.categoryId && 'opacity-100 scale-110 drop-shadow-md'
+            category.categoryId === eventModel.category?.categoryId && '!opacity-100 scale-110 drop-shadow-md'
           }`"
           :category="category"
           @click="selectCategory(category)"

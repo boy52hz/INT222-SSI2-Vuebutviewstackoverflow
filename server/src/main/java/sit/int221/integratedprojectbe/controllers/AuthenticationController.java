@@ -1,43 +1,46 @@
 package sit.int221.integratedprojectbe.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sit.int221.integratedprojectbe.dtos.*;
+import sit.int221.integratedprojectbe.imp.MyUserDetails;
+import sit.int221.integratedprojectbe.security.TokenGenerator;
 import sit.int221.integratedprojectbe.services.AuthenticationService;
 import sit.int221.integratedprojectbe.services.UserService;
-import sit.int221.integratedprojectbe.services.imp.UserDetailsServiceImp;
-import sit.int221.integratedprojectbe.utils.JwtUtils;
 
-
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
-    private String token;
     @Autowired
     private AuthenticationService authenticationService;
-
-    @Autowired
-    private JwtUtils   jwtUtils;
-
-    @Autowired
-    private UserDetailsServiceImp userDetailsServiceImp;
-
     @Autowired
     private UserService userService;
+    @Autowired
+    @Qualifier("jwtRefreshTokenAuthProvider")
+    JwtAuthenticationProvider jwtRefreshTokenAuthProvider;
 
+    @Autowired
+    TokenGenerator tokenGenerator;
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public UserDetailsDTO loadUser(@AuthenticationPrincipal UserDetails userDetails) {
-        return authenticationService.loadUserDetailByEmail(userDetails.getUsername());
+    public UserDetailsDTO loadUser(@AuthenticationPrincipal MyUserDetails myUerDetails) {
+        try {
+            return authenticationService.loadUserDetailByEmail(myUerDetails.getUsername());
+        } catch (NullPointerException ex) {
+            System.out.println(myUerDetails);
+        }
+        return null;
     }
 
     @PostMapping("")
@@ -52,19 +55,10 @@ public class AuthenticationController {
         return userService.addNewUser(newUser, bindingResult);
     }
 
-    @GetMapping("/refreshToken")
-    public ResponseEntity<AccessTokenDTO>refreshAndGetAuthenticationToken(HttpServletRequest request) {
-        String authToken = request.getHeader("Authorization");
-        final String token = authToken.substring(7);
-        String username =jwtUtils.extractUsername(token);
-        UserDetails userDetails = userDetailsServiceImp.loadUserByUsername(username);
-
-        if (jwtUtils.canTokenBeRefreshed(token)) {
-            String accessToken = jwtUtils.generateToken(userDetails);
-            return ResponseEntity.ok(new AccessTokenDTO("refreshed", accessToken));
-        }
-        else {
-            return ResponseEntity.status(401).build();
-        }
+    @PostMapping("/refreshToken")
+    public JwtTokenDTO refreshAndGetAuthenticationToken(@RequestBody JwtTokenDTO jwtTokenDTO) {
+        Authentication authentication = jwtRefreshTokenAuthProvider.authenticate(
+                new BearerTokenAuthenticationToken(jwtTokenDTO.getRefreshToken()));
+        return tokenGenerator.createToken(authentication);
     }
 }

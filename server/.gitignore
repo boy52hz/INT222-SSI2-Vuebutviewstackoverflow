@@ -4,6 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+access-refresh-token-keys
+
 ### ENV ###
 *.env.*
 
