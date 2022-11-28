@@ -21,12 +21,9 @@ const handleUpload = (evt) => {
       <span class="flex items-center space-x-2">
         <font-awesome-icon v-if="!file" class="w-4 h-4 text-gray-600" icon="fa-solid fa-upload" />
         <font-awesome-icon v-else class="w-4 h-4 text-gray-600" icon="fa-solid fa-paperclip" />
-        <span v-if="!file" class="font-medium text-gray-600">
-          Drop files to Attach, or
-          <span class="text-blue-600 underline">Browse</span>
-        </span>
+        <span v-if="!file" class="font-medium text-gray-600">Upload file</span>
         <div v-else>
-          <span
+          <span class="text-gray-600"
             >{{ file?.name }}
             <cite class="text-gray-600 text-xs">({{ (file?.size / (1024 * 1024)).toFixed(2) }} MB)</cite></span
           >

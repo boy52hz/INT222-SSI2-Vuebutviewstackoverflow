@@ -6,7 +6,9 @@ import AppModal from '../components/App/AppModal.vue'
 import AppTable from '../components/App/AppTable.vue'
 import AppButton from '../components/App/AppButton.vue'
 import { useToast } from 'vue-toastification'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const toast = useToast()
 const users = ref([])
 
@@ -45,6 +47,10 @@ const deleteUser = async (user) => {
   toast.success(data?.message || `Deleted user "${user.name}"`)
 }
 
+const handleEditUser = (userId) => {
+  router.push(`/users/${userId}`)
+}
+
 const fetchUsers = async () => {
   isLoading.value = true
   const { data, error } = await usersApi.getUsers()
@@ -79,7 +85,10 @@ fetchUsers()
           <td class="user-table-col">{{ user.email }}</td>
           <td class="user-table-col">{{ user.role.label }}</td>
           <td class="user-table-col grid grid-cols-1 md:grid-cols-2 gap-3 text-base">
-            <div class="text-amber-500 hover:text-amber-700 transition-all duration-300">
+            <div
+              class="text-amber-500 hover:text-amber-700 transition-all duration-300"
+              @click.stop="handleEditUser(user.id)"
+            >
               <font-awesome-icon icon="fa-regular fa-pen-to-square" />
             </div>
             <div

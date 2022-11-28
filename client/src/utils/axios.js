@@ -13,14 +13,4 @@ instance.interceptors.response.use(
   }
 )
 
-export const setAccessToken = (accessToken) => {
-  localStorage.setItem('accessToken', accessToken)
-  instance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
-}
-
-export const deleteAccessToken = () => {
-  localStorage.removeItem('accessToken')
-  delete instance.defaults.headers.common['Authorization']
-}
-
 export default instance
