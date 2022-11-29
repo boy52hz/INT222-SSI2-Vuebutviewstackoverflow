@@ -36,8 +36,8 @@ const shouldDisableSaveButton = computed(() => {
   return !formUtils.isEditableDataChanged(props.userModel, editableUser.value)
 })
 
-const fetchRegisterableRoles = async () => {
-  const { data, error } = await rolesApi.getRegisterableRoles()
+const fetchRoles = async () => {
+  const { data, error } = await rolesApi.getRoles()
   if (error) {
     console.log(error)
     return
@@ -46,7 +46,7 @@ const fetchRegisterableRoles = async () => {
   roles.value = data.map((role) => ({ label: role.label, value: role.name }))
 }
 
-fetchRegisterableRoles()
+fetchRoles()
 </script>
 
 <template>

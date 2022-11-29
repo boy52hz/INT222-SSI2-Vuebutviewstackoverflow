@@ -8,3 +8,12 @@ export const getRegisterableRoles = async () => {
     return error
   }
 }
+
+export const getRoles = async () => {
+  try {
+    const res = await axios('/api/roles')
+    return res
+  } catch (error) {
+    return error
+  }
+}
