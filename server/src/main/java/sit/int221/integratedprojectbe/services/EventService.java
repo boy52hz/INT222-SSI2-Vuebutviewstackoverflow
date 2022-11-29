@@ -1,7 +1,6 @@
 package sit.int221.integratedprojectbe.services;
 
 
-import de.mkammerer.argon2.Argon2;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -38,13 +36,9 @@ public class EventService {
     @Autowired
     private EventCategoryService eventCategoryService;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private ModelMapper modelMapper;
     @Autowired
     private ListMapper listMapper;
-    @Autowired
-    private Argon2 argon2Factory;
 
     @Autowired
     private EmailService emailService;

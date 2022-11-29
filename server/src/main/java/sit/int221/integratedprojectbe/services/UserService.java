@@ -1,9 +1,9 @@
 package sit.int221.integratedprojectbe.services;
 
-import de.mkammerer.argon2.Argon2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -28,7 +28,8 @@ public class UserService {
     private ModelMapper modelMapper;
     @Autowired
     private ListMapper listMapper;
-    @Autowired Argon2 argon2Factory;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     public List<UserDetailsDTO> getUsers() {
@@ -86,7 +87,7 @@ public class UserService {
     }
 
     public UserDetailsDTO addNewUser(CreateUserDTO newUser, BindingResult bindingResult) {
-        String  argon2Password = argon2Factory.hash(3, 16, 1, newUser.getPassword());
+        String  argon2Password = passwordEncoder.encode(newUser.getPassword());
         newUser.setName(newUser.getName().strip());
         newUser.setPassword(argon2Password);
 
@@ -139,7 +140,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Email not found.");
         }
 
-        if(!argon2Factory.verify(user.getPassword(), login.getPassword()) )
+        if(!passwordEncoder.matches(login.getPassword(), user.getPassword()))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Password mismatch.");
 
         return modelMapper.map(user, UserDetailsDTO.class);

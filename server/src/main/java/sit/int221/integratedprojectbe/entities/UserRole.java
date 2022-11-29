@@ -3,6 +3,7 @@ package sit.int221.integratedprojectbe.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.LinkedHashSet;
@@ -18,6 +19,10 @@ public class UserRole {
 
     @Column
     private String label;
+
+    @Column
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    private Boolean registerable;
 
     @JsonIgnore
     @OneToMany(mappedBy = "role")

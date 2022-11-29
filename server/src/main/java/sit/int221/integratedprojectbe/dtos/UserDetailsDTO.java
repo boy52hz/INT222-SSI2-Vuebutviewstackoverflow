@@ -18,7 +18,7 @@ public class UserDetailsDTO {
     private Integer id;
     private String name;
     private String email;
-    private UserRole role;
+    private UserRoleDTO role;
     private Date createdOn;
     private Date updatedOn;
 }
