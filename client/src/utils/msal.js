@@ -15,7 +15,7 @@ const msal = new PublicClientApplication({
     },
   },
 })
-console.log(import.meta.env)
+
 export const apiConfig = {
   apiEndpoint: import.meta.env.BASE_URL + 'api',
   scopes: [`api://${import.meta.env.VITE_MSAL_CLIENT_ID}/access_as_user`],
