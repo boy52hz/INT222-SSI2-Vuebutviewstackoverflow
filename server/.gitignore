@@ -7,6 +7,8 @@ target/
 ### ENV ###
 *.env.*
 
+access-refresh-token-keys
+
 ### STS ###
 .apt_generated
 .classpath
