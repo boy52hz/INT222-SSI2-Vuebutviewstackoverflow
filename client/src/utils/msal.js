@@ -2,9 +2,8 @@ import { PublicClientApplication, LogLevel } from '@azure/msal-browser'
 
 const msal = new PublicClientApplication({
   auth: {
-    clientId: '874aa2d6-f4c6-4ca2-a733-091e92495ee6',
-    authority: 'https://login.microsoftonline.com/6f4432dc-20d2-441d-b1db-ac3380ba633d',
-    redirectUri: '',
+    clientId: import.meta.env.VITE_MSAL_CLIENT_ID,
+    authority: `https://login.microsoftonline.com/${import.meta.env.VITE_MSAL_TENANT_ID}`,
   },
   cache: {
     cacheLocation: 'localStorage', // This configures where your cache will be stored
@@ -18,8 +17,8 @@ const msal = new PublicClientApplication({
 })
 
 export const apiConfig = {
-  apiEndpoint: 'http://localhost:3000/api',
-  scopes: ['api://874aa2d6-f4c6-4ca2-a733-091e92495ee6/access_as_user'],
+  apiEndpoint: import.meta.env.BASE_URL + 'api',
+  scopes: [`api://${import.meta.env.VITE_MSAL_CLIENT_ID}/access_as_user`],
 }
 
 export const loginRequest = {
