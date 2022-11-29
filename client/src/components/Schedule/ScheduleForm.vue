@@ -55,18 +55,13 @@ const submitCreateEventForm = (evt) => {
   emit('save-event', eventModel.value)
 }
 
-// const resetForm = () => {
-//   eventModel.value = { ...props.eventModel, eventStartTime: now }
-//   eventModel.value.category = categories.value[0]
-// }
-
 fetchCategories()
 </script>
 
 <template>
   <form
     id="create-event-form"
-    class="container lg:max-w-xl mx-auto space-y-3 text-sm"
+    class="container lg:max-w-xl mx-auto space-y-2 text-sm"
     @submit.prevent="submitCreateEventForm"
   >
     <div>
@@ -115,7 +110,7 @@ fetchCategories()
       <label>Note</label>
       <AppTextField v-model="eventModel.eventNotes" :maxlength="500" :resize="false" :rows="4" />
     </div>
-    <AppFileInput @input="attachFile" />
+    <AppFileInput :file-model="eventModel.file" @input="attachFile" />
     <div class="mt-5">
       <AppButton type="submit" :is-loading="isLoading">Save</AppButton>
     </div>

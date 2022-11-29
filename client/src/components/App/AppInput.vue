@@ -1,6 +1,4 @@
 <script setup>
-import { computed } from 'vue'
-
 const props = defineProps({
   modelValue: {},
   modelModifiers: { default: () => ({}) },
@@ -26,7 +24,7 @@ const emitValue = (evt) => {
 </script>
 
 <template>
-  <div class="space-y-2">
+  <div class="space-y-1">
     <input
       :class="`app-input ${errorMessage && 'border-red-500'}`"
       v-bind="$attrs"

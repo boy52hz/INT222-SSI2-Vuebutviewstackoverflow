@@ -1,8 +1,22 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 const emit = defineEmits(['input'])
+const props = defineProps({
+  fileModel: {
+    type: Object,
+    default: {},
+  },
+})
 
 const file = ref(null)
+
+watch(
+  () => props.fileModel,
+  (fileModel) => {
+    console.log(fileModel)
+    file.value = fileModel
+  }
+)
 
 const handleUpload = (evt) => {
   const inputFile = evt.target.files[0]

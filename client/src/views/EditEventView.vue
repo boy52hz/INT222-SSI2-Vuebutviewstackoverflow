@@ -16,12 +16,16 @@ const isFetching = ref(true)
 
 const saveEvent = async ({ bookingId, bookingName, category, eventStartTime, eventNotes, file }) => {
   isLoading.value = true
+
+  // Check if incoming file is instance of File class. If not, create empty file object with exist file metadata
+  const fileToUpdate = file instanceof File ? file : new File([], file.name, { type: file.type })
+
   const { data, error } = await eventsApi.editEvent(bookingId, {
     bookingName,
     categoryId: category.categoryId,
     eventStartTime: moment(eventStartTime).toISOString(),
     eventNotes,
-    file,
+    file: fileToUpdate,
   })
   isLoading.value = false
   if (error) {
