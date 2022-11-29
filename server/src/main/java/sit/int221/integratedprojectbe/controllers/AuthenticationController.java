@@ -2,6 +2,7 @@ package sit.int221.integratedprojectbe.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,6 +10,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenAuthentica
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import sit.int221.integratedprojectbe.dtos.*;
 import sit.int221.integratedprojectbe.imp.MyUserDetails;
 import sit.int221.integratedprojectbe.security.TokenGenerator;
@@ -43,6 +45,16 @@ public class AuthenticationController {
         return null;
     }
 
+    @GetMapping("/verify")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity verifyAccessToken (@RequestParam("accessToken") String accessToken) {
+            Boolean validated = authenticationService.verifyAccessToken(accessToken);
+            if (!validated) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token expired");
+            }
+            return ResponseEntity.ok().build();
+    }
+
     @PostMapping("")
     @ResponseStatus(HttpStatus.OK)
     public JwtTokenDTO login(@Valid @RequestBody LoginDTO newUser , BindingResult bindingResult) {
@@ -56,6 +68,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refreshToken")
+    @ResponseStatus(HttpStatus.CREATED)
     public JwtTokenDTO refreshAndGetAuthenticationToken(@RequestBody JwtTokenDTO jwtTokenDTO) {
         Authentication authentication = jwtRefreshTokenAuthProvider.authenticate(
                 new BearerTokenAuthenticationToken(jwtTokenDTO.getRefreshToken()));

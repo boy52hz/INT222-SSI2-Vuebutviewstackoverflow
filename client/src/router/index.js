@@ -36,6 +36,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/categories/:categoryId',
+      name: 'Edit Category',
+      component: () => import('@/views/EditCategoryView.vue'),
+      meta: {
+        requireAuth: true,
+        allowRoles: [Role.Admin],
+      },
+    },
+    {
       path: '/users',
       name: 'Users',
       component: () => import('@/views/UsersView.vue'),
@@ -69,20 +78,42 @@ router.beforeEach(async (to, from, next) => {
   // Always looking for authentication
   const { accessToken, refreshToken } = authStore.getToken()
 
-  if (accessToken || refreshToken) {
+  // Handle case - verify access token on every route change
+  if (accessToken) {
+    const validate = await authStore.verifyAccessToken()
+    if (!validate) {
+      if (!refreshToken) {
+        authStore.logout()
+        return next('/')
+      }
+      const { data, error } = await authStore.refreshToken()
+      if (error) {
+        authStore.logout()
+        return next('/')
+      }
+    }
+  }
+
+  // Handle case - User with token tried to enter route but user state is empty
+  if ((accessToken || refreshToken) && !authStore.isAuthenticated) {
     try {
+      // when user state is empty, retrieve it
       await authStore.retrieveUser()
     } catch (err) {
+      console.log('Access token expire')
+      // any error founded revoke user token and re-route to root
       authStore.deleteToken()
       return next('/')
     }
   }
 
+  // Handle case - when user tried to enter protected route without authenticated.
   if (requireAuth && !authStore.isAuthenticated) {
     return next('/')
   }
 
   if (requireAuth && authStore.isAuthenticated) {
+    // Handle case - authenticated user tried to enter route without authorization allowance
     if (!allowRoles.includes(authStore.user?.role)) {
       next('/')
       return
@@ -90,6 +121,10 @@ router.beforeEach(async (to, from, next) => {
   }
 
   return next()
+})
+
+router.onError((error, to, form) => {
+  console.log('route error')
 })
 
 export default router

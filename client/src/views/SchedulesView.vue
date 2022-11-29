@@ -82,7 +82,9 @@ fetchEvents().finally(() => (isFetching.value = false))
       Authentication is required for view schedule list.
     </div>
     <ListBox
-      :class="`w-full box-animate ${selectedEvent && 'resize-left'} ${!authStore.isAuthenticated && 'blur-[2px]'}`"
+      :class="`w-full lg:origin-left lg:transition-all lg:duration-[800ms] lg:ease-out-cubic ${
+        selectedEvent && 'w-full lg:w-1/2'
+      } ${!authStore.isAuthenticated && 'blur-[2px]'}`"
     >
       <ListBoxHeader>
         <div class="font-bold text-sm lg:text-base">{{ events?.length || 0 }} Event(s)</div>
@@ -91,7 +93,7 @@ fetchEvents().finally(() => (isFetching.value = false))
         v-if="isFetching || !authStore.isAuthenticated"
         :class="!authStore.isAuthenticated && '!overflow-hidden'"
       >
-        <Card v-for="index in 10" class="opacity-30" :key="index" :skeleton="true" />
+        <Card v-for="index in 5" class="opacity-30" :key="index" :skeleton="true" />
       </ListBoxBody>
       <ListBoxBody v-else>
         <Card
@@ -140,14 +142,4 @@ fetchEvents().finally(() => (isFetching.value = false))
   </AppModal>
 </template>
 
-<style scoped>
-.box-animate {
-  transition-delay: 1000ms;
-  transform-origin: left;
-  transition: all 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
-}
-
-.resize-left {
-  width: 50%;
-}
-</style>
+<style scoped></style>

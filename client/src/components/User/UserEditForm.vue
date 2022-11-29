@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watchEffect, computed } from 'vue'
+import { formUtils } from '../../utils/form'
 import AppInput from '../App/AppInput.vue'
 import AppSelectOptions from '../App/AppSelectOptions.vue'
 import * as rolesApi from '../../apis/roles'
@@ -32,14 +33,7 @@ watchEffect(() => {
 
 const shouldDisableSaveButton = computed(() => {
   if (props.isLoading) return true
-
-  let disabled = true
-  for (let [key, value] of Object.entries(editableUser.value)) {
-    if (value !== props.userModel[key]) {
-      disabled = false
-    }
-  }
-  return disabled
+  return !formUtils.isEditableDataChanged(props.userModel, editableUser.value)
 })
 
 const fetchRegisterableRoles = async () => {

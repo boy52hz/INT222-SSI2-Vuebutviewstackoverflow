@@ -9,6 +9,9 @@ module.exports = {
         'secondary-blue': '#006494',
         light: '#f5f5f5',
       },
+      transitionTimingFunction: {
+        'out-cubic': 'cubic-bezier(0.215, 0.61, 0.355, 1)',
+      },
     },
   },
   plugins: [],

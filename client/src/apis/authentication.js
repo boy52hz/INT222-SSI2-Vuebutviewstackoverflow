@@ -27,7 +27,9 @@ export const register = async ({ name, email, password, roleName }) => {
 
 export const refreshToken = async (refreshToken) => {
   try {
-    const res = await axios.post('/api/auth/refreshToken')
+    const res = await axios.post('/api/auth/refreshToken', {
+      refreshToken,
+    })
     return res
   } catch (error) {
     return error
@@ -40,5 +42,17 @@ export const retrieveUser = async () => {
     return res
   } catch (error) {
     return error
+  }
+}
+
+export const verifyAccessToken = async (accessToken) => {
+  if (!accessToken || accessToken === 'null') return false
+  try {
+    await axios('/api/auth/verify', {
+      params: { accessToken },
+    })
+    return true
+  } catch (error) {
+    return false
   }
 }

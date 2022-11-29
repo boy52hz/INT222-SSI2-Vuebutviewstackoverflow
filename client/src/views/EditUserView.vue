@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import * as usersApi from '../apis/users'
@@ -23,11 +23,12 @@ const handleSaveUser = async ({ id, name, email, roleName }) => {
   isLoading.value = true
   const { data, error } = await usersApi.editUser(id, { name, email, roleName })
   if (error) {
+    isLoading.value = false
     toast.error(error.error)
     return
   }
   toast.success('Saved')
-  router.back()
+  router.replace('/users')
 }
 
 const fetchUserById = async (userId) => {
@@ -46,7 +47,13 @@ const fetchUserById = async (userId) => {
   }
 }
 
-fetchUserById(route.params?.userId)
+watch(
+  () => route.params,
+  () => {
+    fetchUserById(route.params.userId)
+  },
+  { immediate: true }
+)
 </script>
 
 <template>

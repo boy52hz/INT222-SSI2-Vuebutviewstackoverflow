@@ -2,8 +2,8 @@ import { readonly, ref } from 'vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import * as authenticationApi from '../apis/authentication'
 import { openLoginPopup } from '../utils/msal'
-import axios from '../utils/axios'
 import { Role } from '../enums/Role'
+import axios from '../utils/axios'
 
 const initialState = readonly({
   user: {
@@ -73,6 +73,24 @@ export const useAuthenticationStore = defineStore('authentication', () => {
     return data
   }
 
+  const verifyAccessToken = async () => {
+    const { accessToken } = getToken()
+    const validated = await authenticationApi.verifyAccessToken(accessToken)
+    return validated
+  }
+
+  const refreshToken = async () => {
+    const { refreshToken } = getToken()
+
+    delete axios.defaults.headers.common['Authorization']
+
+    const res = await authenticationApi.refreshToken(refreshToken)
+    if (res.data) {
+      setToken(res.data.accessToken, res.data.refreshToken)
+    }
+    return res
+  }
+
   const getToken = () => {
     return { accessToken: localStorage.getItem('accessToken'), refreshToken: localStorage.getItem('refreshToken') }
   }
@@ -98,6 +116,8 @@ export const useAuthenticationStore = defineStore('authentication', () => {
     loginWithMs,
     registerUser,
     retrieveUser,
+    verifyAccessToken,
+    refreshToken,
     logout,
     getToken,
     setToken,

@@ -1,6 +1,6 @@
 <script setup>
 import moment from 'moment'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import * as eventsApi from '../apis/events'
@@ -43,7 +43,13 @@ const fetchEventById = async (bookingId) => {
   event.value = data
 }
 
-fetchEventById(parseInt(route.params?.bookingId))
+watch(
+  () => route.params,
+  () => {
+    fetchEventById(parseInt(route.params?.bookingId))
+  },
+  { immediate: true }
+)
 </script>
 
 <template>

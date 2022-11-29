@@ -50,7 +50,6 @@ public class TokenGenerator {
     private  String createRefreshToken(Authentication authentication) {
         MyUserDetails myUserDetails = (MyUserDetails) authentication.getPrincipal();
         Instant now = Instant.now();
-
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                 .issuer(ISSUER)
                 .issuedAt(now)
