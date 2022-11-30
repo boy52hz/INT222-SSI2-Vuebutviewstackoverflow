@@ -4,12 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-access-refresh-token-keys
-
 ### ENV ###
 *.env.*
 
-access-refresh-token-keys
+**.der
 
 ### STS ###
 .apt_generated
