@@ -104,9 +104,8 @@ export const useAuthenticationStore = defineStore('authentication', () => {
   }
 
   const deleteToken = () => {
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
     delete axios.defaults.headers.common['Authorization']
+    localStorage.clear()
   }
 
   return {
