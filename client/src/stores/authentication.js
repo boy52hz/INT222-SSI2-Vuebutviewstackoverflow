@@ -35,7 +35,7 @@ export const useAuthenticationStore = defineStore('authentication', () => {
       user.value = {
         name: idTokenClaims.name,
         email: idTokenClaims.preferred_username,
-        role: idTokenClaims?.roles[0] || 'Guest',
+        role: idTokenClaims?.roles ? idTokenClaims?.roles[0] : 'Guest',
       }
       isAuthenticated.value = true
       setToken(accessToken)
