@@ -1,11 +1,12 @@
 import { readonly, ref } from 'vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import * as authenticationApi from '../apis/authentication'
-import { openLoginPopup } from '../utils/msal'
+import * as msalUtil from '../utils/msal'
 import { Role } from '../enums/Role'
 import axios from '../utils/axios'
 
 const initialState = readonly({
+  authenticationType: '',
   user: {
     name: '',
     email: '',
@@ -15,6 +16,7 @@ const initialState = readonly({
 })
 
 export const useAuthenticationStore = defineStore('authentication', () => {
+  const authenticationType = ref(initialState.authenticationType)
   const user = ref(initialState.user)
   const isAuthenticated = ref(initialState.isAuthenticated)
 
@@ -24,21 +26,18 @@ export const useAuthenticationStore = defineStore('authentication', () => {
       return { error }
     }
     setToken(data.accessToken, data.refreshToken)
-    isAuthenticated.value = true
     return { data }
   }
 
   const loginWithMs = async () => {
     try {
-      const { idTokenClaims, accessToken } = await openLoginPopup()
-      console.log(idTokenClaims)
-      user.value = {
+      const { idTokenClaims, accessToken } = await msalUtil.openLoginPopup()
+      authenticate('msal', {
         name: idTokenClaims.name,
         email: idTokenClaims.preferred_username,
-        role: idTokenClaims?.roles ? idTokenClaims?.roles[0] : 'Guest',
-      }
-      isAuthenticated.value = true
-      setToken(accessToken)
+        role: idTokenClaims?.roles ? idTokenClaims?.roles[0] : Role.Guest,
+        bearerToken: accessToken,
+      })
       return true
     } catch (error) {
       return { error }
@@ -55,22 +54,42 @@ export const useAuthenticationStore = defineStore('authentication', () => {
   }
 
   const logout = () => {
+    authenticationType.value = initialState.authenticationType
     isAuthenticated.value = initialState.isAuthenticated
     user.value = { ...initialState.user }
     deleteToken()
+  }
+
+  const logoutMs = () => {
+    msalUtil.logout().then(() => {
+      authenticationType.value = initialState.authenticationType
+      isAuthenticated.value = initialState.isAuthenticated
+      user.value = { ...initialState.user }
+    })
   }
 
   const retrieveUser = async () => {
     const { data, error } = await authenticationApi.retrieveUser()
     if (error) throw error
     const { name, email, role } = data
+    authenticate('local', {
+      name,
+      email,
+      role: role?.label,
+    })
+    return data
+  }
+
+  const authenticate = (_authenticationType, { name, email, role, bearerToken }) => {
+    authenticationType.value = _authenticationType
+    localStorage.setItem('authenticationType', _authenticationType)
     user.value = {
       name,
       email,
-      role: role.label,
+      role,
     }
     isAuthenticated.value = true
-    return data
+    axios.defaults.headers.common['Authorization'] = `Bearer ${bearerToken}`
   }
 
   const verifyAccessToken = async () => {
@@ -100,15 +119,17 @@ export const useAuthenticationStore = defineStore('authentication', () => {
     if (refreshToken) {
       localStorage.setItem('refreshToken', refreshToken)
     }
-    axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
   }
 
   const deleteToken = () => {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
     delete axios.defaults.headers.common['Authorization']
-    localStorage.clear()
   }
 
   return {
+    authenticationType,
+    authenticate,
     user,
     isAuthenticated,
     login,
@@ -118,6 +139,7 @@ export const useAuthenticationStore = defineStore('authentication', () => {
     verifyAccessToken,
     refreshToken,
     logout,
+    logoutMs,
     getToken,
     setToken,
     deleteToken,

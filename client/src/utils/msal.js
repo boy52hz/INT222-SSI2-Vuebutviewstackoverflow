@@ -39,4 +39,8 @@ export const openLoginPopup = async () => {
   }
 }
 
+export const logout = () => {
+  return msal.logoutRedirect({ onRedirectNavigate: () => false })
+}
+
 export default msal

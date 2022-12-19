@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { useAuthenticationStore } from '@/stores/authentication'
+import { useAuthenticationStore } from '../../stores/authentication'
 import AppModal from '../App/AppModal.vue'
 import AuthenticationForm from '../Authentication/AuthenticationForm.vue'
 import { useToast } from 'vue-toastification'
@@ -53,7 +53,12 @@ const registerUser = async ({ name, email, password, roleName }) => {
 }
 
 const logout = async () => {
-  authStore.logout()
+  localStorage.removeItem('authenticationType')
+  if (authStore.authenticationType === 'local') {
+    authStore.logout()
+  } else if (authStore.authenticationType === 'msal') {
+    authStore.logoutMs()
+  }
   toast.success('You are now logged out.')
   router.replace('/')
 }
