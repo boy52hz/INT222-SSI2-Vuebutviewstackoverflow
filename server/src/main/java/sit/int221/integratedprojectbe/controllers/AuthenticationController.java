@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import sit.int221.integratedprojectbe.dtos.*;
 import sit.int221.integratedprojectbe.imp.MyUserDetails;
+import sit.int221.integratedprojectbe.security.AuthenticationUtil;
 import sit.int221.integratedprojectbe.security.TokenGenerator;
 import sit.int221.integratedprojectbe.services.AuthenticationService;
 import sit.int221.integratedprojectbe.services.UserService;
@@ -23,6 +24,8 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
+    @Autowired
+    AuthenticationUtil authenticationUtil;
     @Autowired
     private AuthenticationService authenticationService;
     @Autowired
@@ -36,11 +39,13 @@ public class AuthenticationController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public UserDetailsDTO loadUser(@AuthenticationPrincipal MyUserDetails myUerDetails) {
+    public UserDetailsDTO loadUser(Authentication authentication) {
+        MyUserDetails myUserDetails = authenticationUtil.getUserDetail(authentication);
+
         try {
-            return authenticationService.loadUserDetailByEmail(myUerDetails.getUsername());
+            return authenticationService.loadUserDetailByEmail(myUserDetails.getUsername());
         } catch (NullPointerException ex) {
-            System.out.println(myUerDetails);
+            System.out.println(myUserDetails);
         }
         return null;
     }

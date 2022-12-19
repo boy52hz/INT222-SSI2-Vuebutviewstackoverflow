@@ -47,7 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure (HttpSecurity http) throws Exception {
-        jwtAuthenticationManagerResolver.addAuthenticationManager("OASIP-SSI2", jwtAccessTokenProvider());
+        jwtAuthenticationManagerResolver.addAuthenticationManager("https://intproj21.sit.kmutt.ac.th/ssi2/", jwtAccessTokenProvider());
         jwtAuthenticationManagerResolver.register(aadResourceServerUtils);
 
         http
@@ -56,9 +56,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/categories").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/roles/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/guests/**").anonymous()
-                .antMatchers(HttpMethod.GET, "/api/events", "/api/events/*").authenticated()
-                .antMatchers("/api/events/**").hasAnyRole("STUDENT", "ADMIN")
-                .antMatchers( "/api/users", "/api/users/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/api/events", "/api/events/*")
+                    .hasAnyAuthority("APPROLE_Admin", "APPROLE_Student", "APPROLE_Lecturer")
+                .antMatchers("/api/events/**")
+                    .hasAnyAuthority("APPROLE_Student", "APPROLE_Admin")
+                .antMatchers( "/api/users", "/api/users/**").hasAnyAuthority("APPROLE_Admin")
                 .anyRequest().authenticated().and()
                 .csrf().disable()
                 .httpBasic().disable()

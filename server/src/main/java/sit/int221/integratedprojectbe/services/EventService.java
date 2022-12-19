@@ -22,6 +22,7 @@ import sit.int221.integratedprojectbe.exceptions.DateTimeOverlapException;
 import sit.int221.integratedprojectbe.imp.MyUserDetails;
 import sit.int221.integratedprojectbe.repositories.EventRepository;
 import sit.int221.integratedprojectbe.repositories.UserRepository;
+import sit.int221.integratedprojectbe.security.AuthenticationUtil;
 import sit.int221.integratedprojectbe.utils.ListMapper;
 
 import java.io.IOException;
@@ -44,6 +45,8 @@ public class EventService {
     private EmailService emailService;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private AuthenticationUtil authenticationUtil;
 
     public List<EventDetailsDTO> getEvents() {
 
@@ -144,9 +147,9 @@ public class EventService {
     }
 
     public EventDetailsDTO editEvent(Authentication auth, Integer bookingId, EditEventDTO updateEvent, MultipartFile file, BindingResult bindingResult) throws IOException {
-        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
+        MyUserDetails myUserDetails = authenticationUtil.getUserDetail(auth);
         Event event = null;
-        if (myUserDetails.hasRole("STUDENT")) {
+        if (myUserDetails.hasAnyRole("Student")) {
             event = eventRepository.findByBookingIdAndBookingEmail(bookingId, myUserDetails.getUsername())
                     .map(existingEvent -> mapEvent(existingEvent, updateEvent))
                     .orElseThrow(() -> new ResponseStatusException(

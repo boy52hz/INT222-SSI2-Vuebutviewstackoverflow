@@ -22,6 +22,7 @@ export const useAuthenticationStore = defineStore('authentication', () => {
 
   const login = async ({ email, password }) => {
     const { data, error } = await authenticationApi.login({ email, password })
+
     if (error) {
       return { error }
     }
@@ -69,6 +70,8 @@ export const useAuthenticationStore = defineStore('authentication', () => {
   }
 
   const retrieveUser = async () => {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${getToken().accessToken}`
+    console.log(axios.defaults.headers.common['Authorization'])
     const { data, error } = await authenticationApi.retrieveUser()
     if (error) throw error
     const { name, email, role } = data
@@ -76,6 +79,7 @@ export const useAuthenticationStore = defineStore('authentication', () => {
       name,
       email,
       role: role?.label,
+      bearerToken: getToken().accessToken,
     })
     return data
   }

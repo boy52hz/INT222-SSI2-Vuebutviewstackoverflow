@@ -20,7 +20,7 @@ import java.time.temporal.ChronoUnit;
 
 @Component
 public class TokenGenerator {
-    private final String ISSUER = "OASIP-SSI2";
+    private final String ISSUER = "https://intproj21.sit.kmutt.ac.th/ssi2/";
     @Value("${jwt.accessToken.expiration.in.minutes}")
     private Long accessTokenExpirationInMinutes;
 
@@ -34,8 +34,11 @@ public class TokenGenerator {
     @Qualifier("jwtRefreshTokenEncoder")
     JwtEncoder refreshTokenEncoder;
 
+    @Autowired
+    AuthenticationUtil authenticationUtil;
+
     private String createAccessToken(Authentication authentication) {
-        MyUserDetails myUserDetails = (MyUserDetails) authentication.getPrincipal();
+        MyUserDetails myUserDetails = authenticationUtil.getUserDetail(authentication);
         Instant now = Instant.now();
 
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
@@ -48,7 +51,7 @@ public class TokenGenerator {
     }
 
     private  String createRefreshToken(Authentication authentication) {
-        MyUserDetails myUserDetails = (MyUserDetails) authentication.getPrincipal();
+        MyUserDetails myUserDetails = authenticationUtil.getUserDetail(authentication);
         Instant now = Instant.now();
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                 .issuer(ISSUER)

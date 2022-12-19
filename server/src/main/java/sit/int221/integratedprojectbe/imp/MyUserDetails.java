@@ -1,8 +1,5 @@
 package sit.int221.integratedprojectbe.imp;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,9 +16,15 @@ public class MyUserDetails implements UserDetails {
         this.user = user;
     }
 
-    public boolean hasRole(String role) {
-        SimpleGrantedAuthority myRole = new SimpleGrantedAuthority("ROLE_" + role);
-        return getAuthorities().contains(myRole);
+    public boolean hasAnyRole(String... authorities) {
+        return getAuthorities().stream().anyMatch(a -> {
+            for (String authority : authorities) {
+                if (a.getAuthority().equals("APPROLE_" + authority)) {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
     public Integer getUserId() {
@@ -31,7 +34,7 @@ public class MyUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        String role = "ROLE_" + user.getRole().getName().toUpperCase();
+        String role = "APPROLE_" + user.getRole().getLabel();
         authorities.add(new SimpleGrantedAuthority(role));
         return authorities;
     }
