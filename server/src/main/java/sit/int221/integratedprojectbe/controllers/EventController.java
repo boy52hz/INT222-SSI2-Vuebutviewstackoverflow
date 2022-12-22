@@ -141,7 +141,7 @@ public class EventController {
         try {
             return eventService.editEvent(auth, bookingId, editEvent, file, bindingResult);
         } catch (DateTimeOverlapException ex) {
-            FieldError error = new FieldError("editEventDTO", "eventStartTime", "overlap");
+            FieldError error = new FieldError("editEventDTO", "eventStartTime", ex.getMessage());
             bindingResult.addError(error);
             throw new ArgumentNotValidException(bindingResult);
         } catch (ArgumentNotValidException ex) {
