@@ -44,7 +44,7 @@ const createEvent = async ({ bookingName, bookingEmail, category, eventStartTime
   )
   isLoading.value = false
   if (error) {
-    console.log(error)
+    toast.error(Object.values(error?.fieldErrors).join(', ') || error?.message)
     return
   }
 

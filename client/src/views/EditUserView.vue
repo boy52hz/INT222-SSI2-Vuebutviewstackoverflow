@@ -24,7 +24,7 @@ const handleSaveUser = async ({ id, name, email, roleName }) => {
   const { data, error } = await usersApi.editUser(id, { name, email, roleName })
   if (error) {
     isLoading.value = false
-    toast.error(error.error)
+    toast.error(Object.values(error?.fieldErrors).join(', ') || error?.message)
     return
   }
   toast.success('Saved')

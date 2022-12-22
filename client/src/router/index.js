@@ -123,8 +123,4 @@ router.beforeEach(async (to, from, next) => {
   return next()
 })
 
-router.onError((error, to, form) => {
-  console.log('route error')
-})
-
 export default router

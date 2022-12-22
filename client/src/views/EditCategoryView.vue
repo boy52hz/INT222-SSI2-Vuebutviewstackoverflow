@@ -22,7 +22,7 @@ const handleSaveCategory = async ({ categoryId, categoryName, eventDuration, eve
   })
   if (error) {
     isLoading.value = false
-    console.log(error?.fieldErrors)
+    toast.error(Object.values(error?.fieldErrors).join(', ') || error?.message)
     return
   }
   toast.success('Saved')
@@ -48,7 +48,6 @@ const fetchCategoryById = async (categoryId) => {
 watch(
   () => route.params,
   () => {
-    console.log(route.params.categoryId)
     fetchCategoryById(route.params.categoryId)
   },
   { immediate: true }

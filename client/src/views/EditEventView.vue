@@ -18,9 +18,12 @@ const saveEvent = async ({ bookingId, bookingName, category, eventStartTime, eve
   isLoading.value = true
 
   // Check if incoming file is instance of File class. If not, create empty file object with exist file metadata
-  const fileToUpdate = file instanceof File ? file : new File([], file.name, { type: file.type })
+  let fileToUpdate = null
+  if (file !== null) {
+    fileToUpdate = file instanceof File ? file : new File([], file.name, { type: file.type })
+  }
 
-  const { data, error } = await eventsApi.editEvent(bookingId, {
+  const { error } = await eventsApi.editEvent(bookingId, {
     bookingName,
     categoryId: category.categoryId,
     eventStartTime: moment(eventStartTime).toISOString(),
@@ -29,7 +32,7 @@ const saveEvent = async ({ bookingId, bookingName, category, eventStartTime, eve
   })
   isLoading.value = false
   if (error) {
-    console.log(error)
+    toast.error(Object.values(error?.fieldErrors).join(', ') || error?.message)
     return
   }
   await router.push({ path: '/', query: { bookingId } })

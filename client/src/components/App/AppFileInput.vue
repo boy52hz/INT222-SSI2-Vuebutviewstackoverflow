@@ -9,11 +9,11 @@ const props = defineProps({
 })
 
 const file = ref(null)
+const fileInputRef = ref(null)
 
 watch(
   () => props.fileModel,
   (fileModel) => {
-    console.log(fileModel)
     file.value = fileModel
   }
 )
@@ -25,13 +25,19 @@ const handleUpload = (evt) => {
     emit('input', file)
   }
 }
+
+const removeFile = (evt) => {
+  file.value = null
+  fileInputRef.value.value = null
+  emit('input', file)
+}
 </script>
 
 <template>
-  <div class="max-w-xl">
-    <label
-      class="relative flex justify-center w-full h-20 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none"
-    >
+  <div
+    class="max-w-xl flex justify-center items-center transition bg-white border-2 border-gray-300 hover:border-gray-400 border-dashed rounded-md focus:outline-none"
+  >
+    <label class="relative flex justify-center w-full h-20 px-4 appearance-none cursor-pointer hover:border-gray-400">
       <span class="flex items-center space-x-2">
         <font-awesome-icon v-if="!file" class="w-4 h-4 text-gray-600" icon="fa-solid fa-upload" />
         <font-awesome-icon v-else class="w-4 h-4 text-gray-600" icon="fa-solid fa-paperclip" />
@@ -43,8 +49,11 @@ const handleUpload = (evt) => {
           >
         </div>
       </span>
-      <input v-bind="$attrs" type="file" name="file-upload" class="hidden" @change="handleUpload" />
+      <input ref="fileInputRef" v-bind="$attrs" type="file" name="file-upload" class="hidden" @change="handleUpload" />
     </label>
+    <div v-if="file" class="text-lg text-red-500 hover:cursor-pointer p-5" @click="removeFile">
+      <font-awesome-icon :width="30" icon="fa-solid fa-trash-alt" />
+    </div>
   </div>
 </template>
 

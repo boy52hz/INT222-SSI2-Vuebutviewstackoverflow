@@ -38,7 +38,6 @@ const loginWithMs = async () => {
     return
   }
   toast.success('You are now Logged in')
-  console.log(authStore.user)
   closeAuthenticationPopup()
 }
 
@@ -56,11 +55,11 @@ const logout = async () => {
   localStorage.removeItem('authenticationType')
   if (authStore.authenticationType === 'local') {
     authStore.logout()
+    toast.success('You are now logged out.')
+    router.replace('/')
   } else if (authStore.authenticationType === 'msal') {
     authStore.logoutMs()
   }
-  toast.success('You are now logged out.')
-  router.replace('/')
 }
 </script>
 

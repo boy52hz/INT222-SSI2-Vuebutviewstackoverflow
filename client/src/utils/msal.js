@@ -1,9 +1,11 @@
 import { PublicClientApplication, LogLevel } from '@azure/msal-browser'
 
-const msal = new PublicClientApplication({
+export const msalConfig = {
   auth: {
     clientId: import.meta.env.VITE_MSAL_CLIENT_ID,
     authority: `https://login.microsoftonline.com/${import.meta.env.VITE_MSAL_TENANT_ID}`,
+    redirectUri: '/',
+    postLogoutRedirectUri: '/',
   },
   cache: {
     cacheLocation: 'localStorage', // This configures where your cache will be stored
@@ -14,7 +16,7 @@ const msal = new PublicClientApplication({
       logLevel: LogLevel.Trace,
     },
   },
-})
+}
 
 export const apiConfig = {
   apiEndpoint: import.meta.env.BASE_URL + 'api',
@@ -29,18 +31,23 @@ export const tokenRequest = {
   scopes: [...apiConfig.scopes],
 }
 
+const msal = new PublicClientApplication(msalConfig)
+
 export const openLoginPopup = async () => {
   try {
     const res = await msal.loginPopup(tokenRequest)
-    console.log(res)
     return res
   } catch (err) {
-    console.log(err)
+    return err
   }
 }
 
 export const logout = () => {
-  return msal.logoutRedirect({ onRedirectNavigate: () => false })
+  return msal.logoutPopup({
+    account: msal.getActiveAccount(),
+    redirectUri: msalConfig.auth.redirectUri,
+    postLogoutRedirectUri: msalConfig.auth.postLogoutRedirectUri,
+  })
 }
 
 export default msal
