@@ -48,7 +48,7 @@ public class EventController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No Authorities");
         }
         if (myUserDetails.hasAnyRole("Lecturer")) {
-            return eventService.getAllEventByOwnerCategory(myUserDetails.getUserId());
+            return eventService.getAllEventByOwnerCategory(myUserDetails.getUsername());
         }
         if (myUserDetails.hasAnyRole("Admin")) {
             if (sort != null) {
@@ -78,7 +78,7 @@ public class EventController {
             return eventService.getOwnedEventByEmail(bookingId, myUserDetails.getUsername());
         }
         if (myUserDetails.hasAnyRole("Lecturer")) {
-            return eventService.getEventOfOwnerCategoryById(bookingId, myUserDetails.getUserId());
+            return eventService.getEventOfOwnerCategoryByEmail(bookingId, myUserDetails.getUsername());
         }
         return eventService.getEventById(bookingId);
     }

@@ -13,8 +13,8 @@ public class EventCategoryHasUserKey implements Serializable {
     @Column(name = "categoryId", nullable = false)
     private Integer categoryId;
 
-    @Column(name = "userId", nullable = false)
-    private Integer userId;
+    @Column(name = "email", nullable = false)
+    private String email;
 
     public Integer getCategoryId() {
         return categoryId;
@@ -24,12 +24,12 @@ public class EventCategoryHasUserKey implements Serializable {
         this.categoryId = categoryId;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
@@ -37,12 +37,12 @@ public class EventCategoryHasUserKey implements Serializable {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         EventCategoryHasUserKey entity = (EventCategoryHasUserKey) o;
-        return Objects.equals(this.userId, entity.userId) &&
+        return Objects.equals(this.email, entity.email) &&
                 Objects.equals(this.categoryId, entity.categoryId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, categoryId);
+        return Objects.hash(email, categoryId);
     }
 }
