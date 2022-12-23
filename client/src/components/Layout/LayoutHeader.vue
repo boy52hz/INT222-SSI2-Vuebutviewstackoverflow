@@ -52,13 +52,18 @@ const registerUser = async ({ name, email, password, roleName }) => {
 }
 
 const logout = async () => {
-  localStorage.removeItem('authenticationType')
-  if (authStore.authenticationType === 'local') {
-    authStore.logout()
-    toast.success('You are now logged out.')
+  try {
+    localStorage.removeItem('authenticationType')
+    if (authStore.authenticationType === 'local') {
+      authStore.logout()
+      toast.success('You are now logged out.')
+    } else if (authStore.authenticationType === 'msal') {
+      authStore.logoutMs()
+    }
+  } catch (err) {
+    toast.error(err)
+  } finally {
     router.replace('/')
-  } else if (authStore.authenticationType === 'msal') {
-    authStore.logoutMs()
   }
 }
 </script>
