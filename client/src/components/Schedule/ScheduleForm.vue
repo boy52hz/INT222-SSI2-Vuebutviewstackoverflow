@@ -33,18 +33,22 @@ const emit = defineEmits(['save-event'])
 
 const editableEvent = ref({})
 
-watchEffect(() => {
-  editableEvent.value = {
-    ...props.eventModel,
-    eventStartTime: props.isEditMode ? moment(props.eventModel?.eventStartTime).format('YYYY-MM-DDThh:mm') : now,
-  }
-})
-
 const fetchCategories = async () => {
   const { data, error } = await categoriesApi.getCategories()
   categories.value = data
   editableEvent.value.category = data[0]
 }
+
+watchEffect(() => {
+  editableEvent.value = {
+    ...props.eventModel,
+    eventStartTime: props.isEditMode ? moment(props.eventModel?.eventStartTime).format('YYYY-MM-DDThh:mm') : now,
+  }
+
+  if (!props.isEditMode) {
+    fetchCategories()
+  }
+})
 
 const selectCategory = (category) => {
   editableEvent.value.category = category
@@ -57,8 +61,6 @@ const attachFile = (file) => {
 const submitCreateEventForm = (evt) => {
   emit('save-event', editableEvent.value)
 }
-
-fetchCategories()
 </script>
 
 <template>
@@ -95,19 +97,22 @@ fetchCategories()
     </div>
     <div class="space-y-2">
       <label class="required">Select category</label>
-      <div class="flex flex-wrap gap-3" v-if="categories.length > 0">
+      <span v-if="isEditMode">
         <ScheduleCategoryBadge v-if="isEditMode" class="drop-shadow-md" :category="editableEvent.category" />
-        <ScheduleCategoryBadge
-          v-else
-          v-for="category in categories"
-          :class="`opacity-60 scale-60 text-lg drop-shadow-sm hover:opacity-100 hover:cursor-pointer transition-all duration-300 ${
-            category.categoryId === editableEvent.category?.categoryId && '!opacity-100 scale-110 drop-shadow-md'
-          }`"
-          :category="category"
-          @click="selectCategory(category)"
-        />
-      </div>
-      <div v-else class="text-gray-500 italic">Loading categories...</div>
+      </span>
+      <span v-else>
+        <div class="flex flex-wrap gap-3" v-if="categories.length > 0">
+          <ScheduleCategoryBadge
+            v-for="category in categories"
+            :class="`opacity-60 scale-60 text-lg drop-shadow-sm hover:opacity-100 hover:cursor-pointer transition-all duration-300 ${
+              category.categoryId === editableEvent.category?.categoryId && '!opacity-100 scale-110 drop-shadow-md'
+            }`"
+            :category="category"
+            @click="selectCategory(category)"
+          />
+        </div>
+        <div v-else class="text-gray-500 italic">Loading categories...</div>
+      </span>
     </div>
     <div>
       <label>Note</label>
