@@ -31,31 +31,36 @@ const props = defineProps({
 
 const emit = defineEmits(['save-event'])
 
-const eventModel = ref({})
-
-watchEffect(() => {
-  eventModel.value = { ...props.eventModel, eventStartTime: now }
-})
+const editableEvent = ref({})
 
 const fetchCategories = async () => {
   const { data, error } = await categoriesApi.getCategories()
   categories.value = data
-  eventModel.value.category = data[0]
+  editableEvent.value.category = data[0]
 }
 
+watchEffect(() => {
+  editableEvent.value = {
+    ...props.eventModel,
+    eventStartTime: props.isEditMode ? moment(props.eventModel?.eventStartTime).format('YYYY-MM-DDThh:mm') : now,
+  }
+
+  if (!props.isEditMode) {
+    fetchCategories()
+  }
+})
+
 const selectCategory = (category) => {
-  eventModel.value.category = category
+  editableEvent.value.category = category
 }
 
 const attachFile = (file) => {
-  eventModel.value.file = file
+  editableEvent.value.file = file
 }
 
 const submitCreateEventForm = (evt) => {
-  emit('save-event', eventModel.value)
+  emit('save-event', editableEvent.value)
 }
-
-fetchCategories()
 </script>
 
 <template>
@@ -67,7 +72,7 @@ fetchCategories()
     <div>
       <label class="required">Booking name</label>
       <AppInput
-        v-model="eventModel.bookingName"
+        v-model="editableEvent.bookingName"
         type="text"
         :minlength="1"
         :maxlength="100"
@@ -78,7 +83,7 @@ fetchCategories()
     <div>
       <label class="required">Booking email</label>
       <AppInput
-        v-model="eventModel.bookingEmail"
+        v-model="editableEvent.bookingEmail"
         type="email"
         :required="true"
         :minlength="1"
@@ -88,29 +93,32 @@ fetchCategories()
     </div>
     <div>
       <label class="required">Start time</label>
-      <AppInput v-model="eventModel.eventStartTime" type="datetime-local" :required="true" :min="now" />
+      <AppInput v-model="editableEvent.eventStartTime" type="datetime-local" :required="true" :min="now" />
     </div>
     <div class="space-y-2">
       <label class="required">Select category</label>
-      <div class="flex flex-wrap gap-3" v-if="categories.length > 0">
-        <ScheduleCategoryBadge v-if="isEditMode" class="drop-shadow-md" :category="eventModel?.category" />
-        <ScheduleCategoryBadge
-          v-else
-          v-for="category in categories"
-          :class="`opacity-60 scale-60 text-lg drop-shadow-sm hover:opacity-100 hover:cursor-pointer transition-all duration-300 ${
-            category.categoryId === eventModel.category?.categoryId && '!opacity-100 scale-110 drop-shadow-md'
-          }`"
-          :category="category"
-          @click="selectCategory(category)"
-        />
-      </div>
-      <div v-else class="text-gray-500 italic">Loading categories...</div>
+      <span v-if="isEditMode">
+        <ScheduleCategoryBadge v-if="isEditMode" class="drop-shadow-md" :category="editableEvent.category" />
+      </span>
+      <span v-else>
+        <div class="flex flex-wrap gap-3" v-if="categories.length > 0">
+          <ScheduleCategoryBadge
+            v-for="category in categories"
+            :class="`opacity-60 scale-60 text-lg drop-shadow-sm hover:opacity-100 hover:cursor-pointer transition-all duration-300 ${
+              category.categoryId === editableEvent.category?.categoryId && '!opacity-100 scale-110 drop-shadow-md'
+            }`"
+            :category="category"
+            @click="selectCategory(category)"
+          />
+        </div>
+        <div v-else class="text-gray-500 italic">Loading categories...</div>
+      </span>
     </div>
     <div>
       <label>Note</label>
-      <AppTextField v-model="eventModel.eventNotes" :maxlength="500" :resize="false" :rows="4" />
+      <AppTextField v-model="editableEvent.eventNotes" :maxlength="500" :resize="false" :rows="4" />
     </div>
-    <AppFileInput :file-model="eventModel.file" @input="attachFile" />
+    <AppFileInput :file-model="editableEvent.file" @input="attachFile" />
     <div class="mt-5">
       <AppButton type="submit" :is-loading="isLoading">Save</AppButton>
     </div>

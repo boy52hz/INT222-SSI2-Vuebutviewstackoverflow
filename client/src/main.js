@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import './font-awesomes'
 import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
+import { setupAuthentication } from './setupAuthentication'
 
 export const app = createApp(App)
 
@@ -19,6 +20,8 @@ app.use(Toast, {
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(createPinia())
 app.use(router)
+
+setupAuthentication()
 
 app.config.globalProperties.$getFormattedEventPeriod = (time, duration) => {
   const startTime = moment(time)
