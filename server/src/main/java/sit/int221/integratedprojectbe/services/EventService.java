@@ -71,8 +71,8 @@ public class EventService {
     public List<EventDetailsDTO> getAllEventByBookingEmail(String email) {
         return listMapper.mapList(eventRepository.findAllByBookingEmail(email), EventDetailsDTO.class, modelMapper);
     }
-    public List<EventDetailsDTO> getAllEventByOwnerCategory(Integer userId) {
-        return listMapper.mapList(eventRepository.findAllEventOfOwnerCategoryByUserId(userId), EventDetailsDTO.class, modelMapper);
+    public List<EventDetailsDTO> getAllEventByOwnerCategory(String email) {
+        return listMapper.mapList(eventRepository.findAllEventOfOwnerCategoryByEmail(email), EventDetailsDTO.class, modelMapper);
     }
 
     public EventDetailsDTO getOwnedEventByEmail (Integer bookingId, String userEmail) {
@@ -84,8 +84,8 @@ public class EventService {
         return modelMapper.map(event, EventDetailsDTO.class);
     }
 
-    public EventDetailsDTO getEventOfOwnerCategoryById(Integer bookingId, Integer userId) {
-        Event event = eventRepository.findEventOfOwnerCategoryByUserIdAndBookingId(userId, bookingId).orElseThrow(() ->
+    public EventDetailsDTO getEventOfOwnerCategoryByEmail(Integer bookingId, String email) {
+        Event event = eventRepository.findEventOfOwnerCategoryByEmailAndBookingId(email, bookingId).orElseThrow(() ->
             new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "This Booking not exist or Category mismatch"

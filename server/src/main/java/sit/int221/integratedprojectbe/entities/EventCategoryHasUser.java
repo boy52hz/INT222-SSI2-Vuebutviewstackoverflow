@@ -18,9 +18,9 @@ public class EventCategoryHasUser {
     @JoinColumn(name = "categoryId", nullable = false)
     private EventCategory category;
 
-    @MapsId("userId")
+    @MapsId("email")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "email", nullable = false)
     private User user;
 
     public EventCategoryHasUserKey getId() {

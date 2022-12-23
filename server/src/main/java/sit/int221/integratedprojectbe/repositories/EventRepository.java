@@ -47,16 +47,16 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
         List<Event> findAllByBookingEmail(String bookingEmail);
 
         @Query(
-                value = "select e.* from `event` e join `event_category_has_user` eco on e.categoryId = eco.categoryId join `user` u on eco.userId = u.userId where u.userId =:userId",
+                value = "select e.* from `event` e join `event_category_has_user` eco on e.categoryId = eco.categoryId join `user` u on eco.email = u.email where u.email =:email",
                 nativeQuery = true
         )
-        List<Event> findAllEventOfOwnerCategoryByUserId(@Param("userId") Integer userId);
+        List<Event> findAllEventOfOwnerCategoryByEmail(@Param("email") String email);
 
         @Query(
-                value = "select e.* from `event` e join `event_category_has_user` eco on e.categoryId = eco.categoryId join `user` u on eco.userId = u.userId where e.bookingId =:bookingId and u.userId =:userId",
+                value = "select e.* from `event` e join `event_category_has_user` eco on e.categoryId = eco.categoryId join `user` u on eco.email = u.email where e.bookingId =:bookingId and u.email =:email",
                 nativeQuery = true
         )
-        Optional<Event> findEventOfOwnerCategoryByUserIdAndBookingId(@Param("userId") Integer userId,@Param("bookingId") Integer bookingId);
+        Optional<Event> findEventOfOwnerCategoryByEmailAndBookingId(@Param("email") String email,@Param("bookingId") Integer bookingId);
 
         boolean existsByBookingIdAndBookingEmail(Integer bookingId, String bookingEmail);
 }
