@@ -32,7 +32,7 @@ const saveEvent = async ({ bookingId, bookingName, category, eventStartTime, eve
   })
   isLoading.value = false
   if (error) {
-    toast.error(Object.values(error?.fieldErrors).join(', ') || error?.message)
+    toast.error(Object.values(error?.fieldErrors).join('\n') || error?.message)
     return
   }
   await router.push({ path: '/', query: { bookingId } })

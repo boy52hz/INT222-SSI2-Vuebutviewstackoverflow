@@ -22,7 +22,7 @@ const handleSaveCategory = async ({ categoryId, categoryName, eventDuration, eve
   })
   if (error) {
     isLoading.value = false
-    toast.error(Object.values(error?.fieldErrors).join(', ') || error?.message)
+    toast.error(Object.values(error?.fieldErrors).join('\n') || error?.message)
     return
   }
   toast.success('Saved')

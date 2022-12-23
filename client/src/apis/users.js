@@ -18,6 +18,20 @@ export const getUserById = async (userId) => {
   }
 }
 
+export const createUser = async ({ name, email, password, roleName }) => {
+  try {
+    const res = await axios.post('/api/users', {
+      name,
+      email,
+      password,
+      role: roleName,
+    })
+    return res
+  } catch (error) {
+    return error
+  }
+}
+
 export const editUser = async (userId, { name, email, roleName }) => {
   try {
     const res = await axios.patch(`/api/users/${userId}`, {

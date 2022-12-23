@@ -26,7 +26,7 @@ const emitValue = (evt) => {
 <template>
   <div class="space-y-1">
     <input
-      :class="`app-input ${errorMessage && 'border-red-500'}`"
+      :class="`app-input ${errorMessage !== '' && '!border-red-500'}`"
       v-bind="$attrs"
       :value="modelValue"
       @input="emitValue"
@@ -34,7 +34,7 @@ const emitValue = (evt) => {
     />
     <div
       :class="`text-red-500 text-xs transition-all duration-200 text-justify ${
-        errorMessage ? 'opacity-100' : 'opacity-0'
+        errorMessage !== '' ? 'opacity-100' : 'opacity-0'
       }`"
     >
       {{ errorMessage }}

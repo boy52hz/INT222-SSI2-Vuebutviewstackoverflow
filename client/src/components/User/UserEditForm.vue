@@ -8,6 +8,10 @@ import AppButton from '../App/AppButton.vue'
 
 const roles = ref([])
 const editableUser = ref({})
+const errorMessage = ref({
+  name: '',
+  email: '',
+})
 
 defineEmits(['save'])
 
@@ -31,6 +35,14 @@ watchEffect(() => {
   }
 })
 
+const checkValidation = (evt) => {
+  if (!evt.target.checkValidity()) {
+    errorMessage.value[evt.target.name] = evt.target.validationMessage
+    return
+  }
+  errorMessage.value[evt.target.name] = ''
+}
+
 const shouldDisableSaveButton = computed(() => {
   if (props.isLoading) return true
   return !formUtils.isEditableDataChanged(props.userModel, editableUser.value)
@@ -53,11 +65,28 @@ fetchRoles()
   <form class="space-y-5" v-if="editableUser" @submit.prevent="$emit('save', editableUser)">
     <div>
       <label class="required">Name</label>
-      <AppInput v-model="editableUser.name" type="text" :required="true" />
+      <AppInput
+        v-model="editableUser.name"
+        name="name"
+        type="text"
+        @focusout="checkValidation"
+        :error-message="errorMessage.name"
+        :maxlength="100"
+        :required="true"
+      />
     </div>
     <div>
       <label class="required">Email</label>
-      <AppInput v-model="editableUser.email" type="email" :required="true" />
+      <AppInput
+        v-model="editableUser.email"
+        name="email"
+        type="email"
+        pattern="^[^(\.)][a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}"
+        @focusout="checkValidation"
+        :error-message="errorMessage.email"
+        :maxlength="50"
+        :required="true"
+      />
     </div>
     <div>
       <label class="required">Role</label>

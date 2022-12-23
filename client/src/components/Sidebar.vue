@@ -41,6 +41,16 @@ const toggleMenu = () => {
           <span>Users</span>
         </RouterLink>
       </li>
+      <li v-if="[Role.Admin].includes(authStore.user?.role)">
+        <ul class="nav-list nested">
+          <li>
+            <RouterLink to="/create-user">
+              <font-awesome-icon icon="fa-solid fa-plus" />
+              <span>Create New User</span>
+            </RouterLink>
+          </li>
+        </ul>
+      </li>
     </ul>
   </nav>
 </template>
